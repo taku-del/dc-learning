@@ -240,14 +240,47 @@
       </div>
     </a>
 
-    <div class="upcoming-label">準備中</div>
-    <div class="upcoming-card">
-      <div class="upcoming-icon">&#128274;</div>
-      <div class="upcoming-info">
-        <h3>セキュリティ設定チェック</h3>
-        <p>あなたの組織に最適なセキュリティ設定を診断形式で確認</p>
+    <a id="guide-link-security" href="https://community.directcloud.jp/s/learning/security-check" target="_top" class="guide-card">
+      <div class="guide-card-hero" style="background: linear-gradient(135deg, #1A5FE0, #0A1628);">
+        <div>
+          <h2>&#128274; セキュリティ設定チェック</h2>
+          <p>診断形式で組織のセキュリティ設定を確認</p>
+        </div>
+        <div class="guide-card-hero-right">
+          <div class="hero-stat"><div class="num">10</div><div class="label">問</div></div>
+          <div class="hero-stat"><div class="num">3</div><div class="label">分</div></div>
+        </div>
       </div>
-    </div>
+      <div class="guide-card-body">
+        <div class="guide-topics">
+          <div class="topic">
+            <div class="topic-icon">&#128272;</div>
+            <h4>認証設定</h4>
+            <p>パスワード・IP制限・二要素認証</p>
+          </div>
+          <div class="topic">
+            <div class="topic-icon">&#128737;</div>
+            <h4>アクセス制御</h4>
+            <p>デバイス認証・SSO・承認WF</p>
+          </div>
+          <div class="topic">
+            <div class="topic-icon">&#128202;</div>
+            <h4>運用・監視</h4>
+            <p>ランサムウェア対策・ログ管理</p>
+          </div>
+        </div>
+      </div>
+      <div class="guide-card-footer">
+        <div class="guide-tags">
+          <span class="tag tag-blue">約3分</span>
+          <span class="tag tag-green">診断10問</span>
+          <span class="tag tag-gray">管理者向け</span>
+        </div>
+        <div class="guide-cta">始める &#8594;</div>
+      </div>
+    </a>
+
+    <div class="upcoming-label">準備中</div>
     <div class="upcoming-card">
       <div class="upcoming-icon">&#129309;</div>
       <div class="upcoming-info">
@@ -310,6 +343,9 @@ if (window === window.top) {
   var link = document.getElementById('guide-link');
   link.href = 'file-sharing.html';
   link.target = '_self';
+  var link2 = document.getElementById('guide-link-security');
+  link2.href = 'security-check.html';
+  link2.target = '_self';
 }
 </script>
 </body>
