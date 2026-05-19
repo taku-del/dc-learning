@@ -693,7 +693,7 @@
             <div class="choice-card" onclick="selectAnswer('q3', 0, this)">
               <div class="choice-letter">A</div>
               <h5>はい、利用中</h5>
-              <p>Azure AD / Okta / Google Workspace 等と連携している</p>
+              <p>Entra ID / Okta / Google Workspace 等と連携している</p>
             </div>
             <div class="choice-card" onclick="selectAnswer('q3', 1, this)">
               <div class="choice-letter">B</div>
@@ -1021,7 +1021,7 @@
         <h3>次のステップ</h3>
         <p>上記の「必須」項目から順に設定を進めてください。各項目の「詳細」リンクからヘルプページへ移動できます。</p>
         <div class="info-box">
-          <strong>ヒント:</strong> 各項目の「詳細」リンクからDirectCloudのWEBマニュアルを確認できます。ご不明な点は <a href="https://community.directcloud.jp/s/FAQ" target="_top" style="color:var(--dc-blue); font-weight:600;">Q&amp;A</a> もご活用ください。
+          <strong>ヒント:</strong> 各項目の「詳細」リンクからDirectCloudのWEBマニュアルを確認できます。ご不明な点は <a href="https://community.directcloud.jp/s/FAQ" target="_top" style="color:var(--dc-blue); font-weight:600;">質問して</a> みてください。
         </div>
       </div>
 
@@ -1161,7 +1161,7 @@
     recommendations.push({
       name: 'パスワードポリシー',
       priority: f.password ? '設定済み' : '必須',
-      desc: '最小文字数・複雑さ・有効期限などを設定し、不正アクセスを防止します。',
+      desc: '最小文字数・文字種・有効期限など複数の設定項目があります。「詳細」から文字種制限のページに移動できます。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11018',
     });
 
@@ -1240,7 +1240,7 @@
     recommendations.push({
       name: 'SSO連携',
       priority: f.sso ? '設定済み' : '推奨',
-      desc: 'Azure AD / Okta / Google Workspace 等と連携し、IDを一元管理します。SSO利用時はIdP側でアクセス制御を行うのが一般的です。',
+      desc: 'Entra ID / Okta / Google Workspace 等と連携し、IDを一元管理します。SSO利用時はIdP側でアクセス制御を行うのが一般的です。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function12001',
     });
 
