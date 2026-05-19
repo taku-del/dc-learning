@@ -50,6 +50,12 @@
   .topbar-logo {
     font-size: 14px; font-weight: 700; color: var(--dc-blue);
   }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue); }
   .topbar-sep { color: #D0D7DE; }
   .topbar-title { font-size: 14px; color: #666; }
   .topbar-right { display: flex; align-items: center; gap: 20px; }
@@ -514,7 +520,7 @@
 <!-- ===== Top Bar ===== -->
 <div class="topbar">
   <div class="topbar-left">
-    <div class="topbar-logo">DirectCloud</div>
+    <a id="back-link" href="https://community.directcloud.jp/s/learning" target="_top" class="topbar-back">&#8592; 活用ガイド一覧</a>
     <div class="topbar-sep">|</div>
     <div class="topbar-title">ファイル共有方法の選び方</div>
   </div>
@@ -1216,6 +1222,13 @@
   function toggleAccordion(header) {
     const item = header.parentElement;
     item.classList.toggle('open');
+  }
+
+  // iframe外ならローカルリンクにフォールバック
+  if (window === window.top) {
+    var backLink = document.getElementById('back-link');
+    backLink.href = 'index.html';
+    backLink.target = '_self';
   }
 </script>
 </body>
