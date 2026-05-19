@@ -536,10 +536,10 @@
       <div class="sidebar-icon">&#9675;</div><span>Q7 デバイス</span>
     </div>
     <div class="sidebar-item" data-sec="q8" onclick="goTo('q8')">
-      <div class="sidebar-icon">&#9675;</div><span>Q8 承認WF</span>
+      <div class="sidebar-icon">&#9675;</div><span>Q8 ログイン設定</span>
     </div>
     <div class="sidebar-item" data-sec="q9" onclick="goTo('q9')">
-      <div class="sidebar-icon">&#9675;</div><span>Q9 ランサムウェア</span>
+      <div class="sidebar-icon">&#9675;</div><span>Q9 承認WF</span>
     </div>
     <div class="sidebar-item" data-sec="q10" onclick="goTo('q10')">
       <div class="sidebar-icon">&#9675;</div><span>Q10 ログ監視</span>
@@ -819,7 +819,7 @@
       </div>
     </div>
 
-    <!-- ========== Q8: 承認ワークフロー ========== -->
+    <!-- ========== Q8: ログイン設定 ========== -->
     <div class="section" id="sec-q8">
       <div class="content-header">
         <h1>セキュリティ診断</h1>
@@ -829,27 +829,27 @@
       <div class="quiz-card">
         <div class="quiz-header">
           <h2>質問 8 / 10</h2>
-          <div class="quiz-counter">承認WF</div>
+          <div class="quiz-counter">ログイン設定</div>
         </div>
         <div class="quiz-body">
-          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">承認ワークフローを設定していますか？</p>
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">同時ログイン禁止や自動ログアウトを設定していますか？</p>
           <div class="choices-grid two-col" id="q8choices">
             <div class="choice-card" onclick="selectAnswer('q8', 0, this)">
               <div class="choice-letter">A</div>
-              <h5>はい、上長承認を必須にしている</h5>
-              <p>ファイル送信に上長承認を必須にしている</p>
+              <h5>はい、設定している</h5>
+              <p>同時ログイン禁止や自動ログアウト時間を設定している</p>
             </div>
             <div class="choice-card" onclick="selectAnswer('q8', 1, this)">
               <div class="choice-letter">B</div>
-              <h5>いいえ / 対象外のプラン</h5>
-              <p>承認ワークフローは設定していない</p>
+              <h5>初期設定のまま / わからない</h5>
+              <p>特に変更していない、または把握していない</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ========== Q9: ランサムウェア ========== -->
+    <!-- ========== Q9: 承認ワークフロー ========== -->
     <div class="section" id="sec-q9">
       <div class="content-header">
         <h1>セキュリティ診断</h1>
@@ -859,20 +859,26 @@
       <div class="quiz-card">
         <div class="quiz-header">
           <h2>質問 9 / 10</h2>
-          <div class="quiz-counter">ランサムウェア</div>
+          <div class="quiz-counter">承認WF</div>
         </div>
         <div class="quiz-body">
-          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">ランサムウェア対策を有効にしていますか？</p>
-          <div class="choices-grid two-col" id="q9choices">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">承認ワークフローを設定していますか？</p>
+          <p style="font-size:13px; color:#888; margin-bottom:16px;">※ アドバンスドプラン以上で利用可能な機能です</p>
+          <div class="choices-grid" id="q9choices">
             <div class="choice-card" onclick="selectAnswer('q9', 0, this)">
               <div class="choice-letter">A</div>
-              <h5>はい、有効にしている</h5>
-              <p>ランサムウェア対策機能を有効にしている</p>
+              <h5>はい、上長承認を必須にしている</h5>
+              <p>ファイル送信に上長承認を必須にしている</p>
             </div>
             <div class="choice-card" onclick="selectAnswer('q9', 1, this)">
               <div class="choice-letter">B</div>
-              <h5>いいえ / わからない</h5>
-              <p>有効にしていない、または設定を把握していない</p>
+              <h5>いいえ、設定していない</h5>
+              <p>利用可能だが承認ワークフローは設定していない</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q9', 2, this)">
+              <div class="choice-letter">C</div>
+              <h5>プラン対象外</h5>
+              <p>スタンダード / ビジネスプランのため利用できない</p>
             </div>
           </div>
         </div>
@@ -1070,8 +1076,9 @@
     flags.ipRestriction = (answers.q5 === 0);
     flags.otp = (answers.q6 === 0);
     flags.device = (answers.q7 === 0);
-    flags.approval = (answers.q8 === 0);
-    flags.ransomware = (answers.q9 === 0);
+    flags.loginSettings = (answers.q8 === 0);
+    flags.approval = (answers.q9 === 0);
+    flags.approvalNA = (answers.q9 === 2); // プラン対象外
     flags.log = (answers.q10 === 0);
 
     return flags;
@@ -1082,7 +1089,7 @@
     const f = getFlags();
     const recommendations = [];
 
-    // 1. パスワードポリシー — always 必須. If Q4=A show 設定済み
+    // 1. パスワードポリシー — always 必須
     recommendations.push({
       name: 'パスワードポリシー',
       priority: f.password ? '設定済み' : '必須',
@@ -1090,7 +1097,7 @@
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11018',
     });
 
-    // 2. IPアドレス制限 — 必須 if Q2=A/B (remote), 推奨 if Q2=C. If Q5=A show 設定済み
+    // 2. IPアドレス制限 — 必須 if remote, 推奨 if office. SSO利用時は注記追加
     let ipPriority;
     if (f.ipRestriction) {
       ipPriority = '設定済み';
@@ -1099,25 +1106,32 @@
     } else {
       ipPriority = '推奨';
     }
+    let ipDesc = '許可されたIPアドレスのみアクセスを許可し、不正な場所からのログインを防ぎます。';
+    if (f.sso) {
+      ipDesc += ' SSO利用時でもDirectCloud側のIP制限は有効に機能します。';
+    }
     recommendations.push({
       name: 'IPアドレス制限',
       priority: ipPriority,
-      desc: '許可されたIPアドレスのみアクセスを許可し、不正な場所からのログインを防ぎます。',
+      desc: ipDesc,
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11038',
     });
 
-    // 3. 二要素認証（OTP） — 必須 if Q2=A and Q3=B (remote+no SSO), 推奨 otherwise. If Q6=A show 設定済み
+    // 3. 二要素認証（OTP） — 必須 if remote+no SSO, 推奨 otherwise
     let otpPriority;
     if (f.otp) {
       otpPriority = '設定済み';
-    } else if (f.remote === 'daily' && !f.sso) {
+    } else if ((f.remote === 'daily' || f.remote === 'sometimes') && !f.sso) {
       otpPriority = '必須';
     } else {
       otpPriority = '推奨';
     }
     let otpDesc = 'ログイン時にワンタイムパスワードを要求し、パスワード漏洩時のリスクを軽減します。';
     if (f.sso) {
-      otpDesc += ' SSO利用時はIdP側で制御できます。';
+      otpDesc += ' SSO利用時はIdP側のMFAで代替可能です。';
+    }
+    if (f.ipRestriction && !f.otp) {
+      otpDesc += ' IP制限と組み合わせると、指定外IPからのアクセス時のみOTPを要求する設定も可能です。';
     }
     recommendations.push({
       name: '二要素認証（OTP）',
@@ -1126,7 +1140,7 @@
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11035',
     });
 
-    // 4. デバイス認証 — 推奨 if Q2=A/B, 任意 if Q2=C. If Q7=A show 設定済み
+    // 4. デバイス認証 — 推奨 if remote, 任意 if office. SSO時は注記
     let devicePriority;
     if (f.device) {
       devicePriority = '設定済み';
@@ -1135,67 +1149,73 @@
     } else {
       devicePriority = '任意';
     }
+    let deviceDesc = '登録済みデバイスのみアクセスを許可し、未登録端末からの利用を制限します。※WEBアプリケーションでのログインは対象外です。';
+    if (f.sso) {
+      deviceDesc += ' SSO利用時はIdP側のデバイス管理と併用を検討してください。';
+    }
     recommendations.push({
       name: 'デバイス認証',
       priority: devicePriority,
-      desc: '登録済みデバイスのみアクセスを許可し、未登録端末からの利用を制限します。WEBアプリケーションは対象外。',
+      desc: deviceDesc,
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11034',
     });
 
-    // 5. SSO連携 — If Q3=A show 設定済み, else 推奨
+    // 5. ログイン設定（同時ログイン禁止/自動ログアウト） — always 必須
+    recommendations.push({
+      name: 'ログイン設定',
+      priority: f.loginSettings ? '設定済み' : '必須',
+      desc: '同時ログインの禁止や自動ログアウト時間を設定し、不正利用やセッション乗っ取りを防止します。SSO利用時も有効です。',
+      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11028',
+    });
+
+    // 6. SSO連携 — If Q3=A show 設定済み, else 推奨
     recommendations.push({
       name: 'SSO連携',
       priority: f.sso ? '設定済み' : '推奨',
-      desc: 'Azure AD / Okta / Google Workspace 等と連携し、IDを一元管理します。',
+      desc: 'Azure AD / Okta / Google Workspace 等と連携し、IDを一元管理します。SSO利用時はIdP側でアクセス制御を行うのが一般的です。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function12001',
     });
 
-    // 6. 承認ワークフロー — 推奨 if Q1=A/B (external sharing), 任意 if Q1=C. If Q8=A show 設定済み
-    let approvalPriority;
-    if (f.approval) {
-      approvalPriority = '設定済み';
-    } else if (f.guest || f.link) {
-      approvalPriority = '推奨';
-    } else {
-      approvalPriority = '任意';
+    // 7. 承認ワークフロー — プラン対象外の場合はスキップ
+    if (!f.approvalNA) {
+      let approvalPriority;
+      if (f.approval) {
+        approvalPriority = '設定済み';
+      } else if (f.external) {
+        approvalPriority = '推奨';
+      } else {
+        approvalPriority = '任意';
+      }
+      recommendations.push({
+        name: '承認ワークフロー',
+        priority: approvalPriority,
+        desc: 'ファイル送信前に上長の承認を必須にし、誤送信や情報漏洩リスクを低減します。ダウンロード・リンク・添付ファイル送信・アップロードに設定可能。',
+        link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function13001',
+      });
     }
-    recommendations.push({
-      name: '承認ワークフロー',
-      priority: approvalPriority,
-      desc: 'ファイル送信前に上長の承認を必須にし、情報漏洩リスクを低減します。アドバンスドプラン以上で利用可能。',
-      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function13001',
-    });
 
-    // 7. ゲストのアクセス制御 — 必須 if Q1=A (guest), 推奨 if Q1=B (link), 不要 if Q1=C
-    let guestPriority;
-    if (f.guest) {
-      guestPriority = '必須';
-    } else if (f.link) {
-      guestPriority = '推奨';
-    } else {
-      guestPriority = '不要';
+    // 8. ゲストのアクセス制御 — 必須 if guest, 推奨 if link, 非表示 if 社内のみ
+    if (f.external) {
+      let guestPriority;
+      if (f.guest) {
+        guestPriority = '必須';
+      } else {
+        guestPriority = '推奨';
+      }
+      recommendations.push({
+        name: 'ゲストのアクセス制御',
+        priority: guestPriority,
+        desc: 'ゲストユーザーのIP制限・二要素認証・有効期限・自動削除を設定し、外部共有を安全に管理します。',
+        link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11099',
+      });
     }
-    recommendations.push({
-      name: 'ゲストのアクセス制御',
-      priority: guestPriority,
-      desc: 'ゲストユーザーのIP制限・二要素認証・有効期限を設定し、外部共有を安全に管理します。',
-      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11123',
-    });
 
-    // 8. ランサムウェア対策 — always 必須. If Q9=A show 設定済み
-    recommendations.push({
-      name: 'ランサムウェア対策',
-      priority: f.ransomware ? '設定済み' : '必須',
-      desc: 'ランサムウェアによるファイル暗号化を検知し、保護対象の拡張子を設定してデータを保護します。',
-      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11171',
-    });
-
-    // 9. 操作ログ監視 — always 推奨. If Q10=A show 設定済み
+    // 9. 操作ログ監視 — always 推奨
     recommendations.push({
       name: '操作ログ監視',
       priority: f.log ? '設定済み' : '推奨',
-      desc: 'ファイル操作・共有リンク・ゲスト招待の履歴を定期的に確認し、不審な活動を早期に発見します。',
-      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11163',
+      desc: 'ファイル操作・共有リンク・ゲスト利用の履歴を定期的に確認し、不審な活動を早期に発見します。ウイルス検知ログも確認できます。',
+      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11190',
     });
 
     // Build table
@@ -1209,7 +1229,6 @@
         case '推奨': badgeClass = 'badge-blue'; break;
         case '任意': badgeClass = 'badge-gray'; break;
         case '設定済み': badgeClass = 'badge-green'; break;
-        case '不要': badgeClass = 'badge-gray'; break;
       }
       tr.innerHTML =
         '<td><div class="setting-name">' + rec.name + '</div></td>' +
@@ -1219,17 +1238,22 @@
       tbody.appendChild(tr);
     });
 
-    // Score: Q4-Q10 only (7 items). Answer index 0 = A = +1 point
+    // Score: Q4-Q8, Q10 = always counted. Q9 only if not プラン対象外
     let score = 0;
-    const total = 7;
+    let total = 6; // base: Q4-Q8 + Q10
 
     if (answers.q4 === 0) score++;   // パスワードポリシー
     if (answers.q5 === 0) score++;   // IPアドレス制限
     if (answers.q6 === 0) score++;   // 二要素認証
     if (answers.q7 === 0) score++;   // デバイス認証
-    if (answers.q8 === 0) score++;   // 承認ワークフロー
-    if (answers.q9 === 0) score++;   // ランサムウェア対策
+    if (answers.q8 === 0) score++;   // ログイン設定
     if (answers.q10 === 0) score++;  // 操作ログ監視
+
+    // Q9 承認WF: only count if applicable (not プラン対象外)
+    if (!f.approvalNA) {
+      total++;
+      if (answers.q9 === 0) score++;
+    }
 
     // Display score
     document.getElementById('scoreNum').textContent = score;
@@ -1237,15 +1261,17 @@
     const circle = document.getElementById('scoreCircle');
     const msg = document.getElementById('resultMsg');
 
-    if (score === 7) {
+    // Score tiers based on percentage
+    const pct = score / total;
+    if (pct === 1) {
       circle.className = 'score-circle perfect';
       msg.className = 'result-msg level-high';
       msg.innerHTML = '<strong>&#9989; 万全の体制です</strong><br>すべての主要設定が有効です。引き続き定期的な見直しをおすすめします。';
-    } else if (score >= 5) {
+    } else if (pct >= 0.7) {
       circle.className = 'score-circle good';
       msg.className = 'result-msg level-mid';
       msg.innerHTML = '<strong>&#128077; しっかり対策されています</strong><br>ほとんどの設定が整っています。残りの項目も確認してみてください。';
-    } else if (score >= 3) {
+    } else if (pct >= 0.4) {
       circle.className = 'score-circle ok';
       msg.className = 'result-msg level-low';
       msg.innerHTML = '<strong>&#9888; 基本は整っていますが改善の余地があります</strong><br>下記の未設定項目を確認し、対応を検討してください。';
