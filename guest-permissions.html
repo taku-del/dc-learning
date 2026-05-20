@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — ゲスト招待 権限設定ガイド</title>
+<style>
+  :root {
+    --dc-blue: #7B61FF;
+    --dc-blue-light: #F0EDFF;
+    --dc-blue-dark: #5B45C0;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F2F0F8;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-blue);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-blue);
+  }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue); }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-blue); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #FAFAFE; color: var(--dc-blue); }
+  .sidebar-item.active {
+    color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    border-left-color: var(--dc-blue);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; max-width: 960px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-blue-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-blue-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Comparison Table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 680px;
+  }
+  .compare-table th {
+    background: #F8F7FC;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 140px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #FAFAFF; }
+  .compare-table .cell-ok {
+    color: var(--dc-green);
+    font-weight: 700;
+  }
+  .compare-table .cell-no {
+    color: #D1D5DB;
+  }
+  .compare-table th.highlight {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue-dark);
+  }
+
+  /* ===== Level Cards ===== */
+  .level-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .level-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .level-card:hover {
+    border-color: var(--dc-blue);
+    transform: translateY(-2px);
+  }
+  .level-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 4px;
+  }
+  .level-card p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .level-card .level-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  /* ===== Method Compare ===== */
+  .method-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .method-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .method-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .method-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .method-card li {
+    font-size: 13px;
+    color: #555;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .method-card li::before {
+    content: '•';
+    position: absolute;
+    left: 6px;
+    color: var(--dc-blue);
+    font-weight: 700;
+  }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #F8F7FC, #F0EDFF);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '💡';
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+  }
+
+  /* ===== Choice cards (quiz) ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .choice-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .choice-card.selected {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    pointer-events: none;
+  }
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.incorrect {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feedback.correct h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-blue);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--dc-blue-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: #fff;
+    color: var(--dc-blue);
+    border: 2px solid var(--dc-blue);
+  }
+  .btn-outline:hover { background: var(--dc-blue-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn-next {
+    display: none;
+    margin-top: 20px;
+  }
+  .btn-next.show { display: inline-flex; }
+
+  /* ===== Score Circle ===== */
+  .score-area {
+    text-align: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-blue) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-blue);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review {
+    margin: 24px 0;
+  }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Reference table in results ===== */
+  .ref-table-section {
+    margin-top: 32px;
+  }
+  .ref-table-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 12px;
+  }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .choices { grid-template-columns: 1fr; }
+    .method-row { grid-template-columns: 1fr; }
+    .level-cards { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">ゲスト招待 権限設定ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 9</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">📖</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="learn1" onclick="goTo('learn1')">
+      <span class="icon">📊</span> アクセスレベル早見表
+    </div>
+    <div class="sidebar-item" data-sec="learn2" onclick="goTo('learn2')">
+      <span class="icon">✉️</span> 招待方法の選び方
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 契約書の確認
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> データの受け取り
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> オンライン編集
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> 証跡の確認
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> 確認＋受け取り
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">📋</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>ゲスト招待、どの権限を選べばいい？</h1>
+        <p>7段階のアクセスレベルを理解して、最適な権限設定を学びます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudでは、ライセンスを持たない<strong>社外のユーザー</strong>をゲストとして招待し、ファイルへのアクセスを許可できます。<br>
+          このとき重要なのが<strong>「アクセスレベル」</strong>の設定です。</p>
+        </div>
+        <p style="font-size:15px; line-height:1.8; color:#374151;">
+          アクセスレベルは<strong>7段階</strong>あり、「どの操作を許可するか」が細かく分かれています。<br>
+          権限が強すぎればセキュリティリスク、弱すぎれば業務に支障 — 適切なレベルを選ぶことが大切です。
+        </p>
+
+        <div class="tip">
+          <strong>このガイドの流れ:</strong><br>
+          まず7段階のアクセスレベルと招待方法を学び、その後シナリオクイズ（5問）で理解度をチェックします。
+        </div>
+
+        <div style="background:#F8F7FC; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666;">
+          <strong>対象:</strong> DirectCloud管理者の方 ／ <strong>形式:</strong> 比較＋クイズ ／ <strong>所要時間:</strong> 約5分
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('learn1')">学習を始める →</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== Learn 1: アクセスレベル早見表 ========== -->
+    <div class="section" id="sec-learn1">
+      <div class="content-header">
+        <h1>7段階アクセスレベル早見表</h1>
+        <p>各レベルでできること・できないことを確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">各レベルの特徴</h3>
+        <div class="level-cards">
+          <div class="level-card">
+            <div class="level-icon">👑</div>
+            <h4>オーナー</h4>
+            <p>フル権限。移動・削除・リンク作成まですべて可能</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">✏️</div>
+            <h4>編集者</h4>
+            <p>編集・DL・コピー・削除が可能。フォルダ移動は不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">📝</div>
+            <h4>編集者-</h4>
+            <p>オンライン編集・UL可。<strong>DL不可</strong>がポイント</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">📥</div>
+            <h4>ダウンローダ</h4>
+            <p>プレビュー＋DLのみ。編集・ULは不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">👁️‍🗨️</div>
+            <h4>閲覧者+</h4>
+            <p>プレビュー＋<strong>UL可</strong>。DLは不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">👁️</div>
+            <h4>閲覧者</h4>
+            <p>プレビューのみ。DL・UL・編集すべて不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">📤</div>
+            <h4>アップローダ</h4>
+            <p>ULのみ。<strong>プレビューすら不可</strong>の提出専用</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">権限比較表</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>操作</th>
+                <th>オーナー</th>
+                <th>編集者</th>
+                <th>編集者-</th>
+                <th>DLer</th>
+                <th>閲覧者+</th>
+                <th>閲覧者</th>
+                <th>UPer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>プレビュー</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>ダウンロード</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>アップロード</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+                <td class="cell-ok">○</td>
+              </tr>
+              <tr>
+                <td>オンライン編集</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>コピー・削除</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>リンク作成</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+                <td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>コメント</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-ok">○</td>
+                <td class="cell-no">×</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>覚えておきたいポイント</h4>
+          <ul>
+            <li><strong>編集者 vs 編集者-</strong>：最大の違いはダウンロードの可否。手元に落とさせたくないなら「編集者-」</li>
+            <li><strong>閲覧者+ vs 閲覧者</strong>：「+」はアップロードが可能。見せるだけなら「閲覧者」、受け取りもしたいなら「閲覧者+」</li>
+            <li><strong>アップローダ</strong>：プレビューすらできない完全な提出専用。既存ファイルを見せたくない場面に</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('learn2')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Learn 2: 招待方法 ========== -->
+    <div class="section" id="sec-learn2">
+      <div class="content-header">
+        <h1>招待方法の選び方</h1>
+        <p>メール招待とリンク招待、2つの方法があります</p>
+      </div>
+
+      <div class="card">
+        <div class="method-row">
+          <div class="method-card">
+            <h4>✉️ メール招待</h4>
+            <ul>
+              <li>招待相手のメールアドレスを指定して送信</li>
+              <li>相手にゲストIDが自動発行される</li>
+              <li>誰が参加しているか管理しやすい</li>
+              <li><strong>特定の相手</strong>と継続的にやり取りする場面向け</li>
+            </ul>
+          </div>
+          <div class="method-card">
+            <h4>🔗 リンク招待</h4>
+            <ul>
+              <li>招待用URLを生成して共有</li>
+              <li>リンクを受け取った人が自分で登録</li>
+              <li>複数人への一括案内がしやすい</li>
+              <li><strong>不特定多数</strong>や大人数への案内に便利</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tip">
+          <strong>管理者承認を有効にすると:</strong> ゲスト招待に管理者の承認が必須になります。意図しないゲスト追加を防ぎたい場合は、管理画面から設定を有効にしてください。
+        </div>
+
+        <div class="insight" style="margin-top:20px;">
+          <h4>ゲスト招待のセキュリティ設定</h4>
+          <ul>
+            <li><strong>有効期限</strong>：招待の有効期間を設定可能。プロジェクト終了後のアクセスを自動で遮断</li>
+            <li><strong>IPアドレス制限</strong>：ゲストのアクセス元IPを制限可能</li>
+            <li><strong>OTP（ワンタイムパスワード）</strong>：ログイン時に二要素認証を要求</li>
+            <li><strong>操作ログ</strong>：ゲストの操作もすべてログに記録される</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('learn1')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">クイズに挑戦 →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>最適なアクセスレベルを選んでください</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> 取引先の担当者に<strong>契約書PDF</strong>を確認してもらいたい。<br>
+          内容を見てもらうだけでよく、<strong>ダウンロードは不要</strong>です。</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>ダウンローダ</h5>
+            <p>プレビュー＋ダウンロードが可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>閲覧者</h5>
+            <p>プレビューのみ可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>閲覧者+</h5>
+            <p>プレビュー＋アップロードが可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <h5>編集者-</h5>
+            <p>オンライン編集・アップロードが可能（DL不可）</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <button class="btn btn-primary btn-next" id="next-q1" onclick="goTo('q2')">次の問題へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>最適なアクセスレベルを選んでください</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> 外部のカメラマンから<strong>撮影データ</strong>を受け取りたい。<br>
+          フォルダ内の<strong>既存ファイルは一切見せたくない</strong>。</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>閲覧者+</h5>
+            <p>プレビュー＋アップロードが可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>ダウンローダ</h5>
+            <p>プレビュー＋ダウンロードが可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>アップローダ</h5>
+            <p>アップロードのみ（プレビュー不可）</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <h5>編集者-</h5>
+            <p>オンライン編集・アップロードが可能（DL不可）</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <button class="btn btn-primary btn-next" id="next-q2" onclick="goTo('q3')">次の問題へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>最適なアクセスレベルを選んでください</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> 外部デザイナーにファイルを<strong>オンラインで編集</strong>してほしい。<br>
+          ただし、ファイルを<strong>ダウンロードされたくない</strong>。</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>編集者</h5>
+            <p>編集・DL・コピー・削除が可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>オーナー</h5>
+            <p>すべての操作が可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>閲覧者+</h5>
+            <p>プレビュー＋アップロードが可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <h5>編集者-</h5>
+            <p>オンライン編集・アップロードが可能（DL不可）</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <button class="btn btn-primary btn-next" id="next-q3" onclick="goTo('q4')">次の問題へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>最適なアクセスレベルを選んでください</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> 監査法人に証跡ファイルを<strong>ダウンロードして確認</strong>してもらいたい。<br>
+          <strong>編集や削除はさせない</strong>。</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>閲覧者</h5>
+            <p>プレビューのみ可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>ダウンローダ</h5>
+            <p>プレビュー＋ダウンロードが可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>編集者</h5>
+            <p>編集・DL・コピー・削除が可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <h5>オーナー</h5>
+            <p>すべての操作が可能</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <button class="btn btn-primary btn-next" id="next-q4" onclick="goTo('q5')">次の問題へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>最適なアクセスレベルを選んでください</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> クライアントに<strong>デザイン案を見せて</strong>、<strong>修正ファイルもアップロード</strong>してほしい。<br>
+          ファイルの<strong>ダウンロードはNG</strong>。</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>編集者-</h5>
+            <p>オンライン編集・アップロードが可能（DL不可）</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>アップローダ</h5>
+            <p>アップロードのみ（プレビュー不可）</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>閲覧者</h5>
+            <p>プレビューのみ可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <h5>閲覧者+</h5>
+            <p>プレビュー＋アップロードが可能（DL不可）</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <button class="btn btn-primary btn-next" id="next-q5" onclick="showResult()">結果を見る →</button>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div class="ref-table-section">
+          <h3>アクセスレベル早見表（保存用）</h3>
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>操作</th>
+                  <th>オーナー</th>
+                  <th>編集者</th>
+                  <th>編集者-</th>
+                  <th>DLer</th>
+                  <th>閲覧者+</th>
+                  <th>閲覧者</th>
+                  <th>UPer</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>プレビュー</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>ダウンロード</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>アップロード</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td>
+                </tr>
+                <tr>
+                  <td>オンライン編集</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>コピー・削除</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>リンク作成</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>コメント</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="saved-notice" id="savedNotice" style="display:none;">✓ 結果を保存しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'ゲスト招待 権限設定ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function() {
+    document.getElementById('savedNotice').style.display = 'block';
+  }).catch(function() {});
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 1, // 閲覧者
+  q2: 2, // アップローダ
+  q3: 3, // 編集者-
+  q4: 1, // ダウンローダ
+  q5: 3  // 閲覧者+
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ 閲覧者はプレビューのみ可能で、ダウンロードやアップロードはできません。「見せるだけ」の場面に最適です。',
+    wrong: {
+      0: 'ダウンローダはファイルのダウンロードが可能です。今回はダウンロード不要なので、「閲覧者」が適切です。',
+      2: '閲覧者+はアップロードも可能で、今回の用途には過剰な権限です。確認だけなら「閲覧者」で十分です。',
+      3: '編集者-はオンライン編集やアップロードが可能です。確認だけなら過剰な権限です。'
+    }
+  },
+  q2: {
+    correct: '正解！ アップローダはアップロードのみ可能で、プレビューすらできません。既存ファイルを一切見せずに受け取る「提出用ボックス」として最適です。',
+    wrong: {
+      0: '閲覧者+はアップロード可能ですが、プレビューもできるため既存ファイルが見えてしまいます。',
+      1: 'ダウンローダはプレビューとダウンロードのみで、アップロードができません。',
+      3: '編集者-はアップロード可能ですが、プレビューやオンライン編集もできるため既存ファイルが見えてしまいます。'
+    }
+  },
+  q3: {
+    correct: '正解！ 編集者-はオンライン編集とアップロードが可能ですが、ダウンロードはできません。「手元に落とさずブラウザ上で編集させたい」場面に最適です。',
+    wrong: {
+      0: '編集者はダウンロードが可能なため、ファイルを手元に保存されてしまう可能性があります。',
+      1: 'オーナーはすべての操作が可能で、ダウンロードもできます。権限が過剰です。',
+      2: '閲覧者+はオンライン編集ができません。プレビューとアップロードのみです。'
+    }
+  },
+  q4: {
+    correct: '正解！ ダウンローダはプレビューとダウンロードのみ可能で、編集・アップロード・削除はできません。「持ち出しは許可、変更は不可」の場面に最適です。',
+    wrong: {
+      0: '閲覧者はプレビューのみでダウンロードができません。今回はダウンロードが必要です。',
+      2: '編集者はダウンロードに加えて編集や削除も可能で、意図しない変更のリスクがあります。',
+      3: 'オーナーはすべての操作が可能で、過剰な権限です。'
+    }
+  },
+  q5: {
+    correct: '正解！ 閲覧者+はプレビューとアップロードが可能で、ダウンロードはできません。「見せて、受け取る」場面に最適です。',
+    wrong: {
+      0: '編集者-もダウンロード不可でアップロード可能ですが、オンライン編集権限があり、今回は過剰です。',
+      1: 'アップローダはアップロードのみでプレビューができず、デザイン案を見せることができません。',
+      2: '閲覧者はプレビューのみでアップロードができず、修正ファイルを受け取れません。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'learn1', 'learn2', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+
+function goTo(sec) {
+  // Hide all sections
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  // Show target
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    items[i].classList.remove('active');
+    if (items[i].getAttribute('data-sec') === sec) {
+      items[i].classList.add('active');
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  // Get selected card text
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  // Style cards
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  // Show feedback
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>⭕ 正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>❌ 不正解…正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  // Show next button
+  document.getElementById('next-' + q).classList.add('show');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  // Score circle animation
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#7B61FF ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  // Score message
+  var msg = '';
+  if (score === 5) msg = '全問正解！アクセスレベルを完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！実務でも迷わず設定できるレベルです';
+  else if (score >= 3) msg = '基本はOK！早見表を参考に、もう少し復習してみましょう';
+  else msg = '早見表を見ながら、各レベルの違いを整理してみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  // Build review items
+  var questions = {
+    q1: '契約書PDFの確認（DL不要）',
+    q2: '撮影データの受け取り（既存ファイル非公開）',
+    q3: 'オンライン編集（DL禁止）',
+    q4: '証跡ファイルの確認（DLのみ許可）',
+    q5: 'デザイン案の確認＋修正UL（DL禁止）'
+  };
+  var correctNames = {
+    q1: '閲覧者',
+    q2: 'アップローダ',
+    q3: '編集者-',
+    q4: 'ダウンローダ',
+    q5: '閲覧者+'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '○' : '×') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' ／ あなたの回答: ' + answersLabel[q].replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  // Submit data
+  submitResults({ score: score, total: 5 });
+}
+</script>
+</body>
+</html>

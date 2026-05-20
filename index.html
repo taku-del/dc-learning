@@ -321,7 +321,7 @@
     </div>
     <div class="hero-counts">
       <div class="hero-count">
-        <div class="hero-count-num">2</div>
+        <div class="hero-count-num">3</div>
         <div class="hero-count-label">公開中</div>
       </div>
       <div class="hero-count">
@@ -396,15 +396,18 @@
         </div>
       </a>
 
-      <div class="coming-card">
-        <div class="cc-badge">比較+クイズ形式</div>
-        <div class="cc-title">ゲスト招待 権限設定ガイド</div>
-        <div class="cc-desc">7段階のアクセスレベルを比較して最適な権限設定を学びます。</div>
-        <div class="cc-status">
-          <span class="cc-dot"></span>
-          準備中
+      <a id="link-guest" href="https://community.directcloud.jp/s/learning/guest-permissions" target="_top" class="secondary-card">
+        <div class="sc-badge green">比較+クイズ形式</div>
+        <div class="sc-title">ゲスト招待 権限設定ガイド</div>
+        <div class="sc-desc">7段階のアクセスレベルを比較して最適な権限設定を学びます。シナリオクイズで理解度をチェック。</div>
+        <div class="sc-footer">
+          <span class="sc-meta">5問 · 約5分 · 管理者向け</span>
+          <span class="sc-link">
+            始める
+            <svg class="arrow-sm" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </span>
         </div>
-      </div>
+      </a>
 
     </div>
   </div>
@@ -461,6 +464,9 @@ if (window === window.top) {
   var l2 = document.getElementById('link-security');
   l2.href = 'security-check.html';
   l2.target = '_self';
+  var l3 = document.getElementById('link-guest');
+  l3.href = 'guest-permissions.html';
+  l3.target = '_self';
 }
 </script>
 </body>
