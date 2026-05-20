@@ -602,6 +602,7 @@
       <div class="btn-row">
         <div></div>
         <button class="btn btn-primary btn-large" onclick="goTo('q1')">診断を始める &#8594;</button>
+        <p style="font-size:11px; color:#999; text-align:right; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
       </div>
     </div>
 
@@ -1027,7 +1028,7 @@
 
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="resetDiagnosis()">&#8635; もう一度診断する</button>
-        <div></div>
+        <p style="font-size:11px; color:#999;">&#10003; 結果を保存しました</p>
       </div>
     </div>
 
@@ -1035,6 +1036,18 @@
 </div><!-- /layout -->
 
 <script>
+  // ===== Collect endpoint (PA HTTP trigger URL) =====
+  const COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+  function getUser() { return new URLSearchParams(window.location.search).get('user') || ''; }
+
+  function submitResults(extra) {
+    if (!COLLECT_ENDPOINT) return;
+    var payload = { page: 'セキュリティ設定チェック', timestamp: new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo'}), user: getUser(), answers: answers };
+    Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+    fetch(COLLECT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(function() {});
+  }
+
   // ===== State =====
   const sections = ['intro', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'result'];
   let currentSection = 'intro';
@@ -1379,6 +1392,9 @@
       msg.className = 'result-msg level-critical';
       msg.innerHTML = '<strong>&#128680; 早めの対応をおすすめします</strong><br>セキュリティ設定がほとんど未対応です。すぐに設定を進めてください。';
     }
+
+    // Send results
+    submitResults({ score: score, total: total });
   }
 
   // ===== Reset =====

@@ -6,19 +6,19 @@
 <title>DirectCloud 運用きほんのき — セキュリティ対策評価制度 対応度チェック</title>
 <style>
   :root {
-    --dc-blue: #2E6DFE;
-    --dc-blue-light: #E8F0FF;
-    --dc-blue-dark: #1A5FE0;
-    --dc-green: #00A676;
-    --dc-green-light: #E6F9F2;
-    --dc-orange: #F5A623;
-    --dc-orange-light: #FFF5E6;
-    --dc-purple: #7B61FF;
-    --dc-purple-light: #F0EDFF;
-    --dc-gray: #6B7280;
-    --dc-gray-light: #F3F4F6;
-    --dc-red: #E74C3C;
-    --dc-red-light: #FDE8E8;
+    --dc-blue: #0D9488;
+    --dc-blue-light: #F0FDFA;
+    --dc-blue-dark: #0F766E;
+    --dc-green: #059669;
+    --dc-green-light: #ECFDF5;
+    --dc-orange: #D97706;
+    --dc-orange-light: #FFFBEB;
+    --dc-purple: #7C3AED;
+    --dc-purple-light: #F5F3FF;
+    --dc-gray: #64748B;
+    --dc-gray-light: #F1F5F9;
+    --dc-red: #DC2626;
+    --dc-red-light: #FEF2F2;
     --shadow: 0 1px 4px rgba(0,0,0,0.06);
     --radius: 12px;
   }
@@ -27,7 +27,7 @@
 
   body {
     font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
-    background: #F0F4F8;
+    background: #F0F5F3;
     color: #1A2332;
     line-height: 1.8;
   }
@@ -36,6 +36,7 @@
   .topbar {
     background: #fff;
     border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-blue);
     padding: 12px 48px;
     display: flex;
     align-items: center;
@@ -102,7 +103,7 @@
     transition: all 0.15s;
     border-left: 3px solid transparent;
   }
-  .sidebar-item:hover { background: #F5F8FB; color: #333; }
+  .sidebar-item:hover { background: #F0FDFA; color: #333; }
   .sidebar-item.active {
     background: var(--dc-blue-light);
     color: var(--dc-blue);
@@ -180,15 +181,15 @@
 
   /* ===== Scenario ===== */
   .scenario {
-    background: #FFF8F0;
-    border: 1px solid #FFE0B2;
+    background: #F0FDFA;
+    border: 1px solid #99F6E4;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 24px;
     display: flex; gap: 14px;
   }
   .scenario-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
-  .scenario p { font-size: 15px; color: #5D4037; margin: 0; }
+  .scenario p { font-size: 15px; color: #134E4A; margin: 0; }
 
   /* ===== Info Box ===== */
   .info-box {
@@ -244,7 +245,7 @@
   }
   .choice-card:hover {
     border-color: var(--dc-blue);
-    background: #F8FBFF;
+    background: #F0FDFA;
   }
   .choice-card .choice-letter {
     width: 36px; height: 36px;
@@ -327,10 +328,10 @@
     justify-content: center;
     animation: scaleIn 0.5s ease;
   }
-  .score-circle.perfect { background: linear-gradient(135deg, var(--dc-green), #00C896); }
-  .score-circle.good    { background: linear-gradient(135deg, var(--dc-blue), #3B82F6); }
-  .score-circle.ok      { background: linear-gradient(135deg, var(--dc-orange), #F59E0B); }
-  .score-circle.warn    { background: linear-gradient(135deg, var(--dc-red), #F87171); }
+  .score-circle.perfect { background: linear-gradient(135deg, #059669, #34D399); }
+  .score-circle.good    { background: linear-gradient(135deg, #0D9488, #2DD4BF); }
+  .score-circle.ok      { background: linear-gradient(135deg, #D97706, #FBBF24); }
+  .score-circle.warn    { background: linear-gradient(135deg, #DC2626, #F87171); }
   .score-num {
     font-size: 44px;
     font-weight: 800;
@@ -395,7 +396,7 @@
     background: #F9FAFB;
   }
   .result-table tr:hover td {
-    background: #F0F4F8;
+    background: #F0FDFA;
   }
   .result-table .setting-name {
     font-weight: 600;
@@ -426,9 +427,9 @@
   .intro-feature {
     text-align: center;
     padding: 20px;
-    background: #F8FAFC;
+    background: #F0FDFA;
     border-radius: var(--radius);
-    border: 1px solid #E0E6ED;
+    border: 1px solid #CCFBF1;
   }
   .intro-feature-icon {
     font-size: 32px;
@@ -460,8 +461,8 @@
   }
   .result-msg.level-mid {
     background: var(--dc-blue-light);
-    border: 1px solid #93C5FD;
-    color: #1E40AF;
+    border: 1px solid #99F6E4;
+    color: #115E59;
   }
   .result-msg.level-low {
     background: var(--dc-orange-light);
@@ -474,6 +475,110 @@
     color: #991B1B;
   }
 
+  /* ===== Score Pair (★3/★4) ===== */
+  .score-pair {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 20px 0;
+  }
+  .score-item {
+    text-align: center;
+  }
+  .score-item .score-circle {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 8px;
+  }
+  .score-item .score-num {
+    font-size: 32px;
+  }
+  .score-item .score-unit {
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+  }
+  .score-item-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+  .score-item-sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* ===== Category Grid ===== */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .category-card {
+    background: #F8FAFC;
+    border: 1px solid #E0E6ED;
+    border-radius: var(--radius);
+    padding: 18px;
+    transition: border-color 0.2s;
+  }
+  .category-card.cat-done {
+    border-color: var(--dc-green);
+    background: #F0FDF9;
+  }
+  .category-card.cat-partial {
+    border-color: var(--dc-orange);
+    background: #FFFBF0;
+  }
+  .category-card.cat-none {
+    border-color: var(--dc-red);
+    background: #FEF8F8;
+  }
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .cat-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .cat-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+  }
+  .cat-bar {
+    width: 100%;
+    height: 6px;
+    background: #E0E6ED;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .cat-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .cat-bar-fill.fill-green { background: var(--dc-green); }
+  .cat-bar-fill.fill-orange { background: var(--dc-orange); }
+  .cat-bar-fill.fill-red { background: var(--dc-red); }
+  .cat-status {
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .cat-status.status-done { color: var(--dc-green); }
+  .cat-status.status-partial { color: #92400E; }
+  .cat-status.status-none { color: var(--dc-red); }
+  .cat-reqs {
+    font-size: 10px;
+    color: #999;
+    margin-top: 2px;
+  }
+
   /* ===== Responsive ===== */
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
@@ -483,6 +588,8 @@
     .choices-grid { grid-template-columns: 1fr; }
     .choices-grid.two-col { grid-template-columns: 1fr; }
     .intro-features { grid-template-columns: 1fr; }
+    .score-pair { flex-direction: column; gap: 20px; }
+    .category-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -602,6 +709,7 @@
       <div class="btn-row">
         <div></div>
         <button class="btn btn-primary btn-large" onclick="goTo('q1')">診断を始める &#8594;</button>
+        <p style="font-size:11px; color:#999; text-align:right; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
       </div>
     </div>
 
@@ -993,14 +1101,35 @@
         <p>あなたの組織の回答に基づく対応度評価です</p>
       </div>
 
-      <!-- Score -->
+      <!-- Star Level Coverage -->
       <div class="card" style="text-align: center;">
-        <h2>対応度スコア</h2>
-        <div class="score-circle" id="scoreCircle">
-          <div class="score-num" id="scoreNum">0</div>
-          <div class="score-label">/ 10</div>
+        <h2>★ レベル別カバー率</h2>
+        <div class="score-pair">
+          <div class="score-item">
+            <div class="score-item-label">★3 カバー率</div>
+            <div class="score-circle" id="star3Circle">
+              <div class="score-num" id="star3Pct">0</div>
+              <div class="score-unit">%</div>
+            </div>
+            <div class="score-item-sub" id="star3Sub">0 / 0 項目</div>
+          </div>
+          <div class="score-item">
+            <div class="score-item-label">★4 カバー率</div>
+            <div class="score-circle" id="star4Circle">
+              <div class="score-num" id="star4Pct">0</div>
+              <div class="score-unit">%</div>
+            </div>
+            <div class="score-item-sub" id="star4Sub">0 / 0 項目</div>
+          </div>
         </div>
         <div class="result-msg" id="resultMsg"></div>
+      </div>
+
+      <!-- Category Breakdown -->
+      <div class="card">
+        <h2>カテゴリ別 対応状況</h2>
+        <p>★3・★4要件のカテゴリごとの設定状況です。</p>
+        <div class="category-grid" id="categoryGrid"></div>
       </div>
 
       <!-- Recommendations Table -->
@@ -1032,7 +1161,7 @@
 
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="resetDiagnosis()">&#8635; もう一度診断する</button>
-        <div></div>
+        <p style="font-size:11px; color:#999;">&#10003; 結果を保存しました</p>
       </div>
     </div>
 
@@ -1040,6 +1169,18 @@
 </div><!-- /layout -->
 
 <script>
+  // ===== Collect endpoint (PA HTTP trigger URL) =====
+  const COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+  function getUser() { return new URLSearchParams(window.location.search).get('user') || ''; }
+
+  function submitResults(extra) {
+    if (!COLLECT_ENDPOINT) return;
+    var payload = { page: 'サプライチェーンセキュリティ 対応度チェック', timestamp: new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo'}), user: getUser(), answers: answers };
+    Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+    fetch(COLLECT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(function() {});
+  }
+
   // ===== State =====
   const sections = ['intro', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'result'];
   let currentSection = 'intro';
@@ -1160,35 +1301,167 @@
   function calculateResult() {
     const f = getFlags();
     const star = f.starLevel;
+
+    // --- ★3/★4 requirement mapping per question ---
+    // Each question covers a number of ★3 and ★4-additional requirements
+    const reqMap = {
+      q3:  { star3: 4, star4add: 0 },  // 4-1-1: ユーザーID管理 (4件 全★3)
+      q4:  { star3: 6, star4add: 0 },  // 4-1-2: 管理者ID管理 (6件 全★3)
+      q5:  { star3: 4, star4add: 1 },  // 4-1-3: 認証強度 (★3:4件, ★4:1件)
+      q6:  { star3: 4, star4add: 0 },  // 4-1-5,6: パスワード (4件 全★3)
+      q7:  { star3: 1, star4add: 5 },  // 4-1-7: アクセス権 (★3:1件, ★4:5件)
+      q8:  { star3: 4, star4add: 3 },  // 3-1-4,4-3-1: 機密区分・暗号化 (★3:4件, ★4:3件)
+      q9:  { star3: 0, star4add: 4 },  // 4-4-3,1-2-2: ログ監視 (4件 全★4)
+      q10: { star3: 2, star4add: 3 },  // 4-3-2,4-3-4,7-1-1: データ保護 (★3:2件, ★4:3件)
+      q11: { star3: 0, star4add: 5 },  // 2-1-1,4-3-3: 外部共有・SC (5件 全★4)
+      q12: { star3: 0, star4add: 2 },  // 3-1-5: デバイス認証 (2件 全★4)
+    };
+    // Always covered: マルウェア(★3:1) + 外部サービス管理(★3:1)
+    const alwaysStar3 = 2;
+    const alwaysStar4add = 0;
+
+    // Calculate ★3/★4 coverage
+    let star3Covered = alwaysStar3;
+    let star3Total = alwaysStar3;
+    let star4addCovered = alwaysStar4add;
+    let star4addTotal = alwaysStar4add;
+
+    const qKeys = ['q3','q4','q5','q6','q7','q8','q9','q10','q11','q12'];
+    qKeys.forEach(q => {
+      if (q === 'q8' && f.irmNA) return;         // IRM未契約: skip
+      if (q === 'q11' && f.externalShareNA) return; // 社外共有なし: skip
+      const m = reqMap[q];
+      star3Total += m.star3;
+      star4addTotal += m.star4add;
+      if (answers[q] === 0) {
+        star3Covered += m.star3;
+        star4addCovered += m.star4add;
+      }
+    });
+
+    const star4Total = star3Total + star4addTotal;
+    const star4Covered = star3Covered + star4addCovered;
+    const star3Pct = star3Total > 0 ? Math.round((star3Covered / star3Total) * 100) : 0;
+    const star4Pct = star4Total > 0 ? Math.round((star4Covered / star4Total) * 100) : 0;
+
+    // Display ★3 circle
+    document.getElementById('star3Pct').textContent = star3Pct;
+    document.getElementById('star3Sub').textContent = star3Covered + ' / ' + star3Total + ' 項目';
+    const c3 = document.getElementById('star3Circle');
+    if (star3Pct === 100) c3.className = 'score-circle perfect';
+    else if (star3Pct >= 70) c3.className = 'score-circle good';
+    else if (star3Pct >= 40) c3.className = 'score-circle ok';
+    else c3.className = 'score-circle warn';
+
+    // Display ★4 circle
+    document.getElementById('star4Pct').textContent = star4Pct;
+    document.getElementById('star4Sub').textContent = star4Covered + ' / ' + star4Total + ' 項目';
+    const c4 = document.getElementById('star4Circle');
+    if (star4Pct === 100) c4.className = 'score-circle perfect';
+    else if (star4Pct >= 70) c4.className = 'score-circle good';
+    else if (star4Pct >= 40) c4.className = 'score-circle ok';
+    else c4.className = 'score-circle warn';
+
+    // Result message based on target level
+    const msg = document.getElementById('resultMsg');
+    const targetPct = (star >= 4) ? star4Pct : star3Pct;
+    if (targetPct === 100) {
+      msg.className = 'result-msg level-high';
+      msg.innerHTML = '<strong>&#11088; 高い対応度です</strong><br>DirectCloudの設定が目標レベルの要件を十分カバーしています。引き続き定期的な見直しをおすすめします。';
+    } else if (targetPct >= 70) {
+      msg.className = 'result-msg level-mid';
+      msg.innerHTML = '<strong>&#128077; かなり対応できています</strong><br>残りの未設定項目を確認すれば、さらに対応度が上がります。';
+    } else if (targetPct >= 40) {
+      msg.className = 'result-msg level-low';
+      msg.innerHTML = '<strong>&#9888; 基本は整っていますが改善の余地があります</strong><br>下記の未設定項目を確認し、対応を検討してください。';
+    } else {
+      msg.className = 'result-msg level-critical';
+      msg.innerHTML = '<strong>&#128680; 見直しをおすすめします</strong><br>対策が不十分な領域があります。「必須」の項目から優先的に設定してください。';
+    }
+
+    // --- Category breakdown ---
+    const categories = [
+      { name: 'ID・アカウント管理', icon: '&#128100;', reqs: '4-1-1, 4-1-2',
+        questions: ['q3', 'q4'], skip: [] },
+      { name: '認証・パスワード', icon: '&#128274;', reqs: '4-1-3, 4-1-5, 4-1-6',
+        questions: ['q5', 'q6'], skip: [] },
+      { name: 'アクセス権管理', icon: '&#128193;', reqs: '4-1-7',
+        questions: ['q7'], skip: [] },
+      { name: '情報保護・暗号化', icon: '&#128737;', reqs: '3-1-4, 4-3-1',
+        questions: ['q8'], skip: ['irmNA'] },
+      { name: 'ログ・監視', icon: '&#128202;', reqs: '4-4-3',
+        questions: ['q9'], skip: [] },
+      { name: 'データ保護・復旧', icon: '&#128190;', reqs: '4-3-2, 4-3-4, 7-1-1',
+        questions: ['q10'], skip: [] },
+      { name: '外部共有・SC管理', icon: '&#128279;', reqs: '2-1-1, 3-1-5, 4-3-3',
+        questions: ['q11', 'q12'], skip: ['externalShareNA'] },
+    ];
+
+    const grid = document.getElementById('categoryGrid');
+    grid.innerHTML = '';
+    categories.forEach(cat => {
+      // Check if category is skipped entirely
+      const allSkipped = cat.skip.length > 0 && cat.skip.every(s => f[s]);
+      if (allSkipped && cat.questions.every(q => {
+        if (q === 'q8') return f.irmNA;
+        if (q === 'q11') return f.externalShareNA;
+        return false;
+      })) return;
+
+      let done = 0;
+      let total = 0;
+      cat.questions.forEach(q => {
+        if (q === 'q8' && f.irmNA) return;
+        if (q === 'q11' && f.externalShareNA) return;
+        total++;
+        if (answers[q] === 0) done++;
+      });
+      if (total === 0) return;
+
+      const pct = Math.round((done / total) * 100);
+      let cardClass, fillClass, statusClass, statusText;
+      if (pct === 100) {
+        cardClass = 'cat-done'; fillClass = 'fill-green';
+        statusClass = 'status-done'; statusText = '対応済み';
+      } else if (pct > 0) {
+        cardClass = 'cat-partial'; fillClass = 'fill-orange';
+        statusClass = 'status-partial'; statusText = '一部未対応';
+      } else {
+        cardClass = 'cat-none'; fillClass = 'fill-red';
+        statusClass = 'status-none'; statusText = '未対応';
+      }
+
+      const card = document.createElement('div');
+      card.className = 'category-card ' + cardClass;
+      card.innerHTML =
+        '<div class="cat-header"><span class="cat-icon">' + cat.icon + '</span><span class="cat-name">' + cat.name + '</span></div>' +
+        '<div class="cat-bar"><div class="cat-bar-fill ' + fillClass + '" style="width:' + pct + '%"></div></div>' +
+        '<div class="cat-status ' + statusClass + '">' + statusText + '（' + done + ' / ' + total + '）</div>' +
+        '<div class="cat-reqs">要件 ' + cat.reqs + '</div>';
+      grid.appendChild(card);
+    });
+
+    // --- Recommendations table (same logic) ---
     const recommendations = [];
 
-    // --- Scored items (Q3-Q12) ---
-
-    // 1. ユーザーID管理 (Q3) — always 必須
     recommendations.push({
       name: 'ユーザーID管理',
       priority: f.userId ? '設定済み' : '必須',
       desc: 'ユーザーIDの発行・変更・削除を申請・承認制にし、不要IDの速やかな無効化を行います。要件 4-1-1 に対応。',
       link: 'https://help.directcloud.jp/s/admin-manual-user',
     });
-
-    // 2. 管理者ID管理 (Q4) — always 必須
     recommendations.push({
       name: '管理者ID管理',
       priority: f.adminId ? '設定済み' : '必須',
       desc: '管理者IDの個別発行・権限の分離・不要IDの無効化を行い、最小権限の原則を適用します。要件 4-1-2 に対応。',
       link: 'https://help.directcloud.jp/s/admin-manual-user',
     });
-
-    // 3. 多要素認証 (Q5) — always 必須
     recommendations.push({
       name: '多要素認証',
       priority: f.mfa ? '設定済み' : '必須',
       desc: 'ログイン時にワンタイムパスワード等を要求し、パスワード漏洩時の不正アクセスを防ぎます。要件 4-1-3 に対応。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11034',
     });
-
-    // 4. パスワードポリシー (Q6) — always 必須
     recommendations.push({
       name: 'パスワードポリシー',
       priority: f.password ? '設定済み' : '必須',
@@ -1196,108 +1469,59 @@
       link: 'https://help.directcloud.jp/s/admin-manual-security',
     });
 
-    // 5. アクセス権管理 (Q7) — ★3=推奨, ★4=必須
-    let accessPriority;
-    if (f.accessReview) {
-      accessPriority = '設定済み';
-    } else {
-      accessPriority = (star >= 4) ? '必須' : '推奨';
-    }
+    let accessPriority = f.accessReview ? '設定済み' : ((star >= 4) ? '必須' : '推奨');
     recommendations.push({
-      name: 'アクセス権管理',
-      priority: accessPriority,
+      name: 'アクセス権管理', priority: accessPriority,
       desc: 'アクセス権の定期棚卸を実施し、不要な権限を速やかに削除します。要件 4-1-7 に対応。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11143',
     });
 
-    // 6. 機密区分管理(IRM) (Q8) — skip if C, ★3=推奨, ★4=必須
     if (!f.irmNA) {
-      let irmPriority;
-      if (f.irm) {
-        irmPriority = '設定済み';
-      } else {
-        irmPriority = (star >= 4) ? '必須' : '推奨';
-      }
+      let irmPriority = f.irm ? '設定済み' : ((star >= 4) ? '必須' : '推奨');
       recommendations.push({
-        name: '機密区分管理（IRM）',
-        priority: irmPriority,
+        name: '機密区分管理（IRM）', priority: irmPriority,
         desc: 'SHIELD IRMでファイルに機密度ラベルを付与し、AES-256暗号化で保護します。要件 3-1-4, 4-3-1 に対応。',
         link: 'https://help.directcloud.jp/s/admin-manual-shield-irm',
       });
     }
 
-    // 7. ログ監視 (Q9) — ★3=推奨, ★4=必須
-    let logPriority;
-    if (f.log) {
-      logPriority = '設定済み';
-    } else {
-      logPriority = (star >= 4) ? '必須' : '推奨';
-    }
+    let logPriority = f.log ? '設定済み' : ((star >= 4) ? '必須' : '推奨');
     recommendations.push({
-      name: 'ログ監視',
-      priority: logPriority,
+      name: 'ログ監視', priority: logPriority,
       desc: 'ログイン履歴・ファイル操作・管理者操作のログを月次以上で確認し、不審な活動を検知します。要件 4-4-3 に対応。',
       link: 'https://help.directcloud.jp/s/admin-manual-log',
     });
 
-    // 8. データ保護・バックアップ (Q10) — ★3=推奨, ★4=必須
-    let backupPriority;
-    if (f.backup) {
-      backupPriority = '設定済み';
-    } else {
-      backupPriority = (star >= 4) ? '必須' : '推奨';
-    }
+    let backupPriority = f.backup ? '設定済み' : ((star >= 4) ? '必須' : '推奨');
     recommendations.push({
-      name: 'データ保護・バックアップ',
-      priority: backupPriority,
+      name: 'データ保護・バックアップ', priority: backupPriority,
       desc: '遠隔地バックアップやランサムウェア対策を設定し、データの保全と復旧に備えます。要件 4-3-2, 4-3-4, 7-1-1 に対応。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11233',
     });
 
-    // 9. 外部共有管理 (Q11) — skip if C, ★3=推奨, ★4=必須
     if (!f.externalShareNA) {
-      let extPriority;
-      if (f.externalShare) {
-        extPriority = '設定済み';
-      } else {
-        extPriority = (star >= 4) ? '必須' : '推奨';
-      }
+      let extPriority = f.externalShare ? '設定済み' : ((star >= 4) ? '必須' : '推奨');
       recommendations.push({
-        name: '外部共有管理',
-        priority: extPriority,
+        name: '外部共有管理', priority: extPriority,
         desc: '承認ワークフローや共有リンクの制限を設定し、社外とのファイル共有を安全に管理します。要件 2-1-1, 4-3-3 に対応。',
         link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function13001',
       });
     }
 
-    // 10. デバイス認証 (Q12) — ★3=任意, ★4=推奨
-    let devicePriority;
-    if (f.device) {
-      devicePriority = '設定済み';
-    } else {
-      devicePriority = (star >= 4) ? '推奨' : '任意';
-    }
+    let devicePriority = f.device ? '設定済み' : ((star >= 4) ? '推奨' : '任意');
     recommendations.push({
-      name: 'デバイス認証',
-      priority: devicePriority,
+      name: 'デバイス認証', priority: devicePriority,
       desc: '管理者の承認済デバイスのみアクセスを許可し、未承認端末からの利用を制限します。要件 3-1-5 に対応。※WEBアプリケーションでのログインは対象外です。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11032',
     });
 
-    // --- Always-show items (not scored) ---
-
-    // 11. マルウェア対策 — always 対応済み
     recommendations.push({
-      name: 'マルウェア対策',
-      priority: '対応済み',
+      name: 'マルウェア対策', priority: '対応済み',
       desc: 'DirectCloudはアップロード時に自動でウイルススキャンを実施します。要件 5-1-2-4 に対応。',
       link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11188',
     });
-
-    // 12. 外部サービス管理 — always 参考
     recommendations.push({
-      name: '外部サービス管理',
-      priority: '参考',
+      name: '外部サービス管理', priority: '参考',
       desc: 'DirectCloudのセキュリティチェックシートや各種資料を活用し、クラウドサービスの利用ルール策定に役立てられます。要件 3-1-3-1 に対応。',
       link: 'https://directcloud.jp/contents/category/doc_download/',
     });
@@ -1324,53 +1548,12 @@
       tbody.appendChild(tr);
     });
 
-    // Score: Count A answers from Q3-Q12, excluding Q8 if C and Q11 if C
-    let score = 0;
-    let total = 10;
-
-    if (f.irmNA) total--;       // Q8=C: exclude from total
-    if (f.externalShareNA) total--; // Q11=C: exclude from total
-
-    if (answers.q3 === 0) score++;   // ユーザーID管理
-    if (answers.q4 === 0) score++;   // 管理者ID管理
-    if (answers.q5 === 0) score++;   // 多要素認証
-    if (answers.q6 === 0) score++;   // パスワードポリシー
-    if (answers.q7 === 0) score++;   // アクセス権管理
-    if (!f.irmNA && answers.q8 === 0) score++;   // 機密区分管理
-    if (answers.q9 === 0) score++;   // ログ監視
-    if (answers.q10 === 0) score++;  // データ保護
-    if (!f.externalShareNA && answers.q11 === 0) score++; // 外部共有管理
-    if (answers.q12 === 0) score++;  // デバイス認証
-
-    // Display score
-    document.getElementById('scoreNum').textContent = score;
-    document.querySelector('.score-label').textContent = '/ ' + total;
-    const circle = document.getElementById('scoreCircle');
-    const msg = document.getElementById('resultMsg');
-
-    // Score tiers based on percentage
-    const pct = score / total;
-    if (pct === 1) {
-      circle.className = 'score-circle perfect';
-      msg.className = 'result-msg level-high';
-      msg.innerHTML = '<strong>&#11088; 高い対応度です</strong><br>DirectCloudの主要な設定が★3/★4要件に対応しています。引き続き定期的な見直しをおすすめします。';
-    } else if (pct >= 0.7) {
-      circle.className = 'score-circle good';
-      msg.className = 'result-msg level-mid';
-      msg.innerHTML = '<strong>&#128077; かなり対応できています</strong><br>残りの未設定項目を確認すれば、さらに対応度が上がります。';
-    } else if (pct >= 0.4) {
-      circle.className = 'score-circle ok';
-      msg.className = 'result-msg level-low';
-      msg.innerHTML = '<strong>&#9888; 基本は整っていますが改善の余地があります</strong><br>下記の未設定項目を確認し、対応を検討してください。';
-    } else if (score >= 1) {
-      circle.className = 'score-circle warn';
-      msg.className = 'result-msg level-critical';
-      msg.innerHTML = '<strong>&#128680; 見直しをおすすめします</strong><br>対策が不十分な領域があります。「必須」の項目から優先的に設定してください。';
-    } else {
-      circle.className = 'score-circle warn';
-      msg.className = 'result-msg level-critical';
-      msg.innerHTML = '<strong>&#128680; 早めの対応をおすすめします</strong><br>セキュリティ設定がほとんど未対応です。★3/★4の認定取得に向けて、すぐに設定を進めてください。';
-    }
+    // Send results
+    submitResults({
+      star3Pct: star3Pct, star4Pct: star4Pct,
+      star3Covered: star3Covered, star3Total: star3Total,
+      star4Covered: star4Covered, star4Total: star4Total
+    });
   }
 
   // ===== Reset =====
@@ -1388,10 +1571,15 @@
 
     // Clear result
     document.getElementById('resultBody').innerHTML = '';
-    document.getElementById('scoreNum').textContent = '0';
+    document.getElementById('categoryGrid').innerHTML = '';
+    document.getElementById('star3Pct').textContent = '0';
+    document.getElementById('star4Pct').textContent = '0';
+    document.getElementById('star3Sub').textContent = '0 / 0 項目';
+    document.getElementById('star4Sub').textContent = '0 / 0 項目';
+    document.getElementById('star3Circle').className = 'score-circle';
+    document.getElementById('star4Circle').className = 'score-circle';
     document.getElementById('resultMsg').innerHTML = '';
     document.getElementById('resultMsg').className = 'result-msg';
-    document.getElementById('scoreCircle').className = 'score-circle';
 
     goTo('intro');
   }

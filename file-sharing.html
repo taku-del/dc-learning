@@ -593,6 +593,7 @@
       <div class="btn-row">
         <div></div>
         <button class="btn btn-primary" onclick="goTo(2)">学習を始める →</button>
+        <p style="font-size:11px; color:#999; text-align:right; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
       </div>
     </div>
 
@@ -1098,7 +1099,7 @@
 
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="resetQuiz()">&#8635; もう一度挑戦</button>
-        <div></div>
+        <p style="font-size:11px; color:#999;">&#10003; 結果を保存しました</p>
       </div>
     </div>
 
@@ -1106,6 +1107,18 @@
 </div><!-- /layout -->
 
 <script>
+  // ===== Collect endpoint (PA HTTP trigger URL) =====
+  const COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+  function getUser() { return new URLSearchParams(window.location.search).get('user') || ''; }
+
+  function submitResults(extra) {
+    if (!COLLECT_ENDPOINT) return;
+    var payload = { page: 'ファイル共有方法の選び方', timestamp: new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo'}), user: getUser(), answers: answered };
+    Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+    fetch(COLLECT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(function() {});
+  }
+
   const totalSections = 8;
   let currentSection = 1;
   let score = 0;
@@ -1201,6 +1214,9 @@
       msg.textContent = 'もう少し！上の解説を復習してみましょう。';
       msg.style.color = '#92400E';
     }
+
+    // Send results
+    submitResults({ score: score, total: 5 });
   }
 
   function resetQuiz() {
