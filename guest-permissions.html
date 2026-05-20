@@ -1180,6 +1180,7 @@ var score = 0;
 /* ===== Sections & Navigation ===== */
 var sectionOrder = ['intro', 'learn1', 'learn2', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
 var currentSection = 'intro';
+var visited = { intro: true };
 
 function goTo(sec) {
   // Hide all sections
@@ -1191,6 +1192,7 @@ function goTo(sec) {
   var target = document.getElementById('sec-' + sec);
   if (target) target.classList.add('active');
 
+  visited[sec] = true;
   currentSection = sec;
   updateSidebar(sec);
   updateProgress(sec);
@@ -1200,9 +1202,15 @@ function goTo(sec) {
 function updateSidebar(sec) {
   var items = document.querySelectorAll('.sidebar-item');
   for (var i = 0; i < items.length; i++) {
-    items[i].classList.remove('active');
-    if (items[i].getAttribute('data-sec') === sec) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
       items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '✓';
     }
   }
 }
