@@ -812,8 +812,8 @@
           <div class="choices-grid two-col" id="q7choices">
             <div class="choice-card" onclick="selectAnswer('q7', 0, this)">
               <div class="choice-letter">A</div>
-              <h5>はい、登録デバイスのみ許可</h5>
-              <p>登録済みデバイスのみアクセスを許可している</p>
+              <h5>はい、承認済デバイスのみ許可</h5>
+              <p>管理者の承認済デバイスのみアクセスを許可している</p>
             </div>
             <div class="choice-card" onclick="selectAnswer('q7', 1, this)">
               <div class="choice-letter">B</div>
@@ -1217,7 +1217,7 @@
     } else {
       devicePriority = '任意';
     }
-    let deviceDesc = '登録済みデバイスのみアクセスを許可し、未登録端末からの利用を制限します。※WEBアプリケーションでのログインは対象外です。';
+    let deviceDesc = '管理者の承認済デバイスのみアクセスを許可し、未承認端末からの利用を制限します。※WEBアプリケーションでのログインは対象外です。';
     if (f.sso) {
       deviceDesc += ' SSO利用時はIdP側のデバイス管理と併用を検討してください。';
     }
