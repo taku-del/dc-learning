@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — セキュリティ対策評価制度 対応度チェック</title>
+<style>
+  :root {
+    --dc-blue: #2E6DFE;
+    --dc-blue-light: #E8F0FF;
+    --dc-blue-dark: #1A5FE0;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-purple: #7B61FF;
+    --dc-purple-light: #F0EDFF;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F0F4F8;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-blue);
+  }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue); }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step {
+    font-size: 13px; color: #888;
+  }
+  .topbar-step strong { color: var(--dc-blue); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 49px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 49px;
+    height: calc(100vh - 49px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #F5F8FB; color: #333; }
+  .sidebar-item.active {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue);
+    font-weight: 600;
+    border-left-color: var(--dc-blue);
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item.done .sidebar-icon { color: var(--dc-green); }
+  .sidebar-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+  .sidebar-divider {
+    height: 1px;
+    background: #E0E6ED;
+    margin: 8px 20px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: #AAA;
+    font-weight: 600;
+    padding: 8px 20px 4px;
+    text-transform: uppercase;
+  }
+  .sidebar-sub {
+    padding-left: 36px;
+    font-size: 12px;
+  }
+
+  /* ===== Content ===== */
+  .content {
+    padding: 40px 48px 80px;
+    overflow-y: auto;
+  }
+
+  /* ===== Section pages ===== */
+  .section {
+    display: none;
+    animation: fadeSlideIn 0.4s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== Content header ===== */
+  .content-header {
+    margin-bottom: 32px;
+  }
+  .content-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .content-header p { font-size: 14px; color: #666; }
+
+  /* ===== Cards ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--dc-blue-dark);
+  }
+  .card h3 {
+    font-size: 17px;
+    margin-bottom: 12px;
+    color: #374151;
+  }
+  .card p {
+    font-size: 15px;
+    color: #4B5563;
+    margin-bottom: 12px;
+  }
+
+  /* ===== Scenario ===== */
+  .scenario {
+    background: #FFF8F0;
+    border: 1px solid #FFE0B2;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex; gap: 14px;
+  }
+  .scenario-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .scenario p { font-size: 15px; color: #5D4037; margin: 0; }
+
+  /* ===== Info Box ===== */
+  .info-box {
+    background: var(--dc-blue-light);
+    border-left: 4px solid var(--dc-blue);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .info-box strong {
+    color: var(--dc-blue-dark);
+  }
+
+  /* ===== Quiz Card ===== */
+  .quiz-card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .quiz-header {
+    background: var(--dc-blue);
+    color: #fff;
+    padding: 20px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .quiz-header h2 { font-size: 16px; font-weight: 600; margin: 0; color: #fff; }
+  .quiz-counter {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .quiz-body { padding: 28px; }
+
+  /* ===== Choices Grid ===== */
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .choices-grid.two-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .choice-card {
+    border: 2px solid #E0E6ED;
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-blue);
+    background: #F8FBFF;
+  }
+  .choice-card .choice-letter {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #F0F4F8;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: #999;
+    margin: 0 auto 12px;
+    transition: all 0.2s;
+  }
+  .choice-card:hover .choice-letter { background: var(--dc-blue); color: #fff; }
+  .choice-card h5 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .choice-card p { font-size: 12px; color: #888; margin: 0; }
+
+  .choice-card.selected {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    animation: popIn 0.3s ease;
+  }
+  .choice-card.selected .choice-letter {
+    background: var(--dc-blue); color: #fff;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  @keyframes popIn {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+
+  /* ===== Buttons ===== */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--dc-blue);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--dc-blue-dark); }
+  .btn-secondary {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-secondary:hover { background: var(--dc-gray-light); }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-large {
+    padding: 14px 40px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.5s ease;
+  }
+  .score-circle.perfect { background: linear-gradient(135deg, var(--dc-green), #00C896); }
+  .score-circle.good    { background: linear-gradient(135deg, var(--dc-blue), #3B82F6); }
+  .score-circle.ok      { background: linear-gradient(135deg, var(--dc-orange), #F59E0B); }
+  .score-circle.warn    { background: linear-gradient(135deg, var(--dc-red), #F87171); }
+  .score-num {
+    font-size: 44px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .score-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+  @keyframes scaleIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  /* ===== Tags / Badges ===== */
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 2px;
+  }
+  .tag-blue   { background: var(--dc-blue-light);   color: var(--dc-blue); }
+  .tag-green  { background: var(--dc-green-light);  color: var(--dc-green); }
+  .tag-purple { background: var(--dc-purple-light); color: var(--dc-purple); }
+  .tag-orange { background: var(--dc-orange-light); color: #92400E; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-red    { background: var(--dc-red-light);    color: var(--dc-red); }
+  .badge-blue   { background: var(--dc-blue-light);   color: var(--dc-blue); }
+  .badge-gray   { background: var(--dc-gray-light);   color: var(--dc-gray); }
+  .badge-green  { background: var(--dc-green-light);  color: var(--dc-green); }
+
+  /* ===== Result Table ===== */
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+  .result-table th {
+    background: var(--dc-blue);
+    color: #fff;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .result-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #E5E7EB;
+    vertical-align: middle;
+  }
+  .result-table tr:nth-child(even) td {
+    background: #F9FAFB;
+  }
+  .result-table tr:hover td {
+    background: #F0F4F8;
+  }
+  .result-table .setting-name {
+    font-weight: 600;
+    color: #1A2332;
+  }
+  .result-table .setting-desc {
+    font-size: 13px;
+    color: #6B7280;
+    margin-top: 2px;
+  }
+  .result-table a {
+    color: var(--dc-blue);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .result-table a:hover {
+    text-decoration: underline;
+  }
+
+  /* ===== Intro feature icons ===== */
+  .intro-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .intro-feature {
+    text-align: center;
+    padding: 20px;
+    background: #F8FAFC;
+    border-radius: var(--radius);
+    border: 1px solid #E0E6ED;
+  }
+  .intro-feature-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .intro-feature h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .intro-feature p {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+  }
+
+  /* ===== Result summary message ===== */
+  .result-msg {
+    text-align: center;
+    padding: 20px;
+    border-radius: var(--radius);
+    margin: 20px 0;
+    font-size: 15px;
+  }
+  .result-msg.level-high {
+    background: var(--dc-green-light);
+    border: 1px solid #A7F3D0;
+    color: #065F46;
+  }
+  .result-msg.level-mid {
+    background: var(--dc-blue-light);
+    border: 1px solid #93C5FD;
+    color: #1E40AF;
+  }
+  .result-msg.level-low {
+    background: var(--dc-orange-light);
+    border: 1px solid #FCD34D;
+    color: #92400E;
+  }
+  .result-msg.level-critical {
+    background: var(--dc-red-light);
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .topbar { padding: 12px 20px; }
+    .content { padding: 24px 20px 80px; }
+    .choices-grid { grid-template-columns: 1fr; }
+    .choices-grid.two-col { grid-template-columns: 1fr; }
+    .intro-features { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a id="back-link" href="https://community.directcloud.jp/s/learning" target="_top" class="topbar-back">&#8592; 活用ガイド一覧</a>
+    <div class="topbar-sep">|</div>
+    <div class="topbar-title">セキュリティ対策評価制度 対応度チェック</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-step" id="topbarStep">Step <strong>1</strong> / 14</div>
+    <div class="progress-mini"><div class="progress-mini-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- ===== Sidebar ===== -->
+  <div class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <div class="sidebar-icon">&#9654;</div><span>はじめに</span>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">利用状況</div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <div class="sidebar-icon">&#9675;</div><span>Q1 認定レベル</span>
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <div class="sidebar-icon">&#9675;</div><span>Q2 社外共有</span>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">設定確認（10問）</div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <div class="sidebar-icon">&#9675;</div><span>Q3 ユーザーID</span>
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <div class="sidebar-icon">&#9675;</div><span>Q4 管理者ID</span>
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <div class="sidebar-icon">&#9675;</div><span>Q5 多要素認証</span>
+    </div>
+    <div class="sidebar-item" data-sec="q6" onclick="goTo('q6')">
+      <div class="sidebar-icon">&#9675;</div><span>Q6 パスワード</span>
+    </div>
+    <div class="sidebar-item" data-sec="q7" onclick="goTo('q7')">
+      <div class="sidebar-icon">&#9675;</div><span>Q7 アクセス権</span>
+    </div>
+    <div class="sidebar-item" data-sec="q8" onclick="goTo('q8')">
+      <div class="sidebar-icon">&#9675;</div><span>Q8 機密区分</span>
+    </div>
+    <div class="sidebar-item" data-sec="q9" onclick="goTo('q9')">
+      <div class="sidebar-icon">&#9675;</div><span>Q9 ログ監視</span>
+    </div>
+    <div class="sidebar-item" data-sec="q10" onclick="goTo('q10')">
+      <div class="sidebar-icon">&#9675;</div><span>Q10 データ保護</span>
+    </div>
+    <div class="sidebar-item" data-sec="q11" onclick="goTo('q11')">
+      <div class="sidebar-icon">&#9675;</div><span>Q11 外部共有</span>
+    </div>
+    <div class="sidebar-item" data-sec="q12" onclick="goTo('q12')">
+      <div class="sidebar-icon">&#9675;</div><span>Q12 デバイス認証</span>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <div class="sidebar-icon">&#9675;</div><span>診断結果</span>
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+
+    <!-- ========== Section: イントロ ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>あなたの組織はセキュリティ対策評価制度に対応できていますか？</h1>
+        <p>DirectCloudの設定状況から、★3・★4への対応度を診断します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <div class="scenario-icon">&#128203;</div>
+          <p>
+            「サプライチェーン強化に向けたセキュリティ対策評価制度」では、組織のセキュリティ対策レベルを★1〜★5で評価します。<br>
+            このうち★3・★4ではクラウドサービスの設定や運用体制も評価の対象です。<br>
+            DirectCloudの設定状況から、対応度を確認しましょう。
+          </p>
+        </div>
+
+        <div class="intro-features">
+          <div class="intro-feature">
+            <div class="intro-feature-icon">&#128203;</div>
+            <h4>選ぶだけ</h4>
+            <p>選択式で簡単回答</p>
+          </div>
+          <div class="intro-feature">
+            <div class="intro-feature-icon">&#127919;</div>
+            <h4>要件マッピング</h4>
+            <p>★3/★4要件との対応を表示</p>
+          </div>
+          <div class="intro-feature">
+            <div class="intro-feature-icon">&#9201;</div>
+            <h4>所要時間 約4分</h4>
+            <p>すぐに結果が出ます</p>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <strong>対象:</strong> DirectCloud管理者の方 ／ <strong>形式:</strong> 選択式の診断 ／ <strong>所要時間:</strong> 約4分
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary btn-large" onclick="goTo('q1')">診断を始める &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1: 認定レベル ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>あなたの組織の利用状況を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>利用状況 1 / 2</h2>
+          <div class="quiz-counter">認定レベル</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">目指している認定レベルはどれですか？</p>
+          <div class="choices-grid" id="q1choices">
+            <div class="choice-card" onclick="selectAnswer('q1', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>★3を目指している</h5>
+              <p>基本的なセキュリティ対策の実装</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q1', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>★4を目指している</h5>
+              <p>より高度な対策と運用体制の整備</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q1', 2, this)">
+              <div class="choice-letter">C</div>
+              <h5>まだ決めていない</h5>
+              <p>情報収集中・検討段階</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2: 社外共有 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>あなたの組織の利用状況を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>利用状況 2 / 2</h2>
+          <div class="quiz-counter">社外共有</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">社外の方とファイル共有をしていますか？</p>
+          <div class="choices-grid" id="q2choices">
+            <div class="choice-card" onclick="selectAnswer('q2', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>ゲスト招待で共同作業</h5>
+              <p>社外ユーザーを招待して一緒に作業している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q2', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>共有リンクで送受信</h5>
+              <p>リンクを発行してファイルを送っている</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q2', 2, this)">
+              <div class="choice-letter">C</div>
+              <h5>社内のみ</h5>
+              <p>社外との共有はしていない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3: ユーザーID管理 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 1 / 10</h2>
+          <div class="quiz-counter">ユーザーID管理</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">ユーザーIDの発行・変更・削除を申請・承認制にしていますか？</p>
+          <div class="choices-grid two-col" id="q3choices">
+            <div class="choice-card" onclick="selectAnswer('q3', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、申請・承認制で管理</h5>
+              <p>IDの発行・変更・削除に承認プロセスがある</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q3', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / ルール未整備</h5>
+              <p>管理者が直接操作、または手順が決まっていない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4: 管理者ID管理 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 2 / 10</h2>
+          <div class="quiz-counter">管理者ID管理</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">管理者IDを個別に発行し、権限を分離していますか？</p>
+          <div class="choices-grid two-col" id="q4choices">
+            <div class="choice-card" onclick="selectAnswer('q4', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、個別IDで権限を分離</h5>
+              <p>管理者ごとにIDを発行し、役割に応じた権限を設定している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q4', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / 共有IDあり</h5>
+              <p>管理者IDを共有している、または権限を分離していない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5: 多要素認証 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 3 / 10</h2>
+          <div class="quiz-counter">多要素認証</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">多要素認証（二要素認証）を有効にしていますか？</p>
+          <div class="choices-grid two-col" id="q5choices">
+            <div class="choice-card" onclick="selectAnswer('q5', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、有効にしている</h5>
+              <p>全ユーザーまたは管理者に多要素認証を適用している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q5', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / わからない</h5>
+              <p>多要素認証は有効にしていない、または把握していない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q6: パスワードポリシー ========== -->
+    <div class="section" id="sec-q6">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 4 / 10</h2>
+          <div class="quiz-counter">パスワードポリシー</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">パスワードポリシーを設定していますか？（8文字以上・複雑さなど）</p>
+          <div class="choices-grid two-col" id="q6choices">
+            <div class="choice-card" onclick="selectAnswer('q6', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、設定している</h5>
+              <p>最小文字数・文字種制限・ログイン失敗時のロックを設定している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q6', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>初期設定のまま / わからない</h5>
+              <p>特に変更していない、または把握していない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q7: アクセス権管理 ========== -->
+    <div class="section" id="sec-q7">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 5 / 10</h2>
+          <div class="quiz-counter">アクセス権管理</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">アクセス権の定期的な棚卸を実施していますか？</p>
+          <div class="choices-grid two-col" id="q7choices">
+            <div class="choice-card" onclick="selectAnswer('q7', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、定期的に棚卸している</h5>
+              <p>年1回以上の頻度でアクセス権の確認・見直しを実施</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q7', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / 棚卸はしていない</h5>
+              <p>アクセス権の設定はしているが、定期見直しはしていない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q8: 機密区分管理 ========== -->
+    <div class="section" id="sec-q8">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 6 / 10</h2>
+          <div class="quiz-counter">機密区分管理</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">SHIELD IRMで機密区分を管理していますか？</p>
+          <p style="font-size:13px; color:#888; margin-bottom:16px;">※ SHIELD IRMはオプション機能です</p>
+          <div class="choices-grid" id="q8choices">
+            <div class="choice-card" onclick="selectAnswer('q8', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、利用している</h5>
+              <p>ファイルに機密度ラベルを付与し暗号化を適用している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q8', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / わからない</h5>
+              <p>利用していない、または把握していない</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q8', 2, this)">
+              <div class="choice-letter">C</div>
+              <h5>オプション未契約</h5>
+              <p>SHIELD IRMを契約していない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q9: ログ監視 ========== -->
+    <div class="section" id="sec-q9">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 7 / 10</h2>
+          <div class="quiz-counter">ログ監視</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">操作ログ・ログイン履歴を定期的に確認していますか？</p>
+          <div class="choices-grid two-col" id="q9choices">
+            <div class="choice-card" onclick="selectAnswer('q9', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、月次以上で確認</h5>
+              <p>不審なアクセスや操作がないか定期的に確認している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q9', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>あまり確認していない</h5>
+              <p>ログの確認はほとんどしていない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q10: データ保護 ========== -->
+    <div class="section" id="sec-q10">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 8 / 10</h2>
+          <div class="quiz-counter">データ保護</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">バックアップやランサムウェア対策を設定していますか？</p>
+          <div class="choices-grid two-col" id="q10choices">
+            <div class="choice-card" onclick="selectAnswer('q10', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、設定している</h5>
+              <p>遠隔地バックアップやランサムウェア対策を有効にしている</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q10', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / わからない</h5>
+              <p>設定していない、または把握していない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q11: 外部共有管理 ========== -->
+    <div class="section" id="sec-q11">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 9 / 10</h2>
+          <div class="quiz-counter">外部共有管理</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">社外共有に承認ワークフローやリンク制限を設定していますか？</p>
+          <div class="choices-grid" id="q11choices">
+            <div class="choice-card" onclick="selectAnswer('q11', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、設定している</h5>
+              <p>承認制やパスワード・有効期限の必須化を設定している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q11', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / 特に制限していない</h5>
+              <p>ユーザー任せにしている</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q11', 2, this)">
+              <div class="choice-letter">C</div>
+              <h5>社外共有はしていない</h5>
+              <p>対象外</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q12: デバイス認証 ========== -->
+    <div class="section" id="sec-q12">
+      <div class="content-header">
+        <h1>セキュリティ対策評価制度 対応度診断</h1>
+        <p>現在のセキュリティ設定を教えてください</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>質問 10 / 10</h2>
+          <div class="quiz-counter">デバイス認証</div>
+        </div>
+        <div class="quiz-body">
+          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">デバイス認証を利用していますか？</p>
+          <div class="choices-grid two-col" id="q12choices">
+            <div class="choice-card" onclick="selectAnswer('q12', 0, this)">
+              <div class="choice-letter">A</div>
+              <h5>はい、承認済デバイスのみ許可</h5>
+              <p>管理者の承認済デバイスのみアクセスを許可している</p>
+            </div>
+            <div class="choice-card" onclick="selectAnswer('q12', 1, this)">
+              <div class="choice-letter">B</div>
+              <h5>いいえ / わからない</h5>
+              <p>デバイス認証は利用していない、または把握していない</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Section: 診断結果 ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>診断結果</h1>
+        <p>あなたの組織の回答に基づく対応度評価です</p>
+      </div>
+
+      <!-- Score -->
+      <div class="card" style="text-align: center;">
+        <h2>対応度スコア</h2>
+        <div class="score-circle" id="scoreCircle">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-label">/ 10</div>
+        </div>
+        <div class="result-msg" id="resultMsg"></div>
+      </div>
+
+      <!-- Recommendations Table -->
+      <div class="card">
+        <h2>推奨設定一覧</h2>
+        <p>あなたの回答に基づいて、各設定の優先度を判定しました。</p>
+        <table class="result-table" id="resultTable">
+          <thead>
+            <tr>
+              <th style="width:30%;">設定項目</th>
+              <th style="width:14%;">優先度</th>
+              <th>説明</th>
+              <th style="width:12%;">ヘルプ</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody">
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom actions -->
+      <div class="card">
+        <h3>次のステップ</h3>
+        <p>上記の「必須」項目から順に設定を進めてください。各項目の「詳細」リンクからヘルプページへ移動できます。</p>
+        <div class="info-box">
+          <strong>ヒント:</strong> 各項目の「詳細」リンクからDirectCloudのWEBマニュアルを確認できます。ご不明な点は <a href="https://community.directcloud.jp/s/FAQ" target="_top" style="color:var(--dc-blue); font-weight:600;">質問して</a> みてください。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="resetDiagnosis()">&#8635; もう一度診断する</button>
+        <div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /layout -->
+
+<script>
+  // ===== State =====
+  const sections = ['intro', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'result'];
+  let currentSection = 'intro';
+  let answers = {};
+  let visited = { intro: true };
+
+  // ===== Navigation =====
+  function goTo(sec) {
+    visited[currentSection] = true;
+    currentSection = sec;
+    visited[sec] = true;
+
+    // Switch section visibility
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-' + sec).classList.add('active');
+
+    // Progress
+    const idx = sections.indexOf(sec);
+    const totalSteps = sections.length;
+    const pct = Math.round((idx / (totalSteps - 1)) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    // Top bar step counter
+    const stepNum = idx + 1;
+    document.getElementById('topbarStep').innerHTML = 'Step <strong>' + stepNum + '</strong> / 14';
+
+    // Update sidebar
+    updateSidebar(sec);
+
+    // Scroll content to top
+    document.querySelector('.content').scrollTo({ top: 0, behavior: 'smooth' });
+
+    // If navigating to result, calculate
+    if (sec === 'result') {
+      calculateResult();
+    }
+  }
+
+  function updateSidebar(activeSec) {
+    const items = document.querySelectorAll('.sidebar-item');
+    items.forEach(item => {
+      const sec = item.getAttribute('data-sec');
+      item.classList.remove('active', 'done');
+      const icon = item.querySelector('.sidebar-icon');
+
+      if (sec === activeSec) {
+        item.classList.add('active');
+        icon.innerHTML = '&#9654;';
+      } else if (visited[sec]) {
+        item.classList.add('done');
+        icon.innerHTML = '&#10003;';
+      } else {
+        icon.innerHTML = '&#9675;';
+      }
+    });
+  }
+
+  // ===== Answer selection =====
+  function selectAnswer(qId, choiceIdx, el) {
+    if (answers[qId] !== undefined) return; // already answered
+    answers[qId] = choiceIdx;
+
+    // Highlight selected
+    const cards = el.parentElement.querySelectorAll('.choice-card');
+    cards.forEach((card, i) => {
+      if (i === choiceIdx) {
+        card.classList.add('selected');
+      }
+      card.classList.add('disabled');
+    });
+
+    // Determine next section
+    const qNum = parseInt(qId.replace('q', ''));
+    const nextSec = qNum < 12 ? 'q' + (qNum + 1) : 'result';
+
+    // Auto-advance after delay
+    setTimeout(() => {
+      goTo(nextSec);
+    }, 300);
+  }
+
+  // ===== Build flags from answers =====
+  function getFlags() {
+    const flags = {};
+
+    // Q1: star level
+    switch (answers.q1) {
+      case 0: flags.starLevel = 3; break;
+      case 1: flags.starLevel = 4; break;
+      case 2: flags.starLevel = 4; break; // undecided defaults to ★4 requirements
+    }
+
+    // Q2: external sharing
+    switch (answers.q2) {
+      case 0: flags.external = true; break;
+      case 1: flags.external = true; break;
+      case 2: flags.external = false; break;
+    }
+
+    // Q3-Q12: setting confirmations (0 = A = configured)
+    flags.userId = (answers.q3 === 0);
+    flags.adminId = (answers.q4 === 0);
+    flags.mfa = (answers.q5 === 0);
+    flags.password = (answers.q6 === 0);
+    flags.accessReview = (answers.q7 === 0);
+    flags.irm = (answers.q8 === 0);
+    flags.irmNA = (answers.q8 === 2); // オプション未契約
+    flags.log = (answers.q9 === 0);
+    flags.backup = (answers.q10 === 0);
+    flags.externalShare = (answers.q11 === 0);
+    flags.externalShareNA = (answers.q11 === 2); // 社外共有なし
+    flags.device = (answers.q12 === 0);
+
+    return flags;
+  }
+
+  // ===== Calculate result =====
+  function calculateResult() {
+    const f = getFlags();
+    const star = f.starLevel;
+    const recommendations = [];
+
+    // --- Scored items (Q3-Q12) ---
+
+    // 1. ユーザーID管理 (Q3) — always 必須
+    recommendations.push({
+      name: 'ユーザーID管理',
+      priority: f.userId ? '設定済み' : '必須',
+      desc: 'ユーザーIDの発行・変更・削除を申請・承認制にし、不要IDの速やかな無効化を行います。要件 4-1-1 に対応。',
+      link: 'https://help.directcloud.jp/s/admin-manual-user',
+    });
+
+    // 2. 管理者ID管理 (Q4) — always 必須
+    recommendations.push({
+      name: '管理者ID管理',
+      priority: f.adminId ? '設定済み' : '必須',
+      desc: '管理者IDの個別発行・権限の分離・不要IDの無効化を行い、最小権限の原則を適用します。要件 4-1-2 に対応。',
+      link: 'https://help.directcloud.jp/s/admin-manual-user',
+    });
+
+    // 3. 多要素認証 (Q5) — always 必須
+    recommendations.push({
+      name: '多要素認証',
+      priority: f.mfa ? '設定済み' : '必須',
+      desc: 'ログイン時にワンタイムパスワード等を要求し、パスワード漏洩時の不正アクセスを防ぎます。要件 4-1-3 に対応。',
+      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11034',
+    });
+
+    // 4. パスワードポリシー (Q6) — always 必須
+    recommendations.push({
+      name: 'パスワードポリシー',
+      priority: f.password ? '設定済み' : '必須',
+      desc: '8文字以上・文字種制限・ログイン失敗時のロック等を設定し、認証情報を保護します。要件 4-1-5, 4-1-6 に対応。',
+      link: 'https://help.directcloud.jp/s/admin-manual-security',
+    });
+
+    // 5. アクセス権管理 (Q7) — ★3=推奨, ★4=必須
+    let accessPriority;
+    if (f.accessReview) {
+      accessPriority = '設定済み';
+    } else {
+      accessPriority = (star >= 4) ? '必須' : '推奨';
+    }
+    recommendations.push({
+      name: 'アクセス権管理',
+      priority: accessPriority,
+      desc: 'アクセス権の定期棚卸を実施し、不要な権限を速やかに削除します。要件 4-1-7 に対応。',
+      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11143',
+    });
+
+    // 6. 機密区分管理(IRM) (Q8) — skip if C, ★3=推奨, ★4=必須
+    if (!f.irmNA) {
+      let irmPriority;
+      if (f.irm) {
+        irmPriority = '設定済み';
+      } else {
+        irmPriority = (star >= 4) ? '必須' : '推奨';
+      }
+      recommendations.push({
+        name: '機密区分管理（IRM）',
+        priority: irmPriority,
+        desc: 'SHIELD IRMでファイルに機密度ラベルを付与し、AES-256暗号化で保護します。要件 3-1-4, 4-3-1 に対応。',
+        link: 'https://help.directcloud.jp/s/admin-manual-shield-irm',
+      });
+    }
+
+    // 7. ログ監視 (Q9) — ★3=推奨, ★4=必須
+    let logPriority;
+    if (f.log) {
+      logPriority = '設定済み';
+    } else {
+      logPriority = (star >= 4) ? '必須' : '推奨';
+    }
+    recommendations.push({
+      name: 'ログ監視',
+      priority: logPriority,
+      desc: 'ログイン履歴・ファイル操作・管理者操作のログを月次以上で確認し、不審な活動を検知します。要件 4-4-3 に対応。',
+      link: 'https://help.directcloud.jp/s/admin-manual-log',
+    });
+
+    // 8. データ保護・バックアップ (Q10) — ★3=推奨, ★4=必須
+    let backupPriority;
+    if (f.backup) {
+      backupPriority = '設定済み';
+    } else {
+      backupPriority = (star >= 4) ? '必須' : '推奨';
+    }
+    recommendations.push({
+      name: 'データ保護・バックアップ',
+      priority: backupPriority,
+      desc: '遠隔地バックアップやランサムウェア対策を設定し、データの保全と復旧に備えます。要件 4-3-2, 4-3-4, 7-1-1 に対応。',
+      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11233',
+    });
+
+    // 9. 外部共有管理 (Q11) — skip if C, ★3=推奨, ★4=必須
+    if (!f.externalShareNA) {
+      let extPriority;
+      if (f.externalShare) {
+        extPriority = '設定済み';
+      } else {
+        extPriority = (star >= 4) ? '必須' : '推奨';
+      }
+      recommendations.push({
+        name: '外部共有管理',
+        priority: extPriority,
+        desc: '承認ワークフローや共有リンクの制限を設定し、社外とのファイル共有を安全に管理します。要件 2-1-1, 4-3-3 に対応。',
+        link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function13001',
+      });
+    }
+
+    // 10. デバイス認証 (Q12) — ★3=任意, ★4=推奨
+    let devicePriority;
+    if (f.device) {
+      devicePriority = '設定済み';
+    } else {
+      devicePriority = (star >= 4) ? '推奨' : '任意';
+    }
+    recommendations.push({
+      name: 'デバイス認証',
+      priority: devicePriority,
+      desc: '管理者の承認済デバイスのみアクセスを許可し、未承認端末からの利用を制限します。要件 3-1-5 に対応。※WEBアプリケーションでのログインは対象外です。',
+      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11032',
+    });
+
+    // --- Always-show items (not scored) ---
+
+    // 11. マルウェア対策 — always 対応済み
+    recommendations.push({
+      name: 'マルウェア対策',
+      priority: '対応済み',
+      desc: 'DirectCloudはアップロード時に自動でウイルススキャンを実施します。要件 5-1-2-4 に対応。',
+      link: 'https://help.directcloud.jp/s/article/operation-of-administrator-function11188',
+    });
+
+    // 12. 外部サービス管理 — always 参考
+    recommendations.push({
+      name: '外部サービス管理',
+      priority: '参考',
+      desc: 'DirectCloudのセキュリティチェックシートや各種資料を活用し、クラウドサービスの利用ルール策定に役立てられます。要件 3-1-3-1 に対応。',
+      link: 'https://directcloud.jp/contents/category/doc_download/',
+    });
+
+    // Build table
+    const tbody = document.getElementById('resultBody');
+    tbody.innerHTML = '';
+    recommendations.forEach(rec => {
+      const tr = document.createElement('tr');
+      let badgeClass;
+      switch (rec.priority) {
+        case '必須': badgeClass = 'badge-red'; break;
+        case '推奨': badgeClass = 'badge-blue'; break;
+        case '任意': badgeClass = 'badge-gray'; break;
+        case '設定済み': badgeClass = 'badge-green'; break;
+        case '対応済み': badgeClass = 'badge-green'; break;
+        case '参考': badgeClass = 'badge-gray'; break;
+      }
+      tr.innerHTML =
+        '<td><div class="setting-name">' + rec.name + '</div></td>' +
+        '<td><span class="badge ' + badgeClass + '">' + rec.priority + '</span></td>' +
+        '<td><div class="setting-desc">' + rec.desc + '</div></td>' +
+        '<td><a href="' + rec.link + '" target="_blank">詳細 &#8594;</a></td>';
+      tbody.appendChild(tr);
+    });
+
+    // Score: Count A answers from Q3-Q12, excluding Q8 if C and Q11 if C
+    let score = 0;
+    let total = 10;
+
+    if (f.irmNA) total--;       // Q8=C: exclude from total
+    if (f.externalShareNA) total--; // Q11=C: exclude from total
+
+    if (answers.q3 === 0) score++;   // ユーザーID管理
+    if (answers.q4 === 0) score++;   // 管理者ID管理
+    if (answers.q5 === 0) score++;   // 多要素認証
+    if (answers.q6 === 0) score++;   // パスワードポリシー
+    if (answers.q7 === 0) score++;   // アクセス権管理
+    if (!f.irmNA && answers.q8 === 0) score++;   // 機密区分管理
+    if (answers.q9 === 0) score++;   // ログ監視
+    if (answers.q10 === 0) score++;  // データ保護
+    if (!f.externalShareNA && answers.q11 === 0) score++; // 外部共有管理
+    if (answers.q12 === 0) score++;  // デバイス認証
+
+    // Display score
+    document.getElementById('scoreNum').textContent = score;
+    document.querySelector('.score-label').textContent = '/ ' + total;
+    const circle = document.getElementById('scoreCircle');
+    const msg = document.getElementById('resultMsg');
+
+    // Score tiers based on percentage
+    const pct = score / total;
+    if (pct === 1) {
+      circle.className = 'score-circle perfect';
+      msg.className = 'result-msg level-high';
+      msg.innerHTML = '<strong>&#11088; 高い対応度です</strong><br>DirectCloudの主要な設定が★3/★4要件に対応しています。引き続き定期的な見直しをおすすめします。';
+    } else if (pct >= 0.7) {
+      circle.className = 'score-circle good';
+      msg.className = 'result-msg level-mid';
+      msg.innerHTML = '<strong>&#128077; かなり対応できています</strong><br>残りの未設定項目を確認すれば、さらに対応度が上がります。';
+    } else if (pct >= 0.4) {
+      circle.className = 'score-circle ok';
+      msg.className = 'result-msg level-low';
+      msg.innerHTML = '<strong>&#9888; 基本は整っていますが改善の余地があります</strong><br>下記の未設定項目を確認し、対応を検討してください。';
+    } else if (score >= 1) {
+      circle.className = 'score-circle warn';
+      msg.className = 'result-msg level-critical';
+      msg.innerHTML = '<strong>&#128680; 見直しをおすすめします</strong><br>対策が不十分な領域があります。「必須」の項目から優先的に設定してください。';
+    } else {
+      circle.className = 'score-circle warn';
+      msg.className = 'result-msg level-critical';
+      msg.innerHTML = '<strong>&#128680; 早めの対応をおすすめします</strong><br>セキュリティ設定がほとんど未対応です。★3/★4の認定取得に向けて、すぐに設定を進めてください。';
+    }
+  }
+
+  // ===== Reset =====
+  function resetDiagnosis() {
+    answers = {};
+    visited = { intro: true };
+
+    // Reset all choice cards
+    for (let q = 1; q <= 12; q++) {
+      const cards = document.querySelectorAll('#q' + q + 'choices .choice-card');
+      cards.forEach(card => {
+        card.classList.remove('selected', 'disabled');
+      });
+    }
+
+    // Clear result
+    document.getElementById('resultBody').innerHTML = '';
+    document.getElementById('scoreNum').textContent = '0';
+    document.getElementById('resultMsg').innerHTML = '';
+    document.getElementById('resultMsg').className = 'result-msg';
+    document.getElementById('scoreCircle').className = 'score-circle';
+
+    goTo('intro');
+  }
+
+  // iframe fallback
+  if (window === window.top) {
+    var backLink = document.getElementById('back-link');
+    backLink.href = 'index.html';
+    backLink.target = '_self';
+  }
+</script>
+</body>
+</html>
