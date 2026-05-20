@@ -429,12 +429,10 @@
     margin-top: 24px;
     gap: 12px;
   }
-  .btn-next {
-    display: none;
-    margin-top: 20px;
-    margin-left: auto;
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
-  .btn-next.show { display: flex; width: fit-content; }
 
   /* ===== Score Circle ===== */
   .score-area {
@@ -866,7 +864,7 @@
         <div class="feedback" id="fb-q1"></div>
         <div class="btn-row">
           <button class="btn btn-outline" onclick="goTo('learn2')">← 戻る</button>
-          <button class="btn btn-primary btn-next" id="next-q1" onclick="goTo('q2')">次の問題へ →</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ →</button>
         </div>
       </div>
     </div>
@@ -906,7 +904,7 @@
         <div class="feedback" id="fb-q2"></div>
         <div class="btn-row">
           <button class="btn btn-outline" onclick="goTo('q1')">← 戻る</button>
-          <button class="btn btn-primary btn-next" id="next-q2" onclick="goTo('q3')">次の問題へ →</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ →</button>
         </div>
       </div>
     </div>
@@ -946,7 +944,7 @@
         <div class="feedback" id="fb-q3"></div>
         <div class="btn-row">
           <button class="btn btn-outline" onclick="goTo('q2')">← 戻る</button>
-          <button class="btn btn-primary btn-next" id="next-q3" onclick="goTo('q4')">次の問題へ →</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ →</button>
         </div>
       </div>
     </div>
@@ -986,7 +984,7 @@
         <div class="feedback" id="fb-q4"></div>
         <div class="btn-row">
           <button class="btn btn-outline" onclick="goTo('q3')">← 戻る</button>
-          <button class="btn btn-primary btn-next" id="next-q4" onclick="goTo('q5')">次の問題へ →</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ →</button>
         </div>
       </div>
     </div>
@@ -1026,7 +1024,7 @@
         <div class="feedback" id="fb-q5"></div>
         <div class="btn-row">
           <button class="btn btn-outline" onclick="goTo('q4')">← 戻る</button>
-          <button class="btn btn-primary btn-next" id="next-q5" onclick="showResult()">結果を見る →</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る →</button>
         </div>
       </div>
     </div>
@@ -1277,8 +1275,8 @@ function selectAnswer(q, idx) {
     fb.innerHTML = '<h4>❌ 不正解…正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
   }
 
-  // Show next button
-  document.getElementById('next-' + q).classList.add('show');
+  // Enable next button
+  document.getElementById('next-' + q).removeAttribute('disabled');
 }
 
 /* ===== Result ===== */
