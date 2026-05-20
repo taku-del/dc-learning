@@ -1184,6 +1184,8 @@
       card.classList.add('disabled');
     });
 
+    answered[q] = isCorrect ? '正解' : '不正解';
+
     if (isCorrect) {
       score++;
       document.getElementById('q' + q + 'fb_correct').classList.add('show', 'correct-fb');

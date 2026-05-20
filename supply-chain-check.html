@@ -1176,7 +1176,7 @@
 
   function submitResults(extra) {
     if (!COLLECT_ENDPOINT) return;
-    var payload = { page: 'サプライチェーンセキュリティ 対応度チェック', timestamp: new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo'}), user: getUser(), answers: answers };
+    var payload = { page: 'サプライチェーンセキュリティ 対応度チェック', timestamp: new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo'}), user: getUser(), answers: answersLabel };
     Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
     fetch(COLLECT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(function() {});
   }
@@ -1185,6 +1185,7 @@
   const sections = ['intro', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'result'];
   let currentSection = 'intro';
   let answers = {};
+  let answersLabel = {};
   let visited = { intro: true };
 
   // ===== Navigation =====
@@ -1242,6 +1243,8 @@
   function selectAnswer(qId, choiceIdx, el) {
     if (answers[qId] !== undefined) return; // already answered
     answers[qId] = choiceIdx;
+    var label = el.querySelector('h5');
+    answersLabel[qId] = label ? label.textContent : String(choiceIdx);
 
     // Highlight selected
     const cards = el.parentElement.querySelectorAll('.choice-card');
@@ -1559,6 +1562,7 @@
   // ===== Reset =====
   function resetDiagnosis() {
     answers = {};
+    answersLabel = {};
     visited = { intro: true };
 
     // Reset all choice cards
