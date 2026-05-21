@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — ストレージ階層化ガイド</title>
+<style>
+  :root {
+    --dc-primary: #0891B2;
+    --dc-primary-light: #E0F7FA;
+    --dc-primary-dark: #0E7490;
+    --dc-accent: #4F46E5;
+    --dc-accent-light: #EEF2FF;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F0F7FA;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-primary);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-primary);
+  }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-primary); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-primary); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #F5FBFC; color: var(--dc-primary); }
+  .sidebar-item.active {
+    color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    border-left-color: var(--dc-primary);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-primary-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-primary-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Comparison Table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 580px;
+  }
+  .compare-table th {
+    background: #F0F7FA;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 140px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #F5FBFC; }
+  .compare-table .cell-hot { color: var(--dc-red); font-weight: 700; }
+  .compare-table .cell-warm { color: var(--dc-orange); font-weight: 700; }
+  .compare-table .cell-cold { color: var(--dc-primary); font-weight: 700; }
+  .compare-table th.highlight {
+    background: var(--dc-primary-light);
+    color: var(--dc-primary-dark);
+  }
+
+  /* ===== Tier Cards ===== */
+  .tier-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .tier-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .tier-card:hover {
+    transform: translateY(-2px);
+  }
+  .tier-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .tier-card.hot { border-color: #FCA5A5; }
+  .tier-card.hot::before { background: #EF4444; }
+  .tier-card.hot:hover { border-color: #EF4444; }
+  .tier-card.warm { border-color: #FCD34D; }
+  .tier-card.warm::before { background: #F59E0B; }
+  .tier-card.warm:hover { border-color: #F59E0B; }
+  .tier-card.cold { border-color: #67E8F9; }
+  .tier-card.cold::before { background: var(--dc-primary); }
+  .tier-card.cold:hover { border-color: var(--dc-primary); }
+  .tier-card .tier-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .tier-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tier-card.hot h4 { color: #DC2626; }
+  .tier-card.warm h4 { color: #D97706; }
+  .tier-card.cold h4 { color: var(--dc-primary-dark); }
+  .tier-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .tier-card ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 8px;
+  }
+  .tier-card li {
+    font-size: 12px;
+    color: #555;
+    padding: 2px 0 2px 16px;
+    position: relative;
+    line-height: 1.6;
+  }
+  .tier-card li::before {
+    content: '>';
+    position: absolute;
+    left: 4px;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .tier-card.hot li::before { color: #EF4444; }
+  .tier-card.warm li::before { color: #F59E0B; }
+  .tier-card.cold li::before { color: var(--dc-primary); }
+
+  /* ===== Flow diagram ===== */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 24px 0;
+    padding: 20px;
+    background: #F8FCFD;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    flex-wrap: wrap;
+  }
+  .flow-box {
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    min-width: 140px;
+  }
+  .flow-box.hot { background: #FEE2E2; color: #DC2626; border: 2px solid #FCA5A5; }
+  .flow-box.warm { background: #FEF3C7; color: #D97706; border: 2px solid #FCD34D; }
+  .flow-box.cold { background: #CFFAFE; color: var(--dc-primary-dark); border: 2px solid #67E8F9; }
+  .flow-box small { display: block; font-weight: 400; font-size: 11px; margin-top: 2px; }
+  .flow-arrow {
+    font-size: 24px;
+    color: #9CA3AF;
+    padding: 0 12px;
+    line-height: 1;
+  }
+
+  /* ===== Step list ===== */
+  .step-list {
+    margin: 16px 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step-counter;
+  }
+  .step-list li {
+    counter-increment: step-counter;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid #F0F0F5;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before {
+    content: counter(step-counter);
+    background: var(--dc-primary);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== Data category cards ===== */
+  .data-categories {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .data-cat-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .data-cat-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .data-cat-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .data-cat-card li {
+    font-size: 13px;
+    color: #555;
+    padding: 3px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .data-cat-card li::before {
+    content: '\2022';
+    position: absolute;
+    left: 6px;
+    color: var(--dc-primary);
+    font-weight: 700;
+  }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #F0F7FA, #E0F7FA);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\1F4A1';
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+  }
+
+  /* ===== Warning Box ===== */
+  .warning-box {
+    background: #FEF2F2;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-left: 4px solid var(--dc-red);
+    font-size: 13px;
+    color: #991B1B;
+    line-height: 1.7;
+  }
+  .warning-box strong { color: #B91C1C; }
+
+  /* ===== Checklist ===== */
+  .checklist {
+    margin: 16px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F0F0F5;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li .chk-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--dc-primary-light);
+    color: var(--dc-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ===== Choice cards (quiz) ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .choice-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .choice-card.selected {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    pointer-events: none;
+  }
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.incorrect {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feedback.correct h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-primary);
+    color: #fff;
+    border: 1px solid var(--dc-primary);
+  }
+  .btn-primary:hover { background: var(--dc-primary-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-area {
+    text-align: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-primary) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-primary);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review {
+    margin: 24px 0;
+  }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Ref table section in results ===== */
+  .ref-table-section {
+    margin-top: 32px;
+  }
+  .ref-table-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 12px;
+  }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .choices { grid-template-columns: 1fr; }
+    .tier-cards { grid-template-columns: 1fr; }
+    .data-categories { grid-template-columns: 1fr; }
+    .flow-diagram { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); padding: 8px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">ストレージ階層化ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 10</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">&#x1F4D6;</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="step1" onclick="goTo('step1')">
+      <span class="icon">&#x1F5C4;</span> STEP1: 3層ストレージ
+    </div>
+    <div class="sidebar-item" data-sec="step2" onclick="goTo('step2')">
+      <span class="icon">&#x2699;</span> STEP2: 自動移動
+    </div>
+    <div class="sidebar-item" data-sec="step3" onclick="goTo('step3')">
+      <span class="icon">&#x1F4C1;</span> STEP3: 活用と分類
+    </div>
+    <div class="sidebar-item" data-sec="step4" onclick="goTo('step4')">
+      <span class="icon">&#x1F4CB;</span> STEP4: 導入・運用
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 適したデータ
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> 自動移動の条件
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> 復元時間
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> 削除制限
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> 導入の進め方
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">&#x1F4CA;</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>ストレージ階層化とは？</h1>
+        <p>データの利用頻度に応じてストレージを使い分け、コストと利便性を両立させる仕組みを学びます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>企業が扱うデータは年々増加しています。しかし、そのすべてが毎日使われるわけではありません。<br>
+          <strong>「よく使うデータ」と「ほとんど使わないデータ」を同じストレージに置いておく</strong>のは、コストの観点で非常にもったいない状態です。</p>
+        </div>
+        <p style="font-size:15px; line-height:1.8; color:#374151;">
+          DirectCloudのストレージ階層化は、データを<strong>ホット・ウォーム・コールド</strong>の3層に分類し、利用頻度に応じて最適なストレージに自動で振り分ける仕組みです。<br>
+          これにより、<strong>業務効率を維持しながらストレージコストを大幅に削減</strong>できます。
+        </p>
+
+        <div class="tip">
+          <strong>このガイドの流れ:</strong><br>
+          3層ストレージの違い、自動移動の仕組み、活用方法、導入のポイントを学んだ後、理解度チェッククイズ（5問）に挑戦します。
+        </div>
+
+        <div style="background:#F0F7FA; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666;">
+          <strong>対象:</strong> DirectCloud管理者の方 ／ <strong>形式:</strong> 学習＋クイズ ／ <strong>所要時間:</strong> 約7分
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('step1')">学習を始める →</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== STEP1: 3層ストレージ ========== -->
+    <div class="section" id="sec-step1">
+      <div class="content-header">
+        <h1>STEP1: 3層ストレージの理解</h1>
+        <p>ホット・ウォーム・コールドの違いを把握しましょう</p>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">3つのストレージ層</h3>
+        <div class="tier-cards">
+          <div class="tier-card hot">
+            <div class="tier-icon">&#x1F525;</div>
+            <h4>ホットストレージ</h4>
+            <p>日常的に使うファイルを保管</p>
+            <ul>
+              <li>すべての機能が利用可能</li>
+              <li>プレビュー・編集・共有が即座に可能</li>
+              <li>ドライブ版からもアクセス可</li>
+              <li>検索・IRM・ラベリングに完全対応</li>
+            </ul>
+          </div>
+          <div class="tier-card warm">
+            <div class="tier-icon">&#x1F321;</div>
+            <h4>ウォームストレージ</h4>
+            <p>年に1回使うかどうかのファイル</p>
+            <ul>
+              <li>ほぼ利用しなくなったデータ向け</li>
+              <li>利用者自身で検索・復元が可能</li>
+              <li>復元後はホットと同じ操作が可能</li>
+              <li>ホットより低コストで保管</li>
+            </ul>
+          </div>
+          <div class="tier-card cold">
+            <div class="tier-icon">&#x2744;</div>
+            <h4>コールドストレージ</h4>
+            <p>捨ててもいいが一応取っておきたいファイル</p>
+            <ul>
+              <li>長期保管が必要なデータ向け</li>
+              <li>復元は通常12時間以内</li>
+              <li>復元はマウスオーバー→ボタンクリック</li>
+              <li>最もコストが低い</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">データの流れ</h3>
+        <div class="flow-diagram">
+          <div class="flow-box hot">
+            &#x1F525; ホット
+            <small>日常的に利用</small>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box warm">
+            &#x1F321; ウォーム
+            <small>年1回程度</small>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box cold">
+            &#x2744; コールド
+            <small>長期保管</small>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">比較表</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th class="highlight">ホット</th>
+                <th>ウォーム</th>
+                <th>コールド</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>利用頻度</td>
+                <td class="cell-hot">毎日~毎週</td>
+                <td class="cell-warm">年に数回</td>
+                <td class="cell-cold">ほぼなし</td>
+              </tr>
+              <tr>
+                <td>アクセス速度</td>
+                <td class="cell-hot">即時</td>
+                <td class="cell-warm">即時~短時間</td>
+                <td class="cell-cold">通常12時間以内</td>
+              </tr>
+              <tr>
+                <td>全機能利用</td>
+                <td class="cell-hot">&#x25CB;</td>
+                <td class="cell-warm">復元後 &#x25CB;</td>
+                <td class="cell-cold">復元後 &#x25CB;</td>
+              </tr>
+              <tr>
+                <td>利用者による復元</td>
+                <td>-</td>
+                <td class="cell-warm">&#x25CB;</td>
+                <td class="cell-cold">&#x25CB;（権限設定による）</td>
+              </tr>
+              <tr>
+                <td>ドライブ版</td>
+                <td class="cell-hot">&#x25CB;</td>
+                <td class="cell-warm">&#x25B3;（制限あり）</td>
+                <td class="cell-cold">&#x2715;（現状不可）</td>
+              </tr>
+              <tr>
+                <td>保管コスト</td>
+                <td class="cell-hot">高い</td>
+                <td class="cell-warm">中程度</td>
+                <td class="cell-cold">低い</td>
+              </tr>
+              <tr>
+                <td>主な対象データ</td>
+                <td>業務ファイル全般</td>
+                <td>過去案件の資料</td>
+                <td>契約書・監査記録等</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>覚えておきたいポイント</h4>
+          <ul>
+            <li><strong>ウォーム・コールドのファイルも検索可能</strong>：保管されたファイルが行方不明になることはありません</li>
+            <li><strong>復元は利用者自身でできる</strong>：管理者に依頼しなくても、権限があれば自分で復元できます</li>
+            <li><strong>IRM+ラベリング</strong>で重要度を見える化し、階層化の判断をしやすくできます</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step2')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP2: 自動移動の仕組み ========== -->
+    <div class="section" id="sec-step2">
+      <div class="content-header">
+        <h1>STEP2: 自動移動の仕組み</h1>
+        <p>利用頻度に応じた自動移動の設定方法を学びます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudでは、<strong>最終アクセス日からの経過日数</strong>をもとに、ファイルを自動でホット→ウォーム→コールドへ移動させる設定ができます。<br>
+          管理者画面から<strong>数クリック</strong>で設定可能です。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">設定の流れ</h3>
+        <ol class="step-list">
+          <li>管理者画面で対象フォルダを選択</li>
+          <li>自動移動の条件を設定（例：365日以上アクセスなし → コールドへ）</li>
+          <li>最終アクセス日の判定条件を確認（プレビュー/編集/移動/リネーム等が対象）</li>
+          <li>設定を保存して完了。以降は自動で移動が実行される</li>
+        </ol>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">「最終アクセス日」の判定対象</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>操作</th>
+                <th>アクセス日更新</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>プレビュー</td>
+                <td class="cell-hot">&#x25CB; 更新される</td>
+                <td>ファイルを開いた時点で更新</td>
+              </tr>
+              <tr>
+                <td>編集</td>
+                <td class="cell-hot">&#x25CB; 更新される</td>
+                <td>オンライン編集も含む</td>
+              </tr>
+              <tr>
+                <td>移動</td>
+                <td class="cell-hot">&#x25CB; 更新される</td>
+                <td>フォルダ間の移動</td>
+              </tr>
+              <tr>
+                <td>リネーム</td>
+                <td class="cell-hot">&#x25CB; 更新される</td>
+                <td>ファイル名の変更</td>
+              </tr>
+              <tr>
+                <td>ダウンロード</td>
+                <td class="cell-hot">&#x25CB; 更新される</td>
+                <td>ファイルの取得</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">管理・委任の仕組み</h3>
+        <div class="insight">
+          <h4>運用を効率化するポイント</h4>
+          <ul>
+            <li><strong>副管理者に管理を委譲</strong>できるため、部門ごとの細かい運用が可能</li>
+            <li>特定フォルダに対して<strong>個別の移動条件</strong>を設定可能（部門ごとに異なるポリシー）</li>
+            <li>自動移動は<strong>フォルダ単位</strong>で設定。ファイル単位の個別設定は不要</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>注意:</strong> 機密度ラベル/タグ条件での自動移動は現時点では未対応です（将来対応を検討中）。現在はフォルダ単位 + 経過日数での設定となります。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step1')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step3')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP3: コールドストレージの活用 ========== -->
+    <div class="section" id="sec-step3">
+      <div class="content-header">
+        <h1>STEP3: コールドストレージの活用</h1>
+        <p>対象データの選び方と文書分類について学びます</p>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">コールドストレージに適したデータ</h3>
+        <div class="data-categories">
+          <div class="data-cat-card">
+            <h4>&#x1F4BC; ビジネス系</h4>
+            <ul>
+              <li>取引関連書類（過去の契約書・発注書）</li>
+              <li>知的財産書類（特許・商標関連）</li>
+              <li>過去プロジェクト資料</li>
+              <li>完了した案件の成果物</li>
+            </ul>
+          </div>
+          <div class="data-cat-card">
+            <h4>&#x1F3E2; バックオフィス系</h4>
+            <ul>
+              <li>財務関連書類（決算書・税務書類）</li>
+              <li>人事関連書類（雇用契約・評価記録）</li>
+              <li>監査報告書・コンプライアンス文書</li>
+              <li>暗号化+保管基準遵守が必要なデータ</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">長期保管の3つのポイント</h3>
+        <ol class="step-list">
+          <li><strong>保管期間の明確化</strong> — 法令や社内規程に基づいて、いつまで保管するかを決める。期限が来たら確実に見直し・廃棄する仕組みをつくる</li>
+          <li><strong>閲覧制限の徹底</strong> — 保管データへのアクセス権限を最小限に設定。副管理者への委任で部門ごとに管理</li>
+          <li><strong>文書の信頼性維持</strong> — 改ざん防止（IRM）やバージョン管理を活用。保管中もデータの完全性を担保する</li>
+        </ol>
+
+        <div class="insight">
+          <h4>対象データ選びのヒント</h4>
+          <ul>
+            <li><strong>「最後にアクセスしたのはいつか？」</strong>が判断基準。1年以上触れていないなら候補</li>
+            <li><strong>法定保管義務のあるデータ</strong>は、コールドストレージで安全かつ低コストに保管</li>
+            <li><strong>「念のため取っておきたい」データ</strong>こそコールドの出番。捨てる判断を先延ばしにできる</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step2')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step4')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP4: 導入・運用のポイント ========== -->
+    <div class="section" id="sec-step4">
+      <div class="content-header">
+        <h1>STEP4: 導入・運用のポイント</h1>
+        <p>注意点、制限事項、運用のコツを確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">コールドストレージの制限事項</h3>
+        <div class="warning-box">
+          <strong>必ず把握しておくべき制限:</strong><br>
+          &#x2022; 移動後<strong>90日間は削除不可</strong><br>
+          &#x2022; 取り出し: <strong>1TBあたり月1,000ファイルまで</strong><br>
+          &#x2022; <strong>ドライブ版からは現状利用不可</strong><br>
+          &#x2022; 機密度ラベル/タグ条件での自動移動は<strong>未対応</strong>（将来対応検討中）
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">導入時のチェックリスト</h3>
+        <ul class="checklist">
+          <li>
+            <span class="chk-icon">1</span>
+            <div><strong>どのデータを移すか整理する</strong> — 業務で日常的に使うデータまで移してしまうと不便になります。まず「よく使うデータ」と「保管データ」の線引きを明確に</div>
+          </li>
+          <li>
+            <span class="chk-icon">2</span>
+            <div><strong>社内ルールを策定する</strong> — 「何日以上アクセスなしで移動」「どのフォルダが対象」など、基準を決めて周知</div>
+          </li>
+          <li>
+            <span class="chk-icon">3</span>
+            <div><strong>コールドに保管したことを忘れない仕組みづくり</strong> — ファイル命名規則の統一、定期的な棚卸し、保管台帳の運用など</div>
+          </li>
+          <li>
+            <span class="chk-icon">4</span>
+            <div><strong>復元フローを周知する</strong> — 利用者が自分で復元できることを案内。復元に時間がかかる（コールドは最大12時間）ことも共有</div>
+          </li>
+          <li>
+            <span class="chk-icon">5</span>
+            <div><strong>小さく始める</strong> — まずは1つのフォルダ・1つの部門から試験運用。効果を確認してから全社展開</div>
+          </li>
+        </ul>
+
+        <div class="insight">
+          <h4>成功する導入のコツ</h4>
+          <ul>
+            <li><strong>「まず分類、次に自動化」</strong>の順番が大切。いきなり全データに自動移動を設定しない</li>
+            <li><strong>副管理者を活用</strong>して部門ごとに運用責任者を設定。現場の判断を反映しやすくなる</li>
+            <li><strong>定期レビュー</strong>（四半期に1回程度）で、自動移動ルールが実態に合っているか確認</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>コスト面の参考:</strong> ストレージ階層化の活用により、保管コストの大幅な削減が期待できます。詳細は営業担当またはカスタマーサクセスまでお問い合わせください。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step3')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">クイズに挑戦 →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>ストレージ階層化の知識を確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> コールドストレージに<strong>最も適したデータ</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>A. 毎日の営業報告書</h5>
+            <p>日次で作成・参照される業務ファイル</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>B. 長期保管が必要な過去の契約書</h5>
+            <p>アクセス頻度は低いが、保管義務がある文書</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>C. 現在進行中のプロジェクト資料</h5>
+            <p>チームメンバーが頻繁に編集・共有するファイル</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <h5>D. 今月の請求書データ</h5>
+            <p>経理部門が月次で処理する書類</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('step4')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>ストレージ階層化の知識を確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> ファイルの自動移動の条件として<strong>設定できる</strong>のはどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>A. ファイルの容量</h5>
+            <p>ファイルサイズが一定以上のものを移動</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>B. 最終アクセスからの経過日数</h5>
+            <p>プレビュー・編集等の最終操作日からの経過で判定</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>C. 機密度ラベル</h5>
+            <p>ファイルに付与されたセキュリティラベルで判定</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <h5>D. ファイルの拡張子</h5>
+            <p>特定のファイル形式を対象に移動</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>ストレージ階層化の知識を確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> コールドストレージからファイルを復元する場合、<strong>通常どのくらいの時間</strong>がかかりますか？</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>A. 即時（数秒）</h5>
+            <p>クリックした瞬間にアクセス可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>B. 通常12時間以内</h5>
+            <p>復元リクエスト後、半日程度で利用可能に</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>C. 24〜48時間</h5>
+            <p>復元に1〜2営業日が必要</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <h5>D. 管理者への申請が必要で1週間程度</h5>
+            <p>管理者承認フローを経て復元</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>ストレージ階層化の知識を確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> コールドストレージに移動したデータの<strong>削除制限</strong>として正しいのはどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>A. 制限なし（いつでも削除可能）</h5>
+            <p>ホットストレージと同じ扱い</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>B. 30日間は削除不可</h5>
+            <p>移動後1ヶ月は削除できない</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>C. 90日間は削除不可</h5>
+            <p>移動後3ヶ月は削除できない</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <h5>D. 永久に削除不可</h5>
+            <p>コールドストレージのデータは削除できない</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>ストレージ階層化の知識を確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> コールドストレージの導入を成功させるために、<strong>最初にやるべきこと</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>A. 全フォルダに自動移動を一括設定する</h5>
+            <p>すべてのデータに移動ルールを適用</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>B. まず対象データの分類とルールを整理する</h5>
+            <p>よく使うデータと保管データの線引きから始める</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>C. コールドストレージの容量を最大まで確保する</h5>
+            <p>十分な保管領域を先に用意する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <h5>D. 全社員に復元方法だけを案内する</h5>
+            <p>復元操作を周知してから運用開始</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div class="ref-table-section">
+          <h3>3層ストレージ比較表（保存用）</h3>
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th class="highlight">ホット</th>
+                  <th>ウォーム</th>
+                  <th>コールド</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>利用頻度</td>
+                  <td class="cell-hot">毎日~毎週</td>
+                  <td class="cell-warm">年に数回</td>
+                  <td class="cell-cold">ほぼなし</td>
+                </tr>
+                <tr>
+                  <td>アクセス速度</td>
+                  <td class="cell-hot">即時</td>
+                  <td class="cell-warm">即時~短時間</td>
+                  <td class="cell-cold">通常12時間以内</td>
+                </tr>
+                <tr>
+                  <td>全機能利用</td>
+                  <td class="cell-hot">&#x25CB;</td>
+                  <td class="cell-warm">復元後 &#x25CB;</td>
+                  <td class="cell-cold">復元後 &#x25CB;</td>
+                </tr>
+                <tr>
+                  <td>ドライブ版</td>
+                  <td class="cell-hot">&#x25CB;</td>
+                  <td class="cell-warm">&#x25B3;</td>
+                  <td class="cell-cold">&#x2715;</td>
+                </tr>
+                <tr>
+                  <td>保管コスト</td>
+                  <td class="cell-hot">高い</td>
+                  <td class="cell-warm">中程度</td>
+                  <td class="cell-cold">低い</td>
+                </tr>
+                <tr>
+                  <td>削除制限</td>
+                  <td>なし</td>
+                  <td>なし</td>
+                  <td class="cell-cold">90日間不可</td>
+                </tr>
+                <tr>
+                  <td>取り出し制限</td>
+                  <td>なし</td>
+                  <td>なし</td>
+                  <td class="cell-cold">月1,000件/TB</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="saved-notice" id="savedNotice" style="display:none;">&#x2713; 結果を保存しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'ストレージ階層化ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function() {
+    document.getElementById('savedNotice').style.display = 'block';
+  }).catch(function() {});
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 1, // B. 長期保管が必要な過去の契約書
+  q2: 1, // B. 最終アクセスからの経過日数
+  q3: 1, // B. 通常12時間以内
+  q4: 2, // C. 90日間は削除不可
+  q5: 1  // B. まず対象データの分類とルールを整理する
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ コールドストレージは「アクセス頻度は低いが長期保管が必要なデータ」に最適です。過去の契約書や監査報告書など、保管義務はあるが普段は参照しないデータが対象です。',
+    wrong: {
+      0: '毎日使う営業報告書はホットストレージが適切です。コールドに移すと復元に時間がかかり、業務に支障が出ます。',
+      2: '現在進行中のプロジェクト資料は頻繁にアクセスするため、ホットストレージに置くべきです。',
+      3: '今月処理する請求書データはまだアクティブに使用中です。処理完了後、一定期間経過してからコールドへの移動を検討しましょう。'
+    }
+  },
+  q2: {
+    correct: '正解！ 自動移動は「最終アクセス日（プレビュー/編集/移動/リネーム等）からの経過日数」で判定します。特定フォルダに対して「365日以上アクセスなし → コールドへ」のように設定できます。',
+    wrong: {
+      0: 'ファイル容量による自動移動は現在対応していません。経過日数での判定となります。',
+      2: '機密度ラベルでの自動移動は現時点では未対応です（将来対応を検討中）。現在は経過日数での設定です。',
+      3: 'ファイル拡張子による自動移動は対応していません。フォルダ単位 + 経過日数での設定となります。'
+    }
+  },
+  q3: {
+    correct: '正解！ コールドストレージからの復元は通常12時間以内です。利用者自身がマウスオーバー → 復元ボタンクリックで操作でき、管理者への申請は不要です（権限設定による）。',
+    wrong: {
+      0: 'コールドストレージからの復元は即時ではありません。ウォームストレージであれば短時間でアクセスできますが、コールドは通常12時間以内かかります。',
+      2: '24〜48時間ではなく、通常12時間以内で復元できます。',
+      3: '管理者への申請は不要です。権限があれば利用者自身で復元操作ができます。復元時間は通常12時間以内です。'
+    }
+  },
+  q4: {
+    correct: '正解！ コールドストレージに移動したデータは90日間（3ヶ月）削除できません。この制限を理解した上で、移動するデータを選定することが重要です。',
+    wrong: {
+      0: '制限なしではありません。コールドストレージには90日間の削除不可期間が設定されています。',
+      1: '30日間ではなく、90日間（3ヶ月）が正しい削除制限期間です。',
+      3: '永久に削除不可ではありません。90日間の制限期間を過ぎれば削除可能です。'
+    }
+  },
+  q5: {
+    correct: '正解！ いきなり全フォルダに自動移動を設定するのではなく、まず「よく使うデータ」と「保管データ」を分類し、移動ルールを整理することが成功の鍵です。',
+    wrong: {
+      0: '一括設定は危険です。業務で使うデータまで移動してしまうと、復元に時間がかかり業務に支障が出ます。まずデータの分類から始めましょう。',
+      2: '容量の確保より先に、どのデータを保管するかの分類とルール策定が重要です。対象が決まれば必要な容量も見えてきます。',
+      3: '復元方法の案内も大切ですが、その前にどのデータをどのルールで移動するか、社内で整理する必要があります。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'step1', 'step2', 'step3', 'step4', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  // Hide all sections
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  // Show target
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  // Get selected card text
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  // Style cards
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  // Show feedback
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>\u2B55 正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>\u274C 不正解…正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  // Enable next button
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  // Score circle animation
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#0891B2 ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  // Score message
+  var msg = '';
+  if (score === 5) msg = '全問正解！ストレージ階層化を完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！実務でも迷わず運用できるレベルです';
+  else if (score >= 3) msg = '基本はOK！比較表を参考に、もう少し復習してみましょう';
+  else msg = '比較表を見ながら、各層の違いと制限を整理してみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  // Build review items
+  var questions = {
+    q1: 'コールドストレージに最も適したデータ',
+    q2: '自動移動の条件設定',
+    q3: 'コールドストレージからの復元時間',
+    q4: 'コールドストレージの削除制限',
+    q5: 'コールドストレージ導入の進め方'
+  };
+  var correctNames = {
+    q1: '長期保管が必要な過去の契約書',
+    q2: '最終アクセスからの経過日数',
+    q3: '通常12時間以内',
+    q4: '90日間は削除不可',
+    q5: 'まず対象データの分類とルールを整理する'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' \uFF0F あなたの回答: ' + answersLabel[q].replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  // Submit data
+  submitResults({ score: score, total: 5 });
+}
+</script>
+</body>
+</html>
