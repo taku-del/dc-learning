@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — 初期設定ガイド</title>
+<style>
+  :root {
+    --dc-primary: #E67E22;
+    --dc-primary-light: #FFF4EB;
+    --dc-primary-dark: #C0651A;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #FDF8F4;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-primary);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-primary);
+  }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-primary); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-primary); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #FFFAF6; color: var(--dc-primary); }
+  .sidebar-item.active {
+    color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    border-left-color: var(--dc-primary);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-primary-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-primary-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Step Cards ===== */
+  .step-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .step-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .step-card:hover {
+    border-color: var(--dc-primary);
+    transform: translateY(-2px);
+  }
+  .step-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 4px;
+  }
+  .step-card p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .step-card .step-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .step-card .step-num {
+    display: inline-block;
+    background: var(--dc-primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 50%;
+    margin-bottom: 8px;
+  }
+
+  /* ===== Flow diagram ===== */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .flow-item {
+    background: var(--dc-primary-light);
+    border: 1px solid #F0D8C0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dc-primary-dark);
+    text-align: center;
+    min-width: 100px;
+  }
+  .flow-arrow {
+    font-size: 18px;
+    color: #CCC;
+  }
+
+  /* ===== Access Level Table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 600px;
+  }
+  .compare-table th {
+    background: #FFF8F2;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 140px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #FFFBF7; }
+  .compare-table .cell-ok { color: var(--dc-green); font-weight: 700; }
+  .compare-table .cell-no { color: #D1D5DB; }
+
+  /* ===== Procedure List ===== */
+  .proc-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    counter-reset: proc;
+  }
+  .proc-list li {
+    position: relative;
+    padding: 12px 16px 12px 52px;
+    margin-bottom: 8px;
+    background: #FFFBF7;
+    border-radius: 8px;
+    border: 1px solid #F0E0D0;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+    counter-increment: proc;
+  }
+  .proc-list li::before {
+    content: counter(proc);
+    position: absolute;
+    left: 14px;
+    top: 12px;
+    background: var(--dc-primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+  }
+
+  /* ===== Detail Box ===== */
+  .detail-box {
+    background: #F8F6F3;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .detail-box h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+  }
+  .detail-box ul {
+    list-style: none;
+    padding: 0;
+  }
+  .detail-box li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .detail-box li::before {
+    content: '\25B8';
+    position: absolute;
+    left: 4px;
+    color: var(--dc-primary);
+    font-weight: 700;
+  }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #FFF8F2, #FFF0E0);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\1F4A1';
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+  }
+
+  /* ===== Level Cards ===== */
+  .level-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .level-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .level-card:hover {
+    border-color: var(--dc-primary);
+    transform: translateY(-2px);
+  }
+  .level-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 4px;
+  }
+  .level-card p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .level-card .level-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  /* ===== Choice cards (quiz) ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .choice-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .choice-card.selected {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    pointer-events: none;
+  }
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.incorrect {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feedback.correct h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-primary);
+    color: #fff;
+    border: 1px solid var(--dc-primary);
+  }
+  .btn-primary:hover { background: var(--dc-primary-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-area {
+    text-align: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-primary) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-primary);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review {
+    margin: 24px 0;
+  }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .choices { grid-template-columns: 1fr; }
+    .flow-row { gap: 4px; }
+    .flow-item { min-width: 80px; font-size: 12px; padding: 8px 10px; }
+    .level-cards { grid-template-columns: 1fr 1fr; }
+    .step-cards { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">初期設定ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 12</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">📖</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="step1" onclick="goTo('step1')">
+      <span class="icon">👥</span> STEP1 グループ作成
+    </div>
+    <div class="sidebar-item" data-sec="step2" onclick="goTo('step2')">
+      <span class="icon">🧑</span> STEP2 ユーザー追加
+    </div>
+    <div class="sidebar-item" data-sec="step3" onclick="goTo('step3')">
+      <span class="icon">🔑</span> STEP3 パスワード
+    </div>
+    <div class="sidebar-item" data-sec="step4" onclick="goTo('step4')">
+      <span class="icon">📁</span> STEP4 フォルダ作成
+    </div>
+    <div class="sidebar-item" data-sec="step5" onclick="goTo('step5')">
+      <span class="icon">🔒</span> STEP5 アクセス権
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 機能制限の設定
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> ユーザー必須項目
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> パスワード再設定
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> アクセス権の単位
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> 親子グループ
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">📋</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>DirectCloud 初期設定ガイド</h1>
+        <p>新規導入時に必要な「フォルダアクセス設定」の全体像を学びます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudを導入したら、まず行うのが<strong>フォルダアクセス設定</strong>です。<br>
+          「誰がどのフォルダにアクセスできるか」を正しく設定することで、<strong>安全で効率的なファイル管理</strong>が実現します。</p>
+        </div>
+
+        <p style="font-size:15px; line-height:1.8; color:#374151;">
+          初期設定は大きく<strong>5つのSTEP</strong>で構成されています。<br>
+          グループの作成からアクセス権の付与まで、順番に進めていきましょう。
+        </p>
+
+        <div class="flow-row">
+          <div class="flow-item">STEP1<br>グループ作成</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item">STEP2<br>ユーザー追加</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item">STEP3<br>パスワード</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item">STEP4<br>フォルダ作成</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item">STEP5<br>アクセス権設定</div>
+        </div>
+
+        <div class="tip">
+          <strong>このガイドの流れ:</strong><br>
+          各STEPのポイントを学んだあと、確認クイズ（5問）で理解度をチェックします。
+        </div>
+
+        <div style="background:#FFF8F2; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666;">
+          <strong>対象:</strong> DirectCloud 新規導入管理者 ／ <strong>形式:</strong> ステップ学習＋クイズ ／ <strong>所要時間:</strong> 約7分
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('step1')">学習を始める →</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== STEP 1: グループ作成 ========== -->
+    <div class="section" id="sec-step1">
+      <div class="content-header">
+        <h1>STEP 1 — グループ作成</h1>
+        <p>部署やチーム単位でグループを作成し、アクセス管理の基盤を整えます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudでは、フォルダへのアクセス権を<strong>グループ単位</strong>で設定するのが基本です。<br>
+          まず「営業部」「経理部」などの<strong>部署やチームに対応したグループ</strong>を作成しましょう。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">グループ作成の手順</h3>
+        <ol class="proc-list">
+          <li>管理画面の「グループ管理」を開く</li>
+          <li>「グループ追加」をクリック</li>
+          <li>グループ名を入力（例: 営業部、管理部）</li>
+          <li><strong>機能制限の設定</strong>を確認 — グループごとにユーザーページで利用できる機能を制限可能</li>
+          <li>「保存」をクリックして完了</li>
+        </ol>
+
+        <div class="insight">
+          <h4>なぜグループで管理するのか？</h4>
+          <ul>
+            <li><strong>効率性</strong>：10人の部署にアクセス権を設定する場合、個別に10回設定する代わりにグループ1つで済む</li>
+            <li><strong>管理しやすさ</strong>：異動や入退社時もグループへの追加・削除だけで完了</li>
+            <li><strong>一貫性</strong>：同じ部署のメンバーに同一の権限を確実に適用できる</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>機能制限の設定とは:</strong> グループごとに、ユーザーページで使える機能（共有リンクの作成、ゲスト招待など）を制限する設定です。セキュリティポリシーに応じてグループ単位で制御できます。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step2')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 2: ユーザー追加 ========== -->
+    <div class="section" id="sec-step2">
+      <div class="content-header">
+        <h1>STEP 2 — ユーザー追加</h1>
+        <p>グループにユーザーを追加し、ログイン情報を設定します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>グループを作成したら、次にそのグループへ<strong>ユーザーを追加</strong>します。<br>
+          ユーザー追加時には<strong>4つの必須項目</strong>の入力が必要です。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">ユーザー追加の必須項目</h3>
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h4>ユーザーID</h4>
+            <p>ログイン時に使用する一意のID。英数字で設定します</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h4>名前</h4>
+            <p>管理画面やログに表示されるユーザーの氏名</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h4>メールアドレス</h4>
+            <p>パスワード登録用メールの送信先。通知にも使用</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">4</div>
+            <h4>割当容量</h4>
+            <p>ユーザーごとに使用できるストレージ上限を設定</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">パスワード登録用メールの仕組み</h3>
+        <div class="detail-box">
+          <h4>メール送信による初期パスワード設定</h4>
+          <ul>
+            <li>ユーザー追加時に「パスワード登録用メールを送信」を選択可能</li>
+            <li>送信すると、ユーザー自身がメールのリンクからパスワードを設定</li>
+            <li>ユーザーが自分で登録したパスワードは<strong>管理者にも見えない</strong></li>
+            <li>管理者がパスワードを直接設定する方法も選べる（この場合、管理者がパスワードを把握する形になる）</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>CSVでの一括登録も可能:</strong> 大量のユーザーを追加する場合は、CSV形式で一括インポートできます。テンプレートCSVをダウンロードして必要情報を入力してください。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step1')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step3')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 3: パスワードポリシー ========== -->
+    <div class="section" id="sec-step3">
+      <div class="content-header">
+        <h1>STEP 3 — パスワードポリシー</h1>
+        <p>組織のセキュリティ要件に合わせたパスワードルールを設定します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudでは管理者が<strong>パスワードポリシー</strong>を設定し、組織全体のセキュリティレベルを統一できます。<br>
+          最小文字数や有効期間など、企業のセキュリティ基準に合わせて調整しましょう。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">設定できるポリシー項目</h3>
+        <div class="level-cards">
+          <div class="level-card">
+            <div class="level-icon">🔢</div>
+            <h4>最小文字数</h4>
+            <p>パスワードに必要な最低文字数を指定。短すぎる脆弱なパスワードを防止</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">⏰</div>
+            <h4>有効期間</h4>
+            <p>パスワードの有効日数を設定。期限切れ後は変更が必要に</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">🔄</div>
+            <h4>再設定の強制</h4>
+            <p>次回ログイン時にパスワード変更を強制する設定が可能</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">🚫</div>
+            <h4>文字種の要件</h4>
+            <p>英大文字・小文字・数字・記号の組み合わせを要求可能</p>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>パスワード登録用メールと再設定の関係</h4>
+          <ul>
+            <li><strong>パスワード登録用メール送信の場合</strong>：ユーザーが自分でパスワードを登録するため、パスワード再設定は強制されない</li>
+            <li><strong>管理者がパスワードを直接設定した場合</strong>：「次回ログイン時にパスワード変更を強制」が有効になる</li>
+            <li>セキュリティの観点では、パスワード登録用メールの利用が推奨される</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>ポイント:</strong> パスワードポリシーは全ユーザーに適用されます。ポリシー変更後、既存ユーザーは次回のパスワード変更時から新しいポリシーが適用されます。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step2')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step4')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 4: フォルダ作成 ========== -->
+    <div class="section" id="sec-step4">
+      <div class="content-header">
+        <h1>STEP 4 — フォルダ作成</h1>
+        <p>共有フォルダの構造を設計し、管理画面からフォルダを作成します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudの共有フォルダは<strong>階層構造</strong>で管理されます。<br>
+          <strong>第1階層のフォルダは管理者のみ</strong>が作成でき、その配下にサブフォルダを作成していきます。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">フォルダ構造の設計例</h3>
+        <div class="detail-box">
+          <h4>典型的なフォルダ構成</h4>
+          <ul>
+            <li><strong>第1階層（管理者のみ作成可）</strong>：部署名フォルダ（例: 営業部、経理部、総務部）</li>
+            <li><strong>第2階層以降</strong>：プロジェクトや年度ごとのサブフォルダ（例: 2026年度、A社案件）</li>
+            <li>第2階層以降は、アクセス権に応じてユーザーも作成可能</li>
+          </ul>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">フォルダ作成の手順</h3>
+        <ol class="proc-list">
+          <li>管理画面の「共有フォルダ管理」を開く</li>
+          <li>「フォルダ作成」をクリック</li>
+          <li>フォルダ名を入力</li>
+          <li>必要に応じて説明を追記</li>
+          <li>「保存」をクリックして完了</li>
+        </ol>
+
+        <div class="insight">
+          <h4>フォルダ設計のベストプラクティス</h4>
+          <ul>
+            <li><strong>第1階層はシンプルに</strong>：部署名やプロジェクト大分類など、変更頻度の低いものを配置</li>
+            <li><strong>命名規則を統一</strong>：「部署名_年度」など、探しやすい規則を先に決めておく</li>
+            <li><strong>アクセス権を意識した構造</strong>：同じ権限グループがアクセスするファイルは同一フォルダにまとめる</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>第1階層の制約:</strong> 第1階層のフォルダは管理者のみが作成・削除できます。一般ユーザーが勝手に最上位フォルダを作ることはできないため、組織のフォルダ構造を管理者がコントロールできます。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step3')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step5')">次へ →</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 5: アクセス権設定 ========== -->
+    <div class="section" id="sec-step5">
+      <div class="content-header">
+        <h1>STEP 5 — アクセス権設定</h1>
+        <p>フォルダに対して「誰が」「何をできるか」を設定します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>フォルダを作成したら、最後に<strong>アクセス権</strong>を設定します。<br>
+          アクセス権は<strong>グループ単位</strong>と<strong>ユーザー単位</strong>の両方で設定でき、<strong>7段階のアクセスレベル</strong>から選択します。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">7段階アクセスレベル</h3>
+        <div class="level-cards">
+          <div class="level-card">
+            <div class="level-icon">👑</div>
+            <h4>オーナー</h4>
+            <p>フル権限。移動・削除・リンク作成まですべて可能</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">✏️</div>
+            <h4>編集者</h4>
+            <p>編集・DL・コピー・削除が可能。フォルダ移動は不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">📝</div>
+            <h4>編集者-</h4>
+            <p>オンライン編集・UL可。DL不可がポイント</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">📥</div>
+            <h4>ダウンローダ</h4>
+            <p>プレビュー＋DLのみ。編集・ULは不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">👁️‍🗨️</div>
+            <h4>閲覧者+</h4>
+            <p>プレビュー＋UL可。DLは不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">👁️</div>
+            <h4>閲覧者</h4>
+            <p>プレビューのみ。DL・UL・編集すべて不可</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">📤</div>
+            <h4>アップローダ</h4>
+            <p>ULのみ。プレビューすら不可の提出専用</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">権限比較表</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>操作</th>
+                <th>オーナー</th>
+                <th>編集者</th>
+                <th>編集者-</th>
+                <th>DLer</th>
+                <th>閲覧者+</th>
+                <th>閲覧者</th>
+                <th>UPer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>プレビュー</td>
+                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>ダウンロード</td>
+                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>アップロード</td>
+                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td>
+              </tr>
+              <tr>
+                <td>オンライン編集</td>
+                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>コピー・削除</td>
+                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>リンク作成</td>
+                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+              </tr>
+              <tr>
+                <td>コメント</td>
+                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">アクセス権設定の手順</h3>
+        <ol class="proc-list">
+          <li>管理画面の「共有フォルダ管理」から対象フォルダを選択</li>
+          <li>「アクセス権」タブを開く</li>
+          <li>「グループ追加」または「ユーザー追加」をクリック</li>
+          <li>対象のグループまたはユーザーを選択</li>
+          <li>7段階のアクセスレベルから適切なレベルを選択して保存</li>
+        </ol>
+
+        <div class="insight">
+          <h4>設定のポイント</h4>
+          <ul>
+            <li><strong>グループ単位での設定を基本に</strong>：個別ユーザーへの設定は例外的なケースのみ。管理負荷を減らすためにグループ活用を推奨</li>
+            <li><strong>最小権限の原則</strong>：業務に必要な最低限のアクセスレベルを付与する。権限は後から広げられるが、情報漏洩は取り消せない</li>
+            <li><strong>サブフォルダは上位の権限を継承</strong>：上位フォルダの権限が下位にも適用される。個別設定で上書きも可能</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step4')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">確認クイズへ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>初期設定で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> グループ追加時に設定できる「機能制限の設定」とは、何を制限する設定ですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>A. フォルダへのアクセス権限を制限する設定</h5>
+            <p>フォルダ単位でグループのアクセスレベルを制御する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>B. グループに追加できるユーザー数を制限する設定</h5>
+            <p>1グループあたりの上限人数を制御する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>C. ユーザーページで利用できる機能を制限する設定</h5>
+            <p>共有リンク作成やゲスト招待などの機能をグループごとに制御する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <h5>D. ストレージの使用量を制限する設定</h5>
+            <p>グループ単位でストレージ上限を制御する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('step5')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>初期設定で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> ユーザー追加時の<strong>必須項目</strong>として正しい組み合わせはどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>A. ユーザーID、名前、メールアドレス</h5>
+            <p>割当容量は任意項目</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>B. ユーザーID、名前、メールアドレス、割当容量</h5>
+            <p>4項目すべてが必須</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>C. ユーザーID、名前、パスワード</h5>
+            <p>メールアドレスと割当容量は任意項目</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <h5>D. ユーザーID、名前、メールアドレス、パスワード</h5>
+            <p>割当容量は後から設定</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>初期設定で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> 「パスワード登録用メールを送信」してユーザーが自分でパスワードを登録した場合、次回ログイン時にパスワード再設定は<strong>強制されますか</strong>？</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>A. 強制される</h5>
+            <p>初回ログインでは必ずパスワード変更が求められる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>B. 強制されない</h5>
+            <p>ユーザー自身が登録したパスワードなので、そのまま利用できる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>C. 管理者の設定による</h5>
+            <p>管理者が個別に強制有無を設定できる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <h5>D. 30日後に強制される</h5>
+            <p>パスワードポリシーの有効期間にかかわらず30日後に変更必須</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>初期設定で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> フォルダのアクセス権は<strong>どの単位</strong>で設定できますか？</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>A. グループ単位のみ</h5>
+            <p>ユーザー個別の設定はできない</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>B. ユーザー単位のみ</h5>
+            <p>グループ単位の設定はできない</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>C. グループ単位とユーザー単位</h5>
+            <p>両方の単位で設定可能</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <h5>D. 部署単位のみ</h5>
+            <p>組織の部署に紐づいた設定のみ</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>初期設定で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> 「親グループ」にユーザーを追加した場合、その「子グループ」にも<strong>自動的に登録されますか</strong>？</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>A. 自動登録される</h5>
+            <p>親グループに追加すれば子グループにも自動的に所属する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>B. 自動登録されない</h5>
+            <p>DirectCloudでは親グループと子グループは別グループとしてカウントされる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>C. 管理者権限のユーザーのみ自動登録される</h5>
+            <p>管理者は自動、一般ユーザーは手動で追加が必要</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <h5>D. 設定で切り替え可能</h5>
+            <p>管理画面の設定により自動登録の有無を切り替えられる</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div style="margin-top:32px;">
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin-bottom:12px;">初期設定フロー（まとめ）</h3>
+          <div class="flow-row" style="margin:16px 0;">
+            <div class="flow-item">STEP1<br>グループ作成</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-item">STEP2<br>ユーザー追加</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-item">STEP3<br>パスワード</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-item">STEP4<br>フォルダ作成</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-item">STEP5<br>アクセス権設定</div>
+          </div>
+
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin:28px 0 12px;">アクセスレベル早見表（保存用）</h3>
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>操作</th>
+                  <th>オーナー</th>
+                  <th>編集者</th>
+                  <th>編集者-</th>
+                  <th>DLer</th>
+                  <th>閲覧者+</th>
+                  <th>閲覧者</th>
+                  <th>UPer</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>プレビュー</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>ダウンロード</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>アップロード</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td>
+                </tr>
+                <tr>
+                  <td>オンライン編集</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>コピー・削除</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>リンク作成</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
+                </tr>
+                <tr>
+                  <td>コメント</td>
+                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="saved-notice" id="savedNotice" style="display:none;">✓ 結果を保存しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'DirectCloud 初期設定ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function() {
+    document.getElementById('savedNotice').style.display = 'block';
+  }).catch(function() {});
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 2, // C. ユーザーページで利用できる機能を制限する設定
+  q2: 1, // B. ユーザーID、名前、メールアドレス、割当容量
+  q3: 1, // B. 強制されない
+  q4: 2, // C. グループ単位とユーザー単位
+  q5: 1  // B. 自動登録されない
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ 「機能制限の設定」は、グループごとにユーザーページで利用できる機能（共有リンクの作成、ゲスト招待など）を制限する設定です。フォルダのアクセス権とは別の概念です。',
+    wrong: {
+      0: 'フォルダへのアクセス権限はアクセス権設定（STEP5）で行います。「機能制限の設定」はユーザーページで使える機能を制限するものです。',
+      1: 'グループに追加できるユーザー数の制限ではありません。「機能制限の設定」はユーザーページで利用できる機能を制限する設定です。',
+      3: 'ストレージの使用量はユーザー追加時の「割当容量」で制御します。「機能制限の設定」はユーザーページで利用できる機能を制限する設定です。'
+    }
+  },
+  q2: {
+    correct: '正解！ ユーザー追加時の必須項目は「ユーザーID」「名前」「メールアドレス」「割当容量」の4項目です。',
+    wrong: {
+      0: '割当容量も必須項目です。ユーザーID、名前、メールアドレスに加えて、割当容量の4項目が必要です。',
+      2: 'パスワードはパスワード登録用メールで設定するか管理者が設定するかを選べます。必須項目はユーザーID、名前、メールアドレス、割当容量の4つです。',
+      3: 'パスワードは必須項目には含まれません（登録用メールで後から設定可能）。代わりに割当容量が必須です。'
+    }
+  },
+  q3: {
+    correct: '正解！ パスワード登録用メールを送信した場合、ユーザーが自分でパスワードを登録するため、再設定は強制されません。管理者にもそのパスワードは見えないため、セキュリティ上も安全です。',
+    wrong: {
+      0: '管理者がパスワードを直接設定した場合は強制されますが、パスワード登録用メールの場合はユーザー自身が登録するため強制されません。',
+      2: 'パスワード登録用メールで登録した場合は一律で強制されません。管理者が直接設定した場合にのみ再設定が強制されます。',
+      3: '30日後の自動強制という仕組みではありません。パスワードの有効期間はパスワードポリシーで別途管理されます。'
+    }
+  },
+  q4: {
+    correct: '正解！ DirectCloudのアクセス権はグループ単位とユーザー単位の両方で設定できます。基本はグループ単位で設定し、例外的にユーザー単位で上書きするのが推奨です。',
+    wrong: {
+      0: 'グループ単位だけでなく、ユーザー単位でもアクセス権を設定できます。両方の単位で柔軟に制御可能です。',
+      1: 'ユーザー単位だけでなく、グループ単位でもアクセス権を設定できます。グループ単位での設定が基本です。',
+      3: '部署単位という概念はありません。グループとユーザーの2つの単位でアクセス権を設定します。'
+    }
+  },
+  q5: {
+    correct: '正解！ DirectCloudでは親グループと子グループは別グループとしてカウントされるため、親グループにユーザーを追加しても子グループには自動登録されません。それぞれに個別で追加が必要です。',
+    wrong: {
+      0: 'DirectCloudでは親グループと子グループは独立した別グループです。親に追加しても子には自動登録されないため、各グループに個別で追加する必要があります。',
+      2: '管理者権限の有無に関係なく、親グループと子グループは別グループとして扱われます。自動登録は行われません。',
+      3: 'そのような切り替え設定はありません。DirectCloudの仕様として親子グループは別カウントされ、常に個別登録が必要です。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'step1', 'step2', 'step3', 'step4', 'step5', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>\u2B55 正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>\u274C 不正解…正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#E67E22 ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '全問正解！初期設定の流れを完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！実際の設定作業もスムーズに進められるでしょう';
+  else if (score >= 3) msg = '基本はOK！間違えた部分を復習して、設定に臨みましょう';
+  else msg = '各STEPの内容を振り返り、もう一度チャレンジしてみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: 'グループの「機能制限の設定」とは',
+    q2: 'ユーザー追加の必須項目',
+    q3: 'パスワード登録用メールと再設定の強制',
+    q4: 'アクセス権の設定単位',
+    q5: '親グループと子グループの関係'
+  };
+  var correctNames = {
+    q1: 'C. ユーザーページで利用できる機能を制限する設定',
+    q2: 'B. ユーザーID、名前、メールアドレス、割当容量',
+    q3: 'B. 強制されない',
+    q4: 'C. グループ単位とユーザー単位',
+    q5: 'B. 自動登録されない'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' \uFF0F あなたの回答: ' + answersLabel[q].replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  submitResults({ score: score, total: 5 });
+}
+</script>
+</body>
+</html>
