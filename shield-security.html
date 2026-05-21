@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — SHIELD セキュリティガイド</title>
+<style>
+  :root {
+    --dc-blue: #DC2626;
+    --dc-blue-light: #FEF2F2;
+    --dc-blue-dark: #B91C1C;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #FDF8F8;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-blue);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-blue);
+  }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-blue); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #FFFAFA; color: var(--dc-blue); }
+  .sidebar-item.active {
+    color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    border-left-color: var(--dc-blue);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-blue-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-blue-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Comparison Table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 580px;
+  }
+  .compare-table th {
+    background: #FEF7F7;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 140px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #FFFCFC; }
+  .compare-table .cell-ok {
+    color: var(--dc-green);
+    font-weight: 700;
+  }
+  .compare-table .cell-no {
+    color: #D1D5DB;
+  }
+  .compare-table th.highlight {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue-dark);
+  }
+
+  /* ===== Level Cards ===== */
+  .level-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .level-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .level-card:hover {
+    border-color: var(--dc-blue);
+    transform: translateY(-2px);
+  }
+  .level-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 4px;
+  }
+  .level-card p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .level-card .level-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .level-card .level-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  /* ===== Method Compare (IRM vs DLP) ===== */
+  .method-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .method-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .method-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .method-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .method-card li {
+    font-size: 13px;
+    color: #555;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .method-card li::before {
+    content: '\2022';
+    position: absolute;
+    left: 6px;
+    color: var(--dc-blue);
+    font-weight: 700;
+  }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #FEF7F7, #FEF2F2);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\1F4A1';
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+  }
+
+  /* ===== Security Level Badge ===== */
+  .sec-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .sec-badge.high { background: #FEE2E2; color: #991B1B; }
+  .sec-badge.mid { background: #FEF3C7; color: #92400E; }
+  .sec-badge.low { background: #E0E7FF; color: #3730A3; }
+
+  /* ===== Flow Steps ===== */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #FAFAFA;
+    border-radius: 8px;
+    border: 1px solid #E0E6ED;
+  }
+  .flow-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .flow-step-body {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.7;
+  }
+  .flow-step-body strong { color: #1A2332; }
+
+  /* ===== Decision Box ===== */
+  .decision-box {
+    background: #FEF2F2;
+    border: 2px solid #FECACA;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .decision-box .q-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 14px;
+  }
+  .decision-arrows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .decision-arrow {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #E0E6ED;
+  }
+  .decision-arrow .arrow-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--dc-blue);
+    margin-bottom: 6px;
+  }
+  .decision-arrow .arrow-answer {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .decision-arrow p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  /* ===== Choice cards (quiz) ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .choice-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .choice-card.selected {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    pointer-events: none;
+  }
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.incorrect {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feedback.correct h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-blue);
+    color: #fff;
+    border: 1px solid var(--dc-blue);
+  }
+  .btn-primary:hover { background: var(--dc-blue-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-area {
+    text-align: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-blue) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-blue);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review {
+    margin: 24px 0;
+  }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Reference table in results ===== */
+  .ref-table-section {
+    margin-top: 32px;
+  }
+  .ref-table-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 12px;
+  }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .choices { grid-template-columns: 1fr; }
+    .method-row { grid-template-columns: 1fr; }
+    .level-cards { grid-template-columns: 1fr 1fr; }
+    .decision-arrows { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">SHIELD セキュリティガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 11</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">&#x1F6E1;</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="learn1" onclick="goTo('learn1')">
+      <span class="icon">&#x1F4CA;</span> データインテグリティ
+    </div>
+    <div class="sidebar-item" data-sec="learn2" onclick="goTo('learn2')">
+      <span class="icon">&#x1F512;</span> IRM
+    </div>
+    <div class="sidebar-item" data-sec="learn3" onclick="goTo('learn3')">
+      <span class="icon">&#x1F6AB;</span> DLP
+    </div>
+    <div class="sidebar-item" data-sec="learn4" onclick="goTo('learn4')">
+      <span class="icon">&#x2696;</span> IRM vs DLP
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 社外共有の保護
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> 極秘ファイル
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> DLPアプリ制限
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> 持ち出し禁止
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> 一貫性の機能
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">&#x1F4CB;</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>データインテグリティとSHIELD &#8212; なぜ保護が必要か？</h1>
+        <p>DirectCloud-SHIELDのIRM・DLP機能でデータを守る方法を学びます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>クラウドストレージにファイルを保存しても、<strong>ダウンロード後の二次利用</strong>や<strong>意図しない持ち出し</strong>を防げなければ、情報漏えいリスクは残ります。<br>
+          DirectCloud-SHIELDは、<strong>IRM（暗号化）</strong>と<strong>DLP（持ち出し制限）</strong>の2つのアプローチでこの課題に対応します。</p>
+        </div>
+        <p style="font-size:15px; line-height:1.8; color:#374151;">
+          このガイドでは、まずデータインテグリティの考え方を理解し、<br>
+          次にIRM・DLPそれぞれの仕組みと使い分けを学びます。<br>
+          最後にシナリオクイズ（5問）で理解度をチェックしましょう。
+        </p>
+
+        <div class="tip">
+          <strong>このガイドの流れ:</strong><br>
+          STEP1: データインテグリティの4要素 → STEP2: IRM → STEP3: DLP → STEP4: 使い分け → クイズ5問
+        </div>
+
+        <div style="background:#FEF7F7; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666;">
+          <strong>対象:</strong> DirectCloud管理者・情報セキュリティ担当の方 ／ <strong>形式:</strong> 学習＋クイズ ／ <strong>所要時間:</strong> 約7分
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('learn1')">学習を始める &#8594;</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== STEP1: データインテグリティの4要素 ========== -->
+    <div class="section" id="sec-learn1">
+      <div class="content-header">
+        <h1>STEP1: データインテグリティの4要素</h1>
+        <p>DirectCloudの機能でデータ完全性を実現する4つの柱</p>
+      </div>
+
+      <div class="card">
+        <p style="font-size:15px; line-height:1.8; color:#374151; margin-bottom:20px;">
+          <strong>データインテグリティ（Data Integrity）</strong>とは、データが正確で完全な状態に保たれていることを意味します。<br>
+          DirectCloudでは以下の4つの要素を、それぞれ対応する機能で実現しています。
+        </p>
+
+        <div class="level-cards">
+          <div class="level-card">
+            <div class="level-tag" style="background:#DBEAFE; color:#1E40AF;">Complete</div>
+            <h4>完全性</h4>
+            <p>情報が変更されず、必要な情報がすべてそろっている状態</p>
+            <div style="margin-top:8px; padding:8px 12px; background:#F8FAFC; border-radius:6px; font-size:12px; color:#475569;">
+              <strong>対応機能:</strong> アクセス権の設定
+            </div>
+          </div>
+          <div class="level-card">
+            <div class="level-tag" style="background:#FEF3C7; color:#92400E;">Accurate</div>
+            <h4>正確性</h4>
+            <p>データを最新かつ正しい状態で維持する</p>
+            <div style="margin-top:8px; padding:8px 12px; background:#F8FAFC; border-radius:6px; font-size:12px; color:#475569;">
+              <strong>対応機能:</strong> DirectCloud 監査
+            </div>
+          </div>
+          <div class="level-card">
+            <div class="level-tag" style="background:#E0E7FF; color:#3730A3;">Consistent</div>
+            <h4>一貫性</h4>
+            <p>データに矛盾や破綻がない状態を保つ</p>
+            <div style="margin-top:8px; padding:8px 12px; background:#F8FAFC; border-radius:6px; font-size:12px; color:#475569;">
+              <strong>対応機能:</strong> 排他制御（ドライブ版）＋バージョン履歴
+            </div>
+          </div>
+          <div class="level-card">
+            <div class="level-tag" style="background:#FEE2E2; color:#991B1B;">Secure</div>
+            <h4>保護</h4>
+            <p>データが流出しないよう制限する</p>
+            <div style="margin-top:8px; padding:8px 12px; background:#F8FAFC; border-radius:6px; font-size:12px; color:#475569;">
+              <strong>対応機能:</strong> SHIELD IRM / DLP
+            </div>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>ポイント</h4>
+          <ul>
+            <li>4つの要素はどれか1つだけではなく、<strong>すべてを組み合わせる</strong>ことでデータの完全性が実現されます</li>
+            <li>このガイドでは特に<strong>「Secure（保護）」</strong>の要素 &#8212; SHIELDのIRM・DLPに焦点を当てて学びます</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('learn2')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP2: IRM ========== -->
+    <div class="section" id="sec-learn2">
+      <div class="content-header">
+        <h1>STEP2: IRM &#8212; 機密度ラベルと自動暗号化</h1>
+        <p>ファイルの機密度に応じた自動分類・暗号化・操作制限</p>
+      </div>
+
+      <div class="card">
+        <p style="font-size:15px; line-height:1.8; color:#374151; margin-bottom:20px;">
+          <strong>IRM（Information Rights Management）</strong>は、ファイルの機密度を3段階で自動分類し、<br>
+          レベルに応じた<strong>暗号化</strong>と<strong>操作制限</strong>を適用する機能です。<br>
+          社外に持ち出されたファイルも暗号化により第三者は閲覧できません。
+        </p>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">機密度3段階の比較</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th class="highlight">極秘（高）</th>
+                <th>秘（中）</th>
+                <th>社外秘（低）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>自動暗号化</td>
+                <td class="cell-ok">&#9675;</td>
+                <td class="cell-ok">&#9675;</td>
+                <td class="cell-no">&#215;</td>
+              </tr>
+              <tr>
+                <td>ウォーターマーク</td>
+                <td class="cell-ok">&#9675;</td>
+                <td class="cell-no">&#215;</td>
+                <td class="cell-no">&#215;</td>
+              </tr>
+              <tr>
+                <td>閲覧制限</td>
+                <td class="cell-ok">&#9675;</td>
+                <td>一部</td>
+                <td class="cell-no">&#215;</td>
+              </tr>
+              <tr>
+                <td>編集制限</td>
+                <td class="cell-ok">&#9675;</td>
+                <td>一部</td>
+                <td class="cell-no">&#215;</td>
+              </tr>
+              <tr>
+                <td>印刷制限</td>
+                <td class="cell-ok">&#9675;</td>
+                <td>一部</td>
+                <td class="cell-no">&#215;</td>
+              </tr>
+              <tr>
+                <td>複製制限</td>
+                <td class="cell-ok">&#9675;</td>
+                <td>一部</td>
+                <td class="cell-no">&#215;</td>
+              </tr>
+              <tr>
+                <td>ラベル表示</td>
+                <td class="cell-ok">&#9675;</td>
+                <td class="cell-ok">&#9675;</td>
+                <td class="cell-ok">&#9675;</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tip">
+          <strong>ウォーターマークに表示される情報:</strong> ユーザーID、プレビュー日時、セキュリティレベル、および任意の文字列を設定できます。不正利用時の追跡に有効です。
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">IRM 設定の流れ</h3>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-body"><strong>SHIELD基本設定</strong>で「機密文書の管理」を有効化</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-body">機密度（<span class="sec-badge high">極秘</span> <span class="sec-badge mid">秘</span> <span class="sec-badge low">社外秘</span>）の<strong>判定基準</strong>を設定</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-body">セキュリティレベルごとの<strong>アクセス・操作制限</strong>を設定</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-body"><strong>ウォーターマーク</strong>の表示設定（ユーザーID・日時・任意文字列）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('learn1')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('learn3')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP3: DLP ========== -->
+    <div class="section" id="sec-learn3">
+      <div class="content-header">
+        <h1>STEP3: DLP &#8212; 持ち出し制限の仕組み</h1>
+        <p>DLPフォルダによるファイル持ち出し防止と操作制限</p>
+      </div>
+
+      <div class="card">
+        <p style="font-size:15px; line-height:1.8; color:#374151; margin-bottom:20px;">
+          <strong>DLP（Data Loss Prevention）</strong>は、指定フォルダからの<strong>ファイル持ち出しそのものを制限</strong>する機能です。<br>
+          DirectCloudドライブ（デスクトップアプリ）と組み合わせることで、厳格な情報漏えい防止を実現します。
+        </p>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">DLPフォルダでの操作制限</h3>
+        <div class="level-cards" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+          <div class="level-card">
+            <div class="level-icon">&#x1F6AB;</div>
+            <h4>画面キャプチャ禁止</h4>
+            <p>スクリーンショットの取得をブロック</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">&#x1F4CB;</div>
+            <h4>テキストコピー禁止</h4>
+            <p>ファイル内のテキストのコピーを禁止</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">&#x1F5A8;</div>
+            <h4>印刷禁止</h4>
+            <p>ファイルの印刷を禁止</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">DLPフォルダで利用可能なアプリ</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
+          <span style="display:inline-block; padding:6px 14px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; font-size:13px; font-weight:600; color:#166534;">Notepad</span>
+          <span style="display:inline-block; padding:6px 14px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; font-size:13px; font-weight:600; color:#166534;">Excel</span>
+          <span style="display:inline-block; padding:6px 14px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; font-size:13px; font-weight:600; color:#166534;">Word</span>
+          <span style="display:inline-block; padding:6px 14px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; font-size:13px; font-weight:600; color:#166534;">PowerPoint</span>
+          <span style="display:inline-block; padding:6px 14px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; font-size:13px; font-weight:600; color:#166534;">Acrobat</span>
+          <span style="display:inline-block; padding:6px 14px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; font-size:13px; font-weight:600; color:#166534;">AutoCAD</span>
+        </div>
+
+        <div class="tip">
+          <strong>注意:</strong> Webアプリ（ブラウザ）経由ではコピーやスクリーンショットが可能なため、DLPの操作制限を有効にするには<strong>DirectCloudドライブ（DLP統合版）</strong>の利用を推奨します。
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">DLP 設定の流れ</h3>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-body"><strong>DLP設定</strong>で操作制限を有効化（キャプチャ禁止・印刷禁止など）</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-body"><strong>DLPフォルダ</strong>を作成</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-body"><strong>DirectCloudドライブ（DLP統合版）</strong>をインストール</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-body">DLPフォルダでの<strong>動作確認</strong>（操作制限が正しく機能しているか）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('learn2')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('learn4')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP4: IRM vs DLP ========== -->
+    <div class="section" id="sec-learn4">
+      <div class="content-header">
+        <h1>STEP4: IRM vs DLP &#8212; どちらを選ぶ？</h1>
+        <p>利用シーンに応じた判断の考え方</p>
+      </div>
+
+      <div class="card">
+        <div class="method-row">
+          <div class="method-card" style="border-top:3px solid #DC2626;">
+            <h4>&#x1F512; IRM</h4>
+            <ul>
+              <li>ファイルを<strong>社外に共有する必要がある</strong>場合</li>
+              <li>暗号化でファイル自体を保護</li>
+              <li>機密度に応じた<strong>柔軟な制御</strong>が可能</li>
+              <li>持ち出されても第三者は閲覧不可</li>
+              <li>ウォーターマークで追跡可能</li>
+            </ul>
+          </div>
+          <div class="method-card" style="border-top:3px solid #7C3AED;">
+            <h4>&#x1F6AB; DLP</h4>
+            <ul>
+              <li>ファイルを<strong>社外に持ち出させたくない</strong>場合</li>
+              <li>フォルダ単位での<strong>厳格な制限</strong></li>
+              <li>画面キャプチャ・コピー・印刷を禁止</li>
+              <li>利用可能アプリを限定</li>
+              <li>DirectCloudドライブ（DLP統合版）が必要</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">判断フローチャート</h3>
+        <div class="decision-box">
+          <div class="q-text">ファイルを社外の人に共有する必要がありますか？</div>
+          <div class="decision-arrows">
+            <div class="decision-arrow">
+              <div class="arrow-label">YES &#8594;</div>
+              <div class="arrow-answer">IRM を選択</div>
+              <p>暗号化＋権限管理で、社外でもファイルを保護。機密度に応じた柔軟な制御が可能です。</p>
+            </div>
+            <div class="decision-arrow">
+              <div class="arrow-label">NO &#8594;</div>
+              <div class="arrow-answer">DLP を選択</div>
+              <p>フォルダごと持ち出しを制限。操作制限で情報の外部流出を厳格にブロックします。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>覚えておきたいポイント</h4>
+          <ul>
+            <li>契約により<strong>IRMかDLPのどちらか</strong>を選択します（切替は可能）</li>
+            <li><strong>IRM</strong> = ファイルそのものを暗号化して保護（社外共有OK）</li>
+            <li><strong>DLP</strong> = フォルダから出さないことで保護（持ち出し自体を禁止）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('learn3')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">クイズに挑戦 &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>SHIELDの知識をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> 取引先にファイルを共有する必要がありますが、<strong>社外での不正利用を防ぎたい</strong>と考えています。<br>
+          適切な機能はどちらですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>IRM</h5>
+            <p>ファイルを暗号化し、社外でも権限に基づいた保護を適用</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>DLP</h5>
+            <p>DLPフォルダからの持ち出しを制限し、操作を禁止</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>アクセス権の設定</h5>
+            <p>フォルダ・ファイルのアクセスレベルを設定</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <h5>排他制御</h5>
+            <p>同時編集を防ぎ、データの一貫性を保つ</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('learn4')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>SHIELDの知識をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> 機密度<strong>「極秘」</strong>のファイルに適用されるセキュリティ対策として、<strong>正しいもの</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>ラベル表示のみ</h5>
+            <p>機密度ラベルを表示するだけで、暗号化や操作制限はなし</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>暗号化＋ウォーターマーク表示＋操作制限</h5>
+            <p>暗号化に加え、ウォーターマーク表示、閲覧・編集・印刷・複製の制限</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>暗号化＋一部操作制限</h5>
+            <p>暗号化と一部の操作制限のみ（ウォーターマークなし）</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <h5>DLPフォルダへの自動移動</h5>
+            <p>極秘ファイルを自動的にDLPフォルダに移動して保護</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>SHIELDの知識をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> DLPフォルダでファイルを開く際に、<strong>利用できないアプリケーション</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>Microsoft Excel</h5>
+            <p>表計算ソフト</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>Adobe Acrobat</h5>
+            <p>PDF閲覧・編集ソフト</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>Googleスプレッドシート</h5>
+            <p>Webブラウザベースの表計算ツール</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <h5>AutoCAD</h5>
+            <p>CAD設計ソフト</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>SHIELDの知識をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> 社内の機密プロジェクトフォルダから、<strong>一切ファイルを外に出させたくない</strong>場合に適切な機能はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>IRM</h5>
+            <p>ファイルを暗号化し、機密度に応じた操作制限を適用</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>DLP</h5>
+            <p>DLPフォルダからの持ち出しを制限し、キャプチャ・コピー・印刷を禁止</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>アクセスレベル「閲覧者」</h5>
+            <p>プレビューのみ許可し、ダウンロードを禁止</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <h5>バージョン履歴</h5>
+            <p>ファイルの変更履歴を保存し、過去の状態に復元</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>SHIELDの知識をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> データインテグリティの<strong>「Consistent（一貫性）」</strong>を実現するDirectCloudの機能はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>アクセス権の設定</h5>
+            <p>フォルダ・ファイルへのアクセスを制御</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>SHIELD IRM</h5>
+            <p>ファイルの暗号化と操作制限</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>DirectCloud 監査</h5>
+            <p>操作ログの記録と監査</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <h5>排他制御＋バージョン履歴</h5>
+            <p>同時編集の防止と変更履歴の管理</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div class="ref-table-section">
+          <h3>IRM vs DLP 比較表（保存用）</h3>
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th class="highlight">IRM</th>
+                  <th>DLP</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>保護方式</td>
+                  <td>ファイル暗号化</td>
+                  <td>フォルダ単位の持ち出し制限</td>
+                </tr>
+                <tr>
+                  <td>社外共有</td>
+                  <td class="cell-ok">&#9675;（暗号化で保護）</td>
+                  <td class="cell-no">&#215;（持ち出し自体を禁止）</td>
+                </tr>
+                <tr>
+                  <td>機密度分類</td>
+                  <td>極秘・秘・社外秘の3段階</td>
+                  <td>なし（フォルダ単位）</td>
+                </tr>
+                <tr>
+                  <td>ウォーターマーク</td>
+                  <td class="cell-ok">&#9675;（極秘レベル）</td>
+                  <td class="cell-no">&#215;</td>
+                </tr>
+                <tr>
+                  <td>キャプチャ禁止</td>
+                  <td class="cell-no">&#215;</td>
+                  <td class="cell-ok">&#9675;</td>
+                </tr>
+                <tr>
+                  <td>コピー禁止</td>
+                  <td>レベルによる</td>
+                  <td class="cell-ok">&#9675;</td>
+                </tr>
+                <tr>
+                  <td>印刷禁止</td>
+                  <td>レベルによる</td>
+                  <td class="cell-ok">&#9675;</td>
+                </tr>
+                <tr>
+                  <td>利用アプリ制限</td>
+                  <td class="cell-no">&#215;</td>
+                  <td class="cell-ok">&#9675;（6種のみ）</td>
+                </tr>
+                <tr>
+                  <td>推奨利用シーン</td>
+                  <td>社外共有が必要な場合</td>
+                  <td>持ち出し禁止が必要な場合</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="saved-notice" id="savedNotice" style="display:none;">&#10003; 結果を保存しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'SHIELD セキュリティガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function() {
+    document.getElementById('savedNotice').style.display = 'block';
+  }).catch(function() {});
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 0, // IRM
+  q2: 1, // 暗号化＋ウォーターマーク表示＋操作制限
+  q3: 2, // Googleスプレッドシート
+  q4: 1, // DLP
+  q5: 3  // 排他制御＋バージョン履歴
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ IRMはファイルを暗号化して保護するため、社外に共有しても第三者には閲覧できません。社外共有が必要な場合はIRMが適切です。',
+    wrong: {
+      1: 'DLPはファイルの持ち出し自体を制限する機能です。社外に共有する必要がある場合は、暗号化で保護できるIRMが適切です。',
+      2: 'アクセス権の設定はDirectCloud内でのアクセスレベルを制御する機能で、社外に持ち出されたファイルの保護はできません。',
+      3: '排他制御はデータの一貫性を保つ機能で、情報漏えい防止とは目的が異なります。'
+    }
+  },
+  q2: {
+    correct: '正解！ 機密度「極秘」（セキュリティレベル「高」）では、暗号化に加えてウォーターマーク表示、閲覧・編集・印刷・複製のすべてに制限がかかります。',
+    wrong: {
+      0: 'ラベル表示のみは機密度「社外秘」（セキュリティレベル「低」）の対策です。「極秘」ではより厳格な保護が適用されます。',
+      2: '暗号化＋一部操作制限は機密度「秘」（セキュリティレベル「中」）の対策です。「極秘」ではさらにウォーターマーク表示が加わります。',
+      3: 'IRMとDLPは独立した機能です。極秘ファイルが自動的にDLPフォルダに移動する機能はありません。'
+    }
+  },
+  q3: {
+    correct: '正解！ DLPフォルダで利用可能なアプリはNotepad、Excel、Word、PowerPoint、Acrobat、AutoCADの6種類のみです。Googleスプレッドシートなどのブラウザベースのツールは利用できません。',
+    wrong: {
+      0: 'Microsoft ExcelはDLPフォルダで利用可能な6つのアプリの1つです。',
+      1: 'Adobe AcrobatはDLPフォルダで利用可能な6つのアプリの1つです。',
+      3: 'AutoCADはDLPフォルダで利用可能な6つのアプリの1つです。'
+    }
+  },
+  q4: {
+    correct: '正解！ DLPはフォルダ単位でファイルの持ち出しを制限する機能です。画面キャプチャ・テキストコピー・印刷も禁止でき、ファイルを一切外に出させたくない場合に最適です。',
+    wrong: {
+      0: 'IRMはファイルを暗号化して保護しますが、ファイル自体の持ち出しは可能です。持ち出し自体を禁止するにはDLPが適切です。',
+      2: 'アクセスレベル「閲覧者」はダウンロードを禁止できますが、画面キャプチャやコピーまでは制限できません。',
+      3: 'バージョン履歴はファイルの変更履歴を管理する機能で、持ち出し制限とは目的が異なります。'
+    }
+  },
+  q5: {
+    correct: '正解！ 排他制御は複数ユーザーの同時編集による競合を防ぎ、バージョン履歴は変更の追跡と復元を可能にします。この2つでデータの一貫性（Consistent）を実現します。',
+    wrong: {
+      0: 'アクセス権の設定は「Complete（完全性）」に対応する機能です。情報が変更されず、必要な情報がすべてそろっている状態を保ちます。',
+      1: 'SHIELD IRMは「Secure（保護）」に対応する機能です。データの流出防止を担います。',
+      2: 'DirectCloud 監査は「Accurate（正確性）」に対応する機能です。データを最新かつ正しい状態で維持します。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'learn1', 'learn2', 'learn3', 'learn4', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>\u2B55 正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>\u274C 不正解\u2026正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#DC2626 ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '全問正解！SHIELDの仕組みを完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！実務でも迷わず設定できるレベルです';
+  else if (score >= 3) msg = '基本はOK！IRM・DLPの違いをもう少し復習してみましょう';
+  else msg = '各STEP を見直して、IRM・DLPの使い分けを整理してみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: '社外共有時のファイル保護',
+    q2: '極秘ファイルのセキュリティ対策',
+    q3: 'DLPフォルダで利用できないアプリ',
+    q4: '持ち出し禁止の適切な機能',
+    q5: 'データインテグリティ「一貫性」の機能'
+  };
+  var correctNames = {
+    q1: 'IRM',
+    q2: '暗号化＋ウォーターマーク表示＋操作制限',
+    q3: 'Googleスプレッドシート',
+    q4: 'DLP',
+    q5: '排他制御＋バージョン履歴'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' \uFF0F あなたの回答: ' + answersLabel[q].replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  submitResults({ score: score, total: 5 });
+}
+</script>
+</body>
+</html>
