@@ -6,9 +6,9 @@
 <title>DirectCloud 運用きほんのき — SHIELD セキュリティガイド</title>
 <style>
   :root {
-    --dc-blue: #DC2626;
-    --dc-blue-light: #FEF2F2;
-    --dc-blue-dark: #B91C1C;
+    --dc-primary: #DC2626;
+    --dc-primary-light: #FEF2F2;
+    --dc-primary-dark: #B91C1C;
     --dc-green: #00A676;
     --dc-green-light: #E6F9F2;
     --dc-orange: #F5A623;
@@ -34,7 +34,7 @@
   .topbar {
     background: #fff;
     border-bottom: 1px solid #E0E6ED;
-    border-top: 3px solid var(--dc-blue);
+    border-top: 3px solid var(--dc-primary);
     padding: 12px 48px;
     display: flex;
     align-items: center;
@@ -47,18 +47,18 @@
     display: flex; align-items: center; gap: 16px;
   }
   .topbar-logo {
-    font-size: 14px; font-weight: 700; color: var(--dc-blue);
+    font-size: 14px; font-weight: 700; color: var(--dc-primary);
   }
   .topbar-sep { color: #D0D7DE; }
   .topbar-title { font-size: 14px; color: #666; }
   .topbar-right { display: flex; align-items: center; gap: 20px; }
   .topbar-step { font-size: 13px; color: #888; }
-  .topbar-step strong { color: var(--dc-blue); }
+  .topbar-step strong { color: var(--dc-primary); }
   .progress-mini {
     width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
   }
   .progress-mini-fill {
-    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    width: 0%; height: 100%; background: var(--dc-primary); border-radius: 2px;
     transition: width 0.5s ease;
   }
 
@@ -93,11 +93,11 @@
     transition: all 0.2s;
     border-left: 3px solid transparent;
   }
-  .sidebar-item:hover { background: #FFFAFA; color: var(--dc-blue); }
+  .sidebar-item:hover { background: #FFFAFA; color: var(--dc-primary); }
   .sidebar-item.active {
-    color: var(--dc-blue);
-    background: var(--dc-blue-light);
-    border-left-color: var(--dc-blue);
+    color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    border-left-color: var(--dc-primary);
     font-weight: 600;
   }
   .sidebar-item.done { color: var(--dc-green); }
@@ -129,14 +129,14 @@
 
   /* ===== Scenario box ===== */
   .scenario {
-    background: var(--dc-blue-light);
+    background: var(--dc-primary-light);
     border-radius: 10px;
     padding: 20px 24px;
     margin-bottom: 24px;
-    border-left: 4px solid var(--dc-blue);
+    border-left: 4px solid var(--dc-primary);
   }
   .scenario p { font-size: 15px; line-height: 1.8; }
-  .scenario strong { color: var(--dc-blue-dark); }
+  .scenario strong { color: var(--dc-primary-dark); }
 
   /* ===== Tip box ===== */
   .tip {
@@ -197,8 +197,8 @@
     color: #D1D5DB;
   }
   .compare-table th.highlight {
-    background: var(--dc-blue-light);
-    color: var(--dc-blue-dark);
+    background: var(--dc-primary-light);
+    color: var(--dc-primary-dark);
   }
 
   /* ===== Level Cards ===== */
@@ -216,13 +216,13 @@
     transition: border-color 0.2s, transform 0.2s;
   }
   .level-card:hover {
-    border-color: var(--dc-blue);
+    border-color: var(--dc-primary);
     transform: translateY(-2px);
   }
   .level-card h4 {
     font-size: 14px;
     font-weight: 700;
-    color: var(--dc-blue-dark);
+    color: var(--dc-primary-dark);
     margin-bottom: 4px;
   }
   .level-card p {
@@ -281,7 +281,7 @@
     content: '\2022';
     position: absolute;
     left: 6px;
-    color: var(--dc-blue);
+    color: var(--dc-primary);
     font-weight: 700;
   }
 
@@ -291,12 +291,12 @@
     border-radius: 10px;
     padding: 20px 24px;
     margin: 20px 0;
-    border-left: 4px solid var(--dc-blue);
+    border-left: 4px solid var(--dc-primary);
   }
   .insight h4 {
     font-size: 14px;
     font-weight: 700;
-    color: var(--dc-blue-dark);
+    color: var(--dc-primary-dark);
     margin-bottom: 8px;
   }
   .insight ul {
@@ -351,7 +351,7 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: var(--dc-blue);
+    background: var(--dc-primary);
     color: #fff;
     display: flex;
     align-items: center;
@@ -396,7 +396,7 @@
   .decision-arrow .arrow-label {
     font-size: 12px;
     font-weight: 700;
-    color: var(--dc-blue);
+    color: var(--dc-primary);
     margin-bottom: 6px;
   }
   .decision-arrow .arrow-answer {
@@ -427,8 +427,8 @@
     transition: all 0.25s;
   }
   .choice-card:hover {
-    border-color: var(--dc-blue);
-    background: var(--dc-blue-light);
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
     transform: translateY(-2px);
   }
   .choice-card h5 {
@@ -443,8 +443,8 @@
     line-height: 1.6;
   }
   .choice-card.selected {
-    border-color: var(--dc-blue);
-    background: var(--dc-blue-light);
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
     pointer-events: none;
   }
   .choice-card.correct {
@@ -507,11 +507,11 @@
     transition: all 0.2s;
   }
   .btn-primary {
-    background: var(--dc-blue);
+    background: var(--dc-primary);
     color: #fff;
-    border: 1px solid var(--dc-blue);
+    border: 1px solid var(--dc-primary);
   }
-  .btn-primary:hover { background: var(--dc-blue-dark); transform: translateY(-1px); }
+  .btn-primary:hover { background: var(--dc-primary-dark); transform: translateY(-1px); }
   .btn-outline {
     background: none;
     color: #888;
@@ -537,7 +537,7 @@
   .score-circle {
     width: 160px; height: 160px;
     border-radius: 50%;
-    background: conic-gradient(var(--dc-blue) 0%, #E0E6ED 0%);
+    background: conic-gradient(var(--dc-primary) 0%, #E0E6ED 0%);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -556,7 +556,7 @@
   .score-num {
     font-size: 40px;
     font-weight: 800;
-    color: var(--dc-blue);
+    color: var(--dc-primary);
     line-height: 1;
   }
   .score-label {
@@ -1342,9 +1342,10 @@ function submitResults(extra) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).then(function() {
-    document.getElementById('savedNotice').style.display = 'block';
-  }).catch(function() {});
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
 }
 
 /* ===== Quiz Data ===== */

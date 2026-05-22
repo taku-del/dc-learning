@@ -1418,9 +1418,10 @@ function submitResults(extra) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).then(function() {
-    document.getElementById('savedNotice').style.display = 'block';
-  }).catch(function() {});
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
 }
 
 /* ===== Quiz Data ===== */
