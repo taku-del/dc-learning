@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — ドライブ トラブル解決ガイド</title>
+<style>
+  :root {
+    --dc-primary: #D97706;
+    --dc-primary-light: #FFF8EB;
+    --dc-primary-dark: #B45309;
+    --dc-green: #059669;
+    --dc-green-light: #ECFDF5;
+    --dc-orange: #F59E0B;
+    --dc-orange-light: #FFFBEB;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #FFFCF5;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-primary);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-primary);
+  }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-primary); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-primary); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #FFFCF5; color: var(--dc-primary); }
+  .sidebar-item.active {
+    color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    border-left-color: var(--dc-primary);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-primary-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-primary-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Trouble cards ===== */
+  .trouble-item {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .trouble-item:hover {
+    border-color: var(--dc-primary);
+  }
+  .trouble-item h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .trouble-item h4 .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .badge-red { background: #FDE8E8; color: #E74C3C; }
+  .badge-amber { background: #FFF3CD; color: #B45309; }
+  .badge-green { background: #ECFDF5; color: #059669; }
+
+  .trouble-cause {
+    background: #FEF3C7;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .trouble-cause strong { color: var(--dc-primary-dark); }
+
+  .trouble-fix {
+    margin-top: 12px;
+  }
+  .trouble-fix h5 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 6px;
+  }
+  .trouble-fix ol, .trouble-fix ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+  .trouble-fix li {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.8;
+    margin-bottom: 2px;
+  }
+
+  /* ===== Step list (numbered) ===== */
+  .step-list {
+    counter-reset: step-counter;
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  .step-list li {
+    counter-increment: step-counter;
+    position: relative;
+    padding: 10px 16px 10px 44px;
+    margin-bottom: 8px;
+    background: #FFFBEB;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.7;
+  }
+  .step-list li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 12px;
+    top: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--dc-primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #FFFCF5, #FFF8EB);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\1F4A1';
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+  }
+
+  /* ===== Intro stat cards ===== */
+  .stat-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .stat-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .stat-card:hover {
+    border-color: var(--dc-primary);
+    transform: translateY(-2px);
+  }
+  .stat-card .stat-icon { font-size: 28px; margin-bottom: 8px; }
+  .stat-card .stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--dc-primary);
+    line-height: 1;
+  }
+  .stat-card .stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .stat-card .stat-desc {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 8px;
+  }
+
+  /* ===== Choice cards (quiz) ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .choice-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .choice-card.selected {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    pointer-events: none;
+  }
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.incorrect {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feedback.correct h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-primary);
+    color: #fff;
+    border: 1px solid var(--dc-primary);
+  }
+  .btn-primary:hover { background: var(--dc-primary-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-area {
+    text-align: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-primary) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-primary);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review {
+    margin: 24px 0;
+  }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+  }
+
+  /* ===== Troubleshooting summary table ===== */
+  .ts-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .ts-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .ts-table th {
+    background: #FFF8EB;
+    padding: 10px 14px;
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .ts-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #F0F0F5;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .ts-table tr:hover td { background: #FFFCF5; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .choices { grid-template-columns: 1fr; }
+    .stat-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">ドライブ トラブル解決ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 10</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">&#x1F4D6;</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="step1" onclick="goTo('step1')">
+      <span class="icon">&#x1F5A5;</span> 基本トラブル
+    </div>
+    <div class="sidebar-item" data-sec="step2" onclick="goTo('step2')">
+      <span class="icon">&#x2601;</span> アップロード・同期
+    </div>
+    <div class="sidebar-item" data-sec="step3" onclick="goTo('step3')">
+      <span class="icon">&#x1F512;</span> 権限・アクセス
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 右クリックメニュー
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> ファイル開放エラー
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> アップロード同期
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> 編集者-の制限
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> メール不達
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">&#x1F4CB;</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>ドライブのよくあるトラブル、解決できますか？</h1>
+        <p>サポート問い合わせTOP20から厳選した頻出トラブルの原因と対処法を学びます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudドライブに関するサポート問い合わせを分析したところ、<strong>2026年1〜4月の4か月間で1,017件</strong>のお問い合わせがありました。<br>
+          その中でも特に多い症状には共通したパターンがあり、<strong>原因と対処法を知っておくだけで多くのケースを自力解決</strong>できます。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">よくあるトラブル TOP 3</h3>
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-icon">&#x1F5B1;</div>
+            <div class="stat-num">1位</div>
+            <div class="stat-desc">右クリックメニュー消失</div>
+            <div class="stat-label">Windows 11の仕様変更が原因</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">&#x26A0;</div>
+            <div class="stat-num">2位</div>
+            <div class="stat-desc">「ファイルが開かれている」エラー</div>
+            <div class="stat-label">誰も開いていないのに表示される</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">&#x2B06;</div>
+            <div class="stat-num">3位</div>
+            <div class="stat-desc">アップロードが遅い・失敗</div>
+            <div class="stat-label">ネットワーク環境の確認が鍵</div>
+          </div>
+        </div>
+
+        <div class="tip">
+          <strong>このガイドの流れ:</strong><br>
+          STEP 1〜3でよくあるトラブルの原因と対処法を学び、その後5問のクイズで理解度をチェックします。
+        </div>
+
+        <div style="background:#FFF8EB; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666;">
+          <strong>対象:</strong> DirectCloudドライブをご利用の方 ／ <strong>形式:</strong> トラブルシューティング＋クイズ ／ <strong>所要時間:</strong> 約5分
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('step1')">学習を始める &#x2192;</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== STEP 1: 基本トラブル ========== -->
+    <div class="section" id="sec-step1">
+      <div class="content-header">
+        <h1>STEP 1: ドライブの基本トラブル</h1>
+        <p>Windows環境で発生しやすい2つの代表的なトラブルを解説します</p>
+      </div>
+
+      <div class="card">
+        <div class="trouble-item">
+          <h4><span class="badge badge-red">TOP 1</span> 右クリックメニューから「DirectCloud」が消えた</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> Windows 11の仕様変更により、従来の右クリックメニュー（コンテキストメニュー）が簡略化されました。DirectCloudドライブの項目は「その他のオプション」の中に移動しています。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li>ファイル/フォルダを右クリック →「その他のオプションを確認」をクリック</li>
+              <li>または <strong>Shift + 右クリック</strong> で従来のメニューを直接表示</li>
+            </ul>
+          </div>
+          <div class="tip">
+            <strong>それでも表示されない場合:</strong> ドライブアプリの再起動を試してください。タスクトレイのDirectCloudアイコンを右クリック →「終了」→ 再度起動。改善しない場合はドライブの再インストールをお試しください。
+          </div>
+        </div>
+
+        <div class="trouble-item" style="margin-top:24px;">
+          <h4><span class="badge badge-red">TOP 2</span> 「ファイルは開かれているため操作を完了できません」エラー</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> ファイルを誰も開いていなくても、Windowsのサムネイル生成やセキュリティソフトのスキャン、Officeの一時ファイルなどがファイルをロックしている場合があります。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法（上から順に試してください）</h5>
+            <ul class="step-list">
+              <li>エクスプローラーの「オプション」→「表示」→「常にアイコンを表示し、縮小版は表示しない」をオンにする</li>
+              <li>セキュリティソフトの一時停止、またはDirectCloudドライブのフォルダを除外設定に追加する</li>
+              <li>Officeの「最近使ったアイテム」「お気に入り（ピン留め）」から該当ファイルを削除する</li>
+              <li>エクスプローラーの「最近使用した項目」「クイックアクセス」に該当ファイルがあれば非表示にする</li>
+              <li>ローカルに残っているショートカット（.lnk）や「~$」で始まる一時ファイルを削除する</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>覚えておきたいポイント</h4>
+          <ul>
+            <li>Windows 11の右クリックメニュー変更はDirectCloud固有の問題ではなく、OS側の仕様です</li>
+            <li>「ファイルが開かれている」エラーの多くは、見えないプロセスによるファイルロックが原因です</li>
+            <li>まずサムネイル非表示を試すのが最も効果的で、多くのケースがこれだけで解決します</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">&#x2190; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step2')">次へ &#x2192;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 2: アップロード・同期トラブル ========== -->
+    <div class="section" id="sec-step2">
+      <div class="content-header">
+        <h1>STEP 2: アップロード・同期トラブル</h1>
+        <p>アップロードの失敗や同期のずれに関するトラブルを解説します</p>
+      </div>
+
+      <div class="card">
+        <div class="trouble-item">
+          <h4><span class="badge badge-red">TOP 3</span> アップロードが遅い・失敗する</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> ネットワークの不安定さが最も多い原因です。VPN経由のアクセスや、大容量ファイルのアップロード時にドメイン許可が不足しているケースもあります。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li><a href="https://directcloud.jp/support/system" target="_blank" style="color:var(--dc-primary-dark);">推奨環境ページ</a> を確認し、ブラウザやOSが推奨バージョンであることを確認する</li>
+              <li>ネットワーク環境を確認する（Wi-Fi → 有線への切替え、VPN経由の場合は一時的に解除して検証）</li>
+              <li>大容量ファイルを扱う場合は、プロキシ・ファイアウォールで必要なドメインが許可されていることを確認する</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="trouble-item" style="margin-top:24px;">
+          <h4><span class="badge badge-amber">高頻度</span> アップロードしたファイルが他端末で表示されない</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> ネットワークの問題でアップロードが実際には失敗しています。ドライブのキャッシュにファイルが残るため、実行した端末では表示されますが、他の端末やWeb版では表示されません。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li>ドライブアプリの<strong>「ステータス」</strong>画面を開き、アップロード失敗の履歴がないか確認する</li>
+              <li>失敗しているファイルがあれば<strong>「再試行」</strong>をクリックして再アップロードする</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="trouble-item" style="margin-top:24px;">
+          <h4><span class="badge badge-amber">高頻度</span> 古いファイルで上書きされてしまう</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> 上記と同じく、キャッシュファイルの同期失敗が原因です。ローカルに残った古いキャッシュが再アップロードされると、サーバー上の新しいファイルが古いデータで上書きされるリスクがあります。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li>「ステータス」画面で同期の状態を確認する</li>
+              <li>再試行する前に、サーバー上のファイルが最新であるかWeb版で確認する</li>
+              <li>必要に応じてバージョン管理機能で過去のバージョンを復元する</li>
+            </ul>
+          </div>
+          <div class="tip">
+            <strong>注意:</strong> 安易に「再試行」すると古いデータでサーバー上のファイルを上書きしてしまう可能性があります。再試行前にWeb版でファイルの更新日時を確認することを推奨します。
+          </div>
+        </div>
+
+        <div class="trouble-item" style="margin-top:24px;">
+          <h4><span class="badge badge-amber">高頻度</span> 大容量ファイルがアップロードできない</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> 「アップロードが遅い・失敗する」と同様の原因に加え、大容量ファイル専用のドメインがファイアウォールで遮断されているケースがあります。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li>推奨環境ページのドメイン一覧を情シスに共有し、すべて許可されているか確認する</li>
+              <li>ファイルサイズの上限（契約プランにより異なる）を確認する</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>覚えておきたいポイント</h4>
+          <ul>
+            <li>アップロード系のトラブルは「ステータス」画面の確認が最初の一手です</li>
+            <li>「自分のPCでは見える」のに他端末で見えない場合は、アップロード失敗を疑いましょう</li>
+            <li>再試行は便利ですが、上書きリスクがあるため事前にWeb版で最新状態を確認する癖をつけましょう</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step1')">&#x2190; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step3')">次へ &#x2192;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 3: 権限・アクセストラブル ========== -->
+    <div class="section" id="sec-step3">
+      <div class="content-header">
+        <h1>STEP 3: 権限・アクセストラブル</h1>
+        <p>フォルダが見えない、ファイルが開けない、メールが届かないなどのトラブルを解説します</p>
+      </div>
+
+      <div class="card">
+        <div class="trouble-item">
+          <h4><span class="badge badge-amber">高頻度</span> アクセス権があるのにフォルダが表示されない</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> ユーザーIDの取り違えが最も多い原因です。「test」と「test@example.com」のように複数のIDを持っている場合、アクセス権のないIDでログインしているケースがあります。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li>ログインしているユーザーIDを確認する（画面右上のアカウント情報）</li>
+              <li>アクセス権が付与されているIDとログイン中のIDが一致しているか確認する</li>
+              <li>複数IDがある場合は、正しいIDでログインし直す</li>
+            </ul>
+          </div>
+          <div class="tip">
+            <strong>よくあるパターン:</strong> 管理者がアクセス権を「test@example.com」に付与したのに、ユーザーは「test」でログインしている — これだけでフォルダは表示されません。
+          </div>
+        </div>
+
+        <div class="trouble-item" style="margin-top:24px;">
+          <h4><span class="badge badge-green">中頻度</span> 「編集者-」でドライブからファイルを開けない</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> ドライブからファイルをダブルクリックして開く「直接編集」は、裏側でファイルのダウンロード処理を行っています。「編集者-」はダウンロード権限がないため、この方法では開けません。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li>「編集者」以上の権限に変更する（ダウンロードを許可してよい場合）</li>
+              <li>またはWeb版の<strong>オンライン編集</strong>機能を利用する（ダウンロードなしでブラウザ上で編集可能）</li>
+            </ul>
+          </div>
+          <div class="insight" style="margin-top:16px;">
+            <h4>「編集者-」と「編集者」の違い</h4>
+            <ul>
+              <li><strong>編集者-</strong>：オンライン編集・アップロードは可能だが、ダウンロード不可。ドライブでの直接編集も不可</li>
+              <li><strong>編集者</strong>：ダウンロードを含むほぼすべての編集操作が可能。ドライブでの直接編集もOK</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="trouble-item" style="margin-top:24px;">
+          <h4><span class="badge badge-green">中頻度</span> DirectCloudからのメールが届かない</h4>
+          <div class="trouble-cause">
+            <strong>原因:</strong> DirectCloudはAmazon SESを使ってメールを送信しています。メール送信時にバウンス（不達）が発生すると、SESのフィルターにメールアドレスが自動登録され、以降のメール送信がブロックされます。
+          </div>
+          <div class="trouble-fix">
+            <h5>対処法</h5>
+            <ul class="step-list">
+              <li>DirectCloudの管理ページまたはユーザーページから、メールフィルターの解除を行う</li>
+              <li>メール受信サーバー側で <strong>*.us-west-2.amazonses.com</strong> ドメインからの受信を許可する</li>
+            </ul>
+          </div>
+          <div class="tip">
+            <strong>予防策:</strong> 初期設定時にAmazon SESのドメインを受信許可リストに追加しておくと、フィルター登録を予防できます。
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>覚えておきたいポイント</h4>
+          <ul>
+            <li>「フォルダが見えない」と言われたら、まず「どのIDでログインしていますか？」と確認しましょう</li>
+            <li>「編集者-」はセキュリティ重視の権限ですが、ドライブでの直接編集には向きません</li>
+            <li>メール不達は一度発生するとフィルター解除するまで復旧しません。早めの対応が重要です</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step2')">&#x2190; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">クイズに挑戦 &#x2192;</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>トラブル対処の理解度をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> Windows 11で右クリックメニューに「DirectCloud ドライブ」が表示されません。<br>
+          <strong>最も簡単な対処法</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>ドライブを再インストールする</h5>
+            <p>アンインストール後、最新バージョンを再インストール</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>Shift + 右クリックする</h5>
+            <p>従来のコンテキストメニューを直接表示する操作</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>Windows 10にダウングレードする</h5>
+            <p>従来のメニューが表示されるOSに戻す</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <h5>管理者に権限を追加してもらう</h5>
+            <p>DirectCloud側の設定変更を依頼する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('step3')">&#x2190; 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ &#x2192;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>トラブル対処の理解度をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> 「ファイルは開かれているため操作を完了できません」というエラーが出ます。<br>
+          誰もファイルを開いていない場合、<strong>最初に試すべきこと</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>PCを再起動する</h5>
+            <p>すべてのプロセスをリセットする</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>エクスプローラーの縮小版（サムネイル）を非表示にする</h5>
+            <p>「常にアイコンを表示し、縮小版は表示しない」をオンにする</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>ファイルを削除して再アップロードする</h5>
+            <p>問題のファイルを一度消して入れ直す</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <h5>管理者にファイルのロックを解除してもらう</h5>
+            <p>サーバー側でロック状態を解除する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">&#x2190; 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ &#x2192;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>トラブル対処の理解度をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> ドライブからアップロードしたファイルが、他の端末やWeb版で表示されません。<br>
+          <strong>まず確認すべき場所</strong>はどこですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>DirectCloudの管理画面</h5>
+            <p>管理者向けの設定ページを確認する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>ドライブの「ステータス」画面</h5>
+            <p>アップロード/ダウンロードの履歴と状態を確認する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>Windowsのイベントログ</h5>
+            <p>OS側のエラーログを確認する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <h5>アクセス権の設定画面</h5>
+            <p>該当フォルダの権限設定を見直す</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">&#x2190; 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ &#x2192;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>トラブル対処の理解度をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> 「編集者-」権限のユーザーが、ドライブからファイルをダブルクリックしても開けません。<br>
+          <strong>その理由</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>ドライブアプリのバージョンが古い</h5>
+            <p>最新版にアップデートする必要がある</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>ファイル形式がドライブに対応していない</h5>
+            <p>特定の拡張子のファイルは開けない仕様</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>直接編集は裏でダウンロード処理を行うため</h5>
+            <p>DL権限のない「編集者-」では利用できない</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <h5>管理者がドライブ経由の編集を禁止している</h5>
+            <p>組織のセキュリティポリシーによる制限</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">&#x2190; 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ &#x2192;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>トラブル対処の理解度をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> DirectCloudからの通知メールが突然届かなくなりました。<br>
+          <strong>最も可能性の高い原因</strong>はどれですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>DirectCloudのメール送信機能が停止している</h5>
+            <p>サービス側の障害による影響</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>メールアドレスがAmazon SESのフィルターに登録された</h5>
+            <p>バウンス発生により自動的にブロックされた</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>通知設定がオフになっている</h5>
+            <p>ユーザー設定で通知メールを無効にした</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <h5>メールサーバーの容量が不足している</h5>
+            <p>受信ボックスがいっぱいで新着メールを受け取れない</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">&#x2190; 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る &#x2192;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div style="margin-top:32px;">
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin-bottom:12px;">トラブルシューティング早見表（保存用）</h3>
+          <div class="ts-table-wrap">
+            <table class="ts-table">
+              <thead>
+                <tr>
+                  <th>症状</th>
+                  <th>原因</th>
+                  <th>最初に試すこと</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>右クリックメニューにDirectCloudがない</td>
+                  <td>Windows 11の仕様変更</td>
+                  <td>Shift + 右クリック</td>
+                </tr>
+                <tr>
+                  <td>「ファイルが開かれている」エラー</td>
+                  <td>サムネイル生成・セキュリティソフト等のロック</td>
+                  <td>縮小版の非表示設定</td>
+                </tr>
+                <tr>
+                  <td>アップロードが遅い・失敗する</td>
+                  <td>ネットワーク不安定・ドメイン未許可</td>
+                  <td>推奨環境ページの確認</td>
+                </tr>
+                <tr>
+                  <td>他端末でファイルが表示されない</td>
+                  <td>アップロード失敗（キャッシュのみ残存）</td>
+                  <td>「ステータス」画面の確認</td>
+                </tr>
+                <tr>
+                  <td>古いファイルで上書きされた</td>
+                  <td>キャッシュの同期失敗</td>
+                  <td>Web版で最新状態を確認</td>
+                </tr>
+                <tr>
+                  <td>フォルダが表示されない</td>
+                  <td>ログインIDの取り違え</td>
+                  <td>ログイン中のIDを確認</td>
+                </tr>
+                <tr>
+                  <td>編集者-でファイルが開けない</td>
+                  <td>直接編集にDL権限が必要</td>
+                  <td>オンライン編集を利用</td>
+                </tr>
+                <tr>
+                  <td>通知メールが届かない</td>
+                  <td>Amazon SESフィルター登録</td>
+                  <td>フィルター解除 + ドメイン許可</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="saved-notice" id="savedNotice" style="display:none;">&#x2713; 結果を保存しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'ドライブ トラブル解決ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 1, // Shift + 右クリック
+  q2: 1, // 縮小版を非表示
+  q3: 1, // ステータス画面
+  q4: 2, // 直接編集はDL処理
+  q5: 1  // Amazon SESフィルター
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ Windows 11ではShift + 右クリックで従来のコンテキストメニューを直接表示できます。再インストール不要で、最も簡単な対処法です。',
+    wrong: {
+      0: '再インストールは最終手段です。Windows 11の仕様変更が原因なので、Shift + 右クリックで従来のメニューを表示できます。',
+      2: 'OSのダウングレードは現実的ではありません。Shift + 右クリックという簡単な操作で解決できます。',
+      3: 'これはDirectCloud側の権限の問題ではなく、Windows 11のメニュー仕様変更が原因です。Shift + 右クリックで解決できます。'
+    }
+  },
+  q2: {
+    correct: '正解！ Windowsのサムネイル（縮小版）生成がファイルをロックしていることが最も多い原因です。「常にアイコンを表示し、縮小版は表示しない」をオンにするだけで多くのケースが解決します。',
+    wrong: {
+      0: 'PC再起動も有効ですが、根本解決にはなりません。サムネイル生成を無効にする方が効果的で、再発も防げます。',
+      2: 'ファイルの削除・再アップロードは手間がかかり、再発リスクもあります。まずサムネイル非表示を試しましょう。',
+      3: 'サーバー側のロックではなく、ローカルPC上のプロセスがファイルをロックしている問題です。縮小版の非表示設定が最も効果的です。'
+    }
+  },
+  q3: {
+    correct: '正解！ ドライブアプリの「ステータス」画面でアップロードの成功・失敗が確認できます。失敗していれば「再試行」で再アップロードが可能です。',
+    wrong: {
+      0: '管理画面ではアップロードの個別ステータスは確認できません。ドライブアプリの「ステータス」画面を確認しましょう。',
+      2: 'Windowsのイベントログにはドライブのアップロード状況は記録されません。ドライブアプリの「ステータス」画面が正解です。',
+      3: 'ファイルが表示されない原因は権限ではなく、アップロード失敗です。「ステータス」画面でアップロードの状態を確認しましょう。'
+    }
+  },
+  q4: {
+    correct: '正解！ ドライブからファイルをダブルクリックする「直接編集」は、内部的にファイルをダウンロードしてローカルで開いています。「編集者-」はダウンロード権限がないため利用できません。オンライン編集を使いましょう。',
+    wrong: {
+      0: 'バージョンの問題ではありません。「編集者-」はダウンロード権限がなく、ドライブの直接編集（裏でDL処理）が利用できない仕様です。',
+      1: 'ファイル形式の問題ではありません。「編集者-」はDL権限がないため、DL処理を伴う直接編集が使えないのが原因です。',
+      3: '管理者の設定ではなく、「編集者-」という権限レベルの仕様です。直接編集は裏でダウンロードするため、DL権限がない「編集者-」では利用できません。'
+    }
+  },
+  q5: {
+    correct: '正解！ DirectCloudはAmazon SESでメール送信しており、バウンス（不達）が発生するとメールアドレスがフィルターに自動登録されます。管理/ユーザーページからフィルター解除が必要です。',
+    wrong: {
+      0: 'サービス全体の障害であれば他のユーザーにも影響が出ます。特定ユーザーだけ届かない場合は、SESフィルターへの登録が最も可能性の高い原因です。',
+      2: '通知設定がオフになっている可能性もありますが、「突然届かなくなった」場合はSESフィルターへの自動登録が最も多い原因です。',
+      3: 'メールサーバーの容量不足もあり得ますが、DirectCloudからのメールだけ届かない場合はSESフィルターが原因です。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'step1', 'step2', 'step3', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>\u2B55 正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>\u274C 不正解\u2026正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#D97706 ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '\u5168\u554F\u6B63\u89E3\uFF01\u30C8\u30E9\u30D6\u30EB\u5BFE\u5FDC\u3082\u3070\u3063\u3061\u308A\u3067\u3059';
+  else if (score >= 4) msg = '\u307B\u307C\u5B8C\u74A7\uFF01\u5B9F\u52D9\u3067\u3082\u5373\u5EA7\u306B\u5BFE\u5FDC\u3067\u304D\u308B\u30EC\u30D9\u30EB\u3067\u3059';
+  else if (score >= 3) msg = '\u57FA\u672C\u306F\u628A\u63E1\u3067\u304D\u3066\u3044\u307E\u3059\uFF01\u65E9\u898B\u8868\u3092\u53C2\u8003\u306B\u5FA9\u7FD2\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+  else msg = '\u65E9\u898B\u8868\u3092\u898B\u306A\u304C\u3089\u3001\u5404\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u6574\u7406\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: 'Win11で右クリックメニューが表示されない',
+    q2: '「ファイルが開かれている」エラー',
+    q3: '他端末でファイルが表示されない',
+    q4: '編集者-でファイルが開けない理由',
+    q5: '通知メールが届かない原因'
+  };
+  var correctNames = {
+    q1: 'Shift + 右クリック',
+    q2: '縮小版（サムネイル）を非表示にする',
+    q3: 'ドライブの「ステータス」画面',
+    q4: '直接編集は裏でダウンロード処理を行うため',
+    q5: 'Amazon SESのフィルターに登録された'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>\u6B63\u89E3: ' + correctNames[q] + (isOk ? '' : ' \uFF0F \u3042\u306A\u305F\u306E\u56DE\u7B54: ' + answersLabel[q].replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  submitResults({ score: score, total: 5 });
+}
+</script>
+</body>
+</html>
