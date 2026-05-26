@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — リンク→ゲスト移行ガイド</title>
+<style>
+  :root {
+    --dc-blue: #65A30D;
+    --dc-blue-light: #F0F9E8;
+    --dc-blue-dark: #4D7C0F;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F4F7F0;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-blue);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-blue);
+  }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-blue); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #FAFCF6; color: var(--dc-blue); }
+  .sidebar-item.active {
+    color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    border-left-color: var(--dc-blue);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-blue-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-blue-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Comparison Table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .compare-table th {
+    background: #F7FAF2;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 160px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #FBFDF7; }
+  .compare-table .cell-ok {
+    color: var(--dc-green);
+    font-weight: 700;
+  }
+  .compare-table .cell-no {
+    color: #D1D5DB;
+  }
+  .compare-table th.highlight {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue-dark);
+  }
+
+  /* ===== Industry Scenario Cards ===== */
+  .industry-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .industry-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .industry-card:hover {
+    border-color: var(--dc-blue);
+    transform: translateY(-2px);
+  }
+  .industry-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .industry-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .industry-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+  }
+  .industry-card .industry-tag {
+    font-size: 11px;
+    color: var(--dc-blue-dark);
+    background: var(--dc-blue-light);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .industry-card p {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+  }
+  .industry-card ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 8px;
+  }
+  .industry-card li {
+    font-size: 13px;
+    color: #555;
+    padding: 3px 0 3px 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .industry-card li::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 11px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+  }
+
+  /* ===== Method Compare (link vs guest) ===== */
+  .method-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .method-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .method-card.method-highlight {
+    border-color: var(--dc-blue);
+    background: #FCFEF8;
+  }
+  .method-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .method-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .method-card li {
+    font-size: 13px;
+    color: #555;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .method-card li::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 12px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+  }
+
+  /* ===== Steps ===== */
+  .steps {
+    margin: 20px 0;
+  }
+  .step-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 44px;
+    width: 2px;
+    height: calc(100% - 24px);
+    background: #E0E6ED;
+  }
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-body {
+    flex: 1;
+    padding-top: 2px;
+  }
+  .step-body h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .step-body p {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+  }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #F7FAF2, #F0F9E8);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0 4px 22px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\25B6';
+    position: absolute;
+    left: 4px;
+    font-size: 9px;
+    color: var(--dc-blue);
+    top: 8px;
+  }
+
+  /* ===== Callout ===== */
+  .callout {
+    background: #F0F6FF;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-left: 4px solid #3B82F6;
+    font-size: 13px;
+    color: #1E40AF;
+    line-height: 1.7;
+  }
+  .callout strong { color: #1E3A8A; }
+
+  /* ===== Choice cards (quiz) ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .choice-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .choice-card.selected {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    pointer-events: none;
+  }
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.incorrect {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feedback.correct h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-blue);
+    color: #fff;
+    border: 1px solid var(--dc-blue);
+  }
+  .btn-primary:hover { background: var(--dc-blue-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-area {
+    text-align: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-blue) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-blue);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review {
+    margin: 24px 0;
+  }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .choices { grid-template-columns: 1fr; }
+    .method-row { grid-template-columns: 1fr; }
+    .industry-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">リンク→ゲスト移行ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 10</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">01</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="compare" onclick="goTo('compare')">
+      <span class="icon">02</span> リンク vs ゲスト
+    </div>
+    <div class="sidebar-item" data-sec="scenarios" onclick="goTo('scenarios')">
+      <span class="icon">03</span> 業種別シナリオ
+    </div>
+    <div class="sidebar-item" data-sec="steps" onclick="goTo('steps')">
+      <span class="icon">04</span> 移行ステップ
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 月次の資料やり取り
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> カタログ配布
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> 共同編集
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> 監査対応
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> 現場からの共有
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">--</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>共有リンク、それだけで終わっていませんか？</h1>
+        <p>「ゲスト招待」を活用すると、社外とのファイル共有がもっと便利で安全になります</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudの<strong>共有リンク</strong>は手軽で便利。でも、社外との継続的なやり取りには<strong>ゲスト招待</strong>が適しています。<br>
+          このガイドでは、リンク共有とゲスト招待の違いを理解し、あなたの業務にどちらがフィットするかを確認できます。</p>
+        </div>
+
+        <p style="font-size:15px; line-height:1.8; color:#374151;">
+          共有リンクは「一方向に送るだけ」の用途に向いていますが、<strong>やり取りの履歴が残らない</strong>、<strong>誰がダウンロードしたか追えない</strong>など、業務が複雑になるほど課題が出てきます。<br>
+          ゲスト招待に切り替えると、<strong>データが蓄積</strong>され、<strong>操作ログで追跡</strong>でき、<strong>双方向のコラボレーション</strong>が可能になります。
+        </p>
+
+        <div class="tip">
+          <strong>このガイドの流れ:</strong><br>
+          リンクとゲストの比較 → 業種別の活用シナリオ → 移行ステップ → 理解度チェック（5問）の順で進みます。
+        </div>
+
+        <div style="background:#F7FAF2; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666;">
+          <strong>対象:</strong> 共有リンクを使っている方 ／ <strong>形式:</strong> 比較＋シナリオ＋クイズ ／ <strong>所要時間:</strong> 約7分
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('compare')">比較を見る →</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== Compare: リンク vs ゲスト ========== -->
+    <div class="section" id="sec-compare">
+      <div class="content-header">
+        <h1>共有リンク vs ゲスト招待</h1>
+        <p>同じ「社外共有」でも、できることがここまで違います</p>
+      </div>
+
+      <div class="card">
+        <div class="method-row">
+          <div class="method-card">
+            <h4>共有リンク</h4>
+            <ul>
+              <li>URLを発行して相手に送るだけの手軽さ</li>
+              <li>一方向の配布に向いている</li>
+              <li>相手にアカウント不要</li>
+              <li>ファイル単位の共有（フォルダ共有は不可）</li>
+              <li>やり取りの履歴が残らない</li>
+            </ul>
+          </div>
+          <div class="method-card method-highlight">
+            <h4>ゲスト招待</h4>
+            <ul>
+              <li>相手にゲストアカウントを発行して共有</li>
+              <li>フォルダ単位の継続的な共有が可能</li>
+              <li>双方向のアップロード・編集に対応</li>
+              <li>操作ログで「誰が・いつ・何を」追跡可能</li>
+              <li>データが蓄積され、過去のやり取りを遡れる</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">機能比較表</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>共有リンク</th>
+                <th class="highlight">ゲスト招待</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>共有単位</td>
+                <td>ファイル単位</td>
+                <td>フォルダ単位</td>
+              </tr>
+              <tr>
+                <td>データの蓄積</td>
+                <td class="cell-no">都度送り切り</td>
+                <td class="cell-ok">フォルダに蓄積</td>
+              </tr>
+              <tr>
+                <td>双方向のやり取り</td>
+                <td class="cell-no">×</td>
+                <td class="cell-ok">○（UL/編集可）</td>
+              </tr>
+              <tr>
+                <td>操作ログ（誰が・いつ・何を）</td>
+                <td class="cell-no">DL回数のみ</td>
+                <td class="cell-ok">全操作を記録</td>
+              </tr>
+              <tr>
+                <td>アクセス制御</td>
+                <td>パスワード・期限</td>
+                <td>IP制限・OTP・期限・権限レベル</td>
+              </tr>
+              <tr>
+                <td>コメント機能</td>
+                <td class="cell-no">×</td>
+                <td class="cell-ok">○</td>
+              </tr>
+              <tr>
+                <td>相手のアカウント</td>
+                <td>不要</td>
+                <td>ゲストID（自動発行）</td>
+              </tr>
+              <tr>
+                <td>過去ファイルの遡り</td>
+                <td class="cell-no">×</td>
+                <td class="cell-ok">○</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>使い分けの目安</h4>
+          <ul>
+            <li><strong>共有リンクが向いている場面:</strong> 不特定多数への一方向の配布、単発のファイル受け渡し</li>
+            <li><strong>ゲスト招待が向いている場面:</strong> 特定の相手との継続的なやり取り、監査対応が必要なケース、共同作業</li>
+            <li>最初はリンクで始めて、やり取りが定期化したタイミングでゲスト招待に切り替えるのがスムーズです</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('scenarios')">業種別シナリオ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Scenarios: 業種別 ========== -->
+    <div class="section" id="sec-scenarios">
+      <div class="content-header">
+        <h1>業種別シナリオ</h1>
+        <p>あなたの業務に近いケースを探してみてください</p>
+      </div>
+
+      <div class="card">
+        <div class="industry-cards">
+          <div class="industry-card">
+            <div class="industry-card-header">
+              <div class="industry-icon" style="background:#FEF3C7;">
+                <span>🏪</span>
+              </div>
+              <h4>小売業</h4>
+            </div>
+            <span class="industry-tag">店舗間の写真共有 + 仕入先フォルダ</span>
+            <ul>
+              <li>各店舗の陳列写真を共有フォルダにアップロード</li>
+              <li>本部が一覧で確認し、優れた陳列をフィードバック</li>
+              <li>仕入先とのフォルダを作成し、発注書・納品書を一元管理</li>
+              <li>過去の納品実績をフォルダ内で遡って確認できる</li>
+            </ul>
+            <div class="callout" style="margin-top:12px;">
+              リンクだと写真を送って終わり。ゲスト招待なら<strong>蓄積した写真を比較して改善サイクル</strong>が回せます。
+            </div>
+          </div>
+
+          <div class="industry-card">
+            <div class="industry-card-header">
+              <div class="industry-icon" style="background:#DBEAFE;">
+                <span>🏗️</span>
+              </div>
+              <h4>建設業</h4>
+            </div>
+            <span class="industry-tag">現場写真のモバイルUL + 役所提出</span>
+            <ul>
+              <li>現場からスマートフォンで写真を直接アップロード</li>
+              <li>日付・現場別にフォルダを分けて整理</li>
+              <li>工事写真の役所提出にそのままフォルダを活用</li>
+              <li>協力会社とフォルダを共有し、図面の最新版を常に参照</li>
+            </ul>
+            <div class="callout" style="margin-top:12px;">
+              メールで写真をやり取りすると散逸しがち。<strong>現場単位のフォルダで写真を一元管理</strong>できます。
+            </div>
+          </div>
+
+          <div class="industry-card">
+            <div class="industry-card-header">
+              <div class="industry-icon" style="background:#FEE2E2;">
+                <span>🚚</span>
+              </div>
+              <h4>運送業</h4>
+            </div>
+            <span class="industry-tag">伝票電子化 + 破損写真共有</span>
+            <ul>
+              <li>紙伝票やFAXをスキャンしてフォルダにアップロード</li>
+              <li>ドライバーが破損発生時にスマートフォンで写真を共有</li>
+              <li>荷主との共有フォルダで受領書・配送証明を管理</li>
+              <li>操作ログで「いつ誰がアップロードしたか」を記録</li>
+            </ul>
+            <div class="callout" style="margin-top:12px;">
+              破損対応ではスピードと証跡が重要。<strong>写真とログが残るゲスト招待</strong>なら、事後確認もスムーズです。
+            </div>
+          </div>
+
+          <div class="industry-card">
+            <div class="industry-card-header">
+              <div class="industry-icon" style="background:#E0E7FF;">
+                <span>🏢</span>
+              </div>
+              <h4>一般事務</h4>
+            </div>
+            <span class="industry-tag">メール添付→フォルダ一元管理</span>
+            <ul>
+              <li>取引先とのやり取りをメール添付からフォルダ共有に移行</li>
+              <li>「最新版はどれ？」を探す手間がなくなる</li>
+              <li>ファイルの更新履歴をバージョン管理で追跡</li>
+              <li>月次報告書など定期ファイルが自然に蓄積される</li>
+            </ul>
+            <div class="callout" style="margin-top:12px;">
+              メール添付の煩雑さから解放。<strong>フォルダにアクセスすれば常に最新版</strong>がある状態を作れます。
+            </div>
+          </div>
+        </div>
+
+        <div class="tip">
+          <strong>経済産業省のセキュリティガイドラインでも:</strong>
+          サプライチェーンにおける「やり取りの見える化」が求められています。共有リンクでは追跡が難しいファイルの授受も、ゲスト招待なら操作ログで記録が残ります。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('compare')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('steps')">移行ステップ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Steps: 移行ステップ ========== -->
+    <div class="section" id="sec-steps">
+      <div class="content-header">
+        <h1>リンクからゲストに切り替える 3ステップ</h1>
+        <p>既存の共有リンク運用から、段階的にゲスト招待へ移行できます</p>
+      </div>
+
+      <div class="card">
+        <div class="steps">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>対象フォルダを決める</h4>
+              <p>まず、特定の取引先と<strong>継続的にやり取りしているフォルダ</strong>を1つ選びます。月次の報告書、定期的な納品物など、同じ相手と繰り返しファイルを送り合っているフォルダが最適です。いきなり全体を切り替える必要はありません。</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>ゲストを招待する</h4>
+              <p>管理画面からゲスト招待を作成し、相手のメールアドレスを入力して送信します。相手にはゲストアカウントが自動発行され、招待メールが届きます。<strong>アクセスレベル（権限）</strong>はフォルダごとに設定でき、あとから変更も可能です。</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>リンク共有を段階的に縮小</h4>
+              <p>ゲスト招待で運用が安定したら、そのフォルダの共有リンク発行を止めます。次のフォルダへ同じ手順を繰り返すことで、<strong>少しずつゲスト招待中心の運用</strong>に移行できます。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>移行のコツ</h4>
+          <ul>
+            <li>最初は「一番やり取りが多い取引先」1社だけで始めるのがおすすめ</li>
+            <li>相手への案内は「今後はこちらのフォルダからファイルをご確認ください」の一文でOK</li>
+            <li>ゲスト招待に切り替えると、フォルダにデータが蓄積されるため容量が増えていきます。ストレージの活用状況をときどき確認しておくと安心です</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('scenarios')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">クイズに挑戦 →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>この場面では「共有リンク」と「ゲスト招待」のどちらが適切でしょうか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> 取引先と<strong>月次の資料やり取り</strong>を継続的に行っている。最適な共有方法は？</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>共有リンク</h5>
+            <p>毎月リンクを発行して送付する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>ゲスト招待</h5>
+            <p>共有フォルダでファイルを蓄積管理する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('steps')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>この場面では「共有リンク」と「ゲスト招待」のどちらが適切でしょうか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> <strong>不特定多数</strong>に製品カタログを配布したい。最適な共有方法は？</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>共有リンク</h5>
+            <p>URLを発行して一斉に送付する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>ゲスト招待</h5>
+            <p>相手ごとにアカウントを発行して共有する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>この場面では「共有リンク」と「ゲスト招待」のどちらが適切でしょうか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> 協力会社と<strong>共同でファイルを編集・更新</strong>している。最適な共有方法は？</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>共有リンク</h5>
+            <p>リンクでダウンロードし、編集後に再送する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>ゲスト招待</h5>
+            <p>共有フォルダ内でオンライン編集する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>この場面では「共有リンク」と「ゲスト招待」のどちらが適切でしょうか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> 社外へのファイル送信について、監査時に<strong>「誰にいつ何を渡したか」を説明</strong>できる必要がある。最適な共有方法は？</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>共有リンク</h5>
+            <p>リンクの発行履歴で管理する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>ゲスト招待</h5>
+            <p>操作ログで全アクセスを追跡する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>この場面では「共有リンク」と「ゲスト招待」のどちらが適切でしょうか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> 建設現場から写真を複数の関係者に共有し、<strong>コメントでフィードバック</strong>をもらいたい。最適な共有方法は？</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>共有リンク</h5>
+            <p>写真をリンクで配布し、メールでフィードバックを受ける</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>ゲスト招待</h5>
+            <p>共有フォルダに写真をアップし、コメント機能で意見をもらう</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div style="margin-top:32px;">
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin-bottom:12px;">リンク vs ゲスト 早見表（保存用）</h3>
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>観点</th>
+                  <th>共有リンク</th>
+                  <th class="highlight">ゲスト招待</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>共有単位</td>
+                  <td>ファイル単位</td>
+                  <td>フォルダ単位</td>
+                </tr>
+                <tr>
+                  <td>データの蓄積</td>
+                  <td class="cell-no">都度送り切り</td>
+                  <td class="cell-ok">フォルダに蓄積</td>
+                </tr>
+                <tr>
+                  <td>双方向のやり取り</td>
+                  <td class="cell-no">×</td>
+                  <td class="cell-ok">○</td>
+                </tr>
+                <tr>
+                  <td>操作ログ</td>
+                  <td class="cell-no">DL回数のみ</td>
+                  <td class="cell-ok">全操作を記録</td>
+                </tr>
+                <tr>
+                  <td>コメント機能</td>
+                  <td class="cell-no">×</td>
+                  <td class="cell-ok">○</td>
+                </tr>
+                <tr>
+                  <td>過去ファイルの遡り</td>
+                  <td class="cell-no">×</td>
+                  <td class="cell-ok">○</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="saved-notice" id="savedNotice" style="display:none;">回答を記録しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'リンク→ゲスト移行ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 1, // ゲスト招待
+  q2: 0, // 共有リンク
+  q3: 1, // ゲスト招待
+  q4: 1, // ゲスト招待
+  q5: 1  // ゲスト招待
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ 継続的な月次やり取りにはゲスト招待が適しています。フォルダにデータが蓄積されるため、過去の資料を遡って確認でき、毎月リンクを発行する手間もなくなります。',
+    wrong: {
+      0: '共有リンクでも毎月送ることはできますが、ファイルが蓄積されず、過去の資料を遡るのが難しくなります。継続的なやり取りには「ゲスト招待」でフォルダ共有するのが効率的です。'
+    }
+  },
+  q2: {
+    correct: '正解！ 不特定多数への一方向の配布には共有リンクが適しています。相手にアカウントを発行する手間がなく、URLを送るだけで完了します。',
+    wrong: {
+      1: 'ゲスト招待は相手ごとにアカウントが必要です。不特定多数への配布では管理の手間が大きくなるため、「共有リンク」で一括配布するのが効率的です。'
+    }
+  },
+  q3: {
+    correct: '正解！ 共同でのファイル編集にはゲスト招待が必要です。共有フォルダ内でオンライン編集やアップロードができ、双方向のコラボレーションが可能になります。',
+    wrong: {
+      0: '共有リンクでは相手はダウンロードだけしかできず、編集後のファイルを別途メール等で送り返す必要があります。「ゲスト招待」なら共有フォルダ内で直接編集できます。'
+    }
+  },
+  q4: {
+    correct: '正解！ 監査対応には操作ログが不可欠です。ゲスト招待なら「誰が・いつ・何を」ダウンロード/閲覧/編集したかの記録が残り、監査時にエビデンスとして提示できます。',
+    wrong: {
+      0: '共有リンクではダウンロード回数程度しか記録が残りません。「誰が」アクセスしたかの特定が難しく、監査対応には「ゲスト招待」の操作ログが必要です。'
+    }
+  },
+  q5: {
+    correct: '正解！ ゲスト招待なら共有フォルダへの写真アップロードとコメント機能の両方が使えます。写真を共有しながら、フォルダ上でそのままフィードバックのやり取りが可能です。',
+    wrong: {
+      0: '共有リンクではコメント機能が使えないため、フィードバックを別途メール等で受ける必要があります。「ゲスト招待」ならフォルダ上でコメントのやり取りまで完結します。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+var submitted = false;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'compare', 'scenarios', 'steps', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>不正解 — 正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#65A30D ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '全問正解！リンクとゲストの使い分けを完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！実務でも適切に使い分けられるレベルです';
+  else if (score >= 3) msg = '基本はOK！比較表を参考に、もう少し復習してみましょう';
+  else msg = '比較表を見ながら、それぞれの特徴を整理してみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: '月次の資料やり取り（継続的）',
+    q2: '不特定多数へのカタログ配布',
+    q3: '協力会社との共同編集',
+    q4: '監査時の「誰にいつ何を」説明',
+    q5: '現場写真の共有＋コメントでフィードバック'
+  };
+  var correctNames = {
+    q1: 'ゲスト招待',
+    q2: '共有リンク',
+    q3: 'ゲスト招待',
+    q4: 'ゲスト招待',
+    q5: 'ゲスト招待'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    var yourAnswer = answersLabel[q] ? answersLabel[q].replace(/ \(不正解\)/, '') : '未回答';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' / あなたの回答: ' + yourAnswer) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  if (!submitted) {
+    submitted = true;
+    submitResults({ score: score, total: 5 });
+  }
+}
+</script>
+</body>
+</html>

@@ -21,6 +21,24 @@
     --bg: #f6f9fc;
     --surface: #fff;
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+
+    /* Tag colors */
+    --tag-beginner: #2563eb;
+    --tag-beginner-bg: #eff6ff;
+    --tag-admin: #059669;
+    --tag-admin-bg: #ecfdf5;
+    --tag-security: #ea580c;
+    --tag-security-bg: #fff7ed;
+    --tag-fileshare: #7c3aed;
+    --tag-fileshare-bg: #f5f3ff;
+    --tag-troubleshoot: #d97706;
+    --tag-troubleshoot-bg: #fffbeb;
+    --tag-ops: #0d9488;
+    --tag-ops-bg: #f0fdfa;
+    --tag-compliance: #475569;
+    --tag-compliance-bg: #f1f5f9;
+    --tag-drive: #0891b2;
+    --tag-drive-bg: #ecfeff;
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,7 +58,7 @@
   .nav-label { color: var(--text-sub); font-weight: 400; }
 
   /* ── Wrap ── */
-  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 40px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
 
   /* ── Hero Band ── */
   .hero-band {
@@ -61,7 +79,7 @@
   .hero-text p {
     font-size: 15px; color: var(--text-sub);
     margin-top: 10px; line-height: 1.7;
-    max-width: 480px;
+    max-width: 520px;
   }
   .hero-counts { display: flex; gap: 32px; }
   .hero-count { text-align: center; }
@@ -72,7 +90,24 @@
     font-size: 12px; color: var(--text-muted); margin-top: 4px;
   }
 
-  /* ── Primary Card ── */
+  /* ── Tags / Pills ── */
+  .tag-pill {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+    line-height: 1.6; letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .tag-beginner    { background: var(--tag-beginner-bg);    color: var(--tag-beginner); }
+  .tag-admin       { background: var(--tag-admin-bg);       color: var(--tag-admin); }
+  .tag-security    { background: var(--tag-security-bg);    color: var(--tag-security); }
+  .tag-fileshare   { background: var(--tag-fileshare-bg);   color: var(--tag-fileshare); }
+  .tag-troubleshoot{ background: var(--tag-troubleshoot-bg); color: var(--tag-troubleshoot); }
+  .tag-ops         { background: var(--tag-ops-bg);         color: var(--tag-ops); }
+  .tag-compliance  { background: var(--tag-compliance-bg);  color: var(--tag-compliance); }
+  .tag-drive       { background: var(--tag-drive-bg);       color: var(--tag-drive); }
+
+  /* ── Content Area ── */
   .content-area { padding: 40px 0 0; }
 
   .section-label {
@@ -81,133 +116,41 @@
     margin-bottom: 16px;
   }
 
-  .primary-card {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    background: var(--surface);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
-  .primary-card:hover {
-    border-color: #c1cfe0;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.07);
-  }
-
-  .pc-body { padding: 32px 36px; display: flex; flex-direction: column; }
-
-  .pc-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .pc-badge {
-    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px;
-  }
-  .pc-badge.blue { background: var(--blue-pale); color: var(--blue-dark); }
-  .pc-new {
-    font-size: 10px; font-weight: 700; color: var(--green);
-    border: 1px solid #b7ebd0; border-radius: 3px;
-    padding: 2px 7px; letter-spacing: 0.05em;
-  }
-
-  .pc-title {
-    font-size: 21px; font-weight: 700; color: var(--text);
-    line-height: 1.35; margin-bottom: 8px;
-  }
-  .pc-desc {
-    font-size: 14px; color: var(--text-sub); line-height: 1.75; flex: 1;
-  }
-  .pc-meta {
-    display: flex; gap: 6px; margin-top: 18px; flex-wrap: wrap;
-  }
-  .pc-meta-tag {
-    font-size: 12px; color: var(--text-muted);
-    background: var(--bg); border-radius: 4px; padding: 4px 10px;
-  }
-
-  .pc-cta-row { margin-top: 20px; }
-  .pc-cta {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 14px; font-weight: 600; color: var(--surface);
-    background: var(--blue); padding: 9px 22px;
-    border-radius: 7px; transition: background 0.2s;
-  }
-  .pc-cta:hover { background: var(--blue-dark); }
-  .pc-cta svg { transition: transform 0.2s; }
-  .pc-cta:hover svg { transform: translateX(3px); }
-
-  .pc-visual {
-    background: linear-gradient(155deg, #0c2346, #1a56db);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 28px; position: relative; overflow: hidden;
-  }
-  .pc-visual::before {
-    content: '';
-    position: absolute; top: -30px; right: -30px;
-    width: 160px; height: 160px;
-    background: radial-gradient(circle, rgba(255,255,255,0.07), transparent 70%);
-  }
-  .pc-visual-icon {
-    width: 56px; height: 56px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 20px;
-  }
-  .pc-visual-icon svg { stroke: rgba(255,255,255,0.8); }
-  .pc-visual-topics {
-    display: flex; flex-direction: column; gap: 8px;
-    width: 100%; position: relative; z-index: 1;
-  }
-  .pc-visual-topic {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 6px; padding: 10px 14px;
-    font-size: 13px; color: rgba(255,255,255,0.85);
-  }
-  .pc-visual-topic-num {
-    font-size: 11px; font-weight: 700;
-    background: rgba(255,255,255,0.15);
-    width: 22px; height: 22px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.7); flex-shrink: 0;
-  }
-
   /* ── Secondary Cards ── */
   .secondary-area { margin-top: 48px; }
 
-  .secondary-row {
+  .secondary-grid {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 16px;
   }
 
   .secondary-card {
-    background: var(--surface);
+    --accent: var(--green);
+    --accent-pale: var(--green-pale);
+    background: linear-gradient(168deg, var(--accent-pale) 0%, var(--surface) 40%);
     border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
     border-radius: 10px;
     padding: 24px 26px;
-    transition: border-color 0.2s, transform 0.2s;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     display: flex; flex-direction: column;
     position: relative;
   }
   .secondary-card:hover {
-    border-color: var(--green);
+    border-color: var(--accent);
+    border-left-color: var(--accent);
     transform: translateY(-2px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 12%, transparent);
   }
-  .secondary-card::before {
-    content: '';
-    position: absolute; top: 0; left: 24px; right: 24px;
-    height: 3px; border-radius: 0 0 3px 3px;
-    background: var(--green);
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .secondary-card:hover::before { opacity: 1; }
 
   .sc-badge {
     font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
-    width: fit-content; margin-bottom: 10px;
+    width: fit-content; margin-bottom: 8px;
+    background: var(--accent-pale); color: var(--accent);
   }
-  .sc-badge.green { background: var(--green-pale); color: var(--green); }
+
+  .sc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
 
   .sc-title { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
   .sc-desc { font-size: 13px; color: var(--text-sub); line-height: 1.7; flex: 1; }
@@ -217,25 +160,34 @@
   }
   .sc-meta { font-size: 12px; color: var(--text-muted); }
   .sc-link {
-    font-size: 13px; font-weight: 600; color: var(--blue);
+    font-size: 13px; font-weight: 600; color: var(--accent);
     display: flex; align-items: center; gap: 5px;
   }
   .sc-link svg { transition: transform 0.2s; }
   .sc-link:hover svg { transform: translateX(3px); }
 
-  /* ── Coming Soon Card ── */
+  /* ── Coming Soon Cards ── */
+  .coming-area { margin-top: 48px; }
+
+  .coming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
   .coming-card {
     background: var(--bg);
     border: 1px dashed #c8d1da;
     border-radius: 10px;
-    padding: 24px 26px;
+    padding: 22px 24px;
     display: flex; flex-direction: column;
   }
   .cc-badge {
     font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
-    width: fit-content; margin-bottom: 10px;
+    width: fit-content; margin-bottom: 8px;
     background: var(--amber-pale); color: var(--amber);
   }
+  .cc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
   .cc-title { font-size: 15px; font-weight: 600; color: var(--text-sub); line-height: 1.4; margin-bottom: 6px; }
   .cc-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; flex: 1; }
   .cc-status {
@@ -289,15 +241,14 @@
   .arrow-sm { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   /* ── Responsive ── */
-  @media (max-width: 840px) {
+  @media (max-width: 768px) {
     .wrap { padding: 0 20px; }
     .nav { padding: 0 20px; }
     .hero-band .wrap { grid-template-columns: 1fr; }
     .hero-counts { justify-content: flex-start; }
     .hero-text h1 { font-size: 26px; }
-    .primary-card { grid-template-columns: 1fr; }
-    .pc-visual { min-height: 160px; }
-    .secondary-row { grid-template-columns: 1fr; }
+.secondary-grid { grid-template-columns: 1fr; }
+    .coming-grid { grid-template-columns: 1fr; }
     .about-grid { grid-template-columns: 1fr; gap: 28px; }
   }
 </style>
@@ -325,7 +276,7 @@
         <div class="hero-count-label">公開中</div>
       </div>
       <div class="hero-count">
-        <div class="hero-count-num">5</div>
+        <div class="hero-count-num">4</div>
         <div class="hero-count-label">準備中</div>
       </div>
     </div>
@@ -334,57 +285,62 @@
 
 <div class="wrap">
 
-  <!-- Primary: ファイル共有 -->
+  <!-- ============================================ -->
+  <!-- Category: ファイル共有・コラボレーション     -->
+  <!-- ============================================ -->
   <div class="content-area">
-    <div class="section-label">ファイル共有</div>
-    <a id="link-filesharing" href="https://community.directcloud.jp/s/learning/file-sharing" target="_top" class="primary-card">
-      <div class="pc-body">
-        <div class="pc-badge-row">
-          <span class="pc-badge blue">クイズ形式</span>
+    <div class="section-label">ファイル共有・コラボレーション</div>
+
+    <div class="secondary-grid">
+      <a id="link-filesharing" href="https://community.directcloud.jp/s/learning/file-sharing" target="_top" class="secondary-card" style="--accent:#2E6DFE; --accent-pale:#eef4ff;">
+        <div class="sc-badge">クイズ形式</div>
+        <div class="sc-tags">
+          <span class="tag-pill tag-beginner">初心者</span>
+          <span class="tag-pill tag-fileshare">ファイル共有</span>
         </div>
-        <div class="pc-title">ファイル共有方法の選び方</div>
-        <div class="pc-desc">共有リンク・受取フォルダ・ゲスト招待。3つの共有方法をシナリオクイズで使い分けを学びます。</div>
-        <div class="pc-meta">
-          <span class="pc-meta-tag">5問</span>
-          <span class="pc-meta-tag">約5分</span>
-          <span class="pc-meta-tag">初心者向け</span>
-        </div>
-        <div class="pc-cta-row">
-          <span class="pc-cta">
+        <div class="sc-title">ファイル共有方法の選び方</div>
+        <div class="sc-desc">共有リンク・受取フォルダ・ゲスト招待。3つの共有方法をシナリオクイズで使い分けを学びます。</div>
+        <div class="sc-footer">
+          <span class="sc-meta">5問 · 約5分 · 初心者向け</span>
+          <span class="sc-link">
             始める
             <svg class="arrow-sm" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
           </span>
         </div>
-      </div>
-      <div class="pc-visual">
-        <div class="pc-visual-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </a>
+
+      <a id="link-guest" href="https://community.directcloud.jp/s/learning/guest-permissions" target="_top" class="secondary-card" style="--accent:#7B61FF; --accent-pale:#f5f3ff;">
+        <div class="sc-badge">比較+クイズ形式</div>
+        <div class="sc-tags">
+          <span class="tag-pill tag-fileshare">ファイル共有</span>
+          <span class="tag-pill tag-admin">管理者</span>
         </div>
-        <div class="pc-visual-topics">
-          <div class="pc-visual-topic">
-            <span class="pc-visual-topic-num">1</span>
-            共有リンク — ファイルを「送る」
-          </div>
-          <div class="pc-visual-topic">
-            <span class="pc-visual-topic-num">2</span>
-            受取フォルダ — ファイルを「もらう」
-          </div>
-          <div class="pc-visual-topic">
-            <span class="pc-visual-topic-num">3</span>
-            ゲスト招待 — 「一緒に使う」
-          </div>
+        <div class="sc-title">ゲスト招待 権限設定ガイド</div>
+        <div class="sc-desc">7段階のアクセスレベルを比較して最適な権限設定を学びます。シナリオクイズで理解度をチェック。</div>
+        <div class="sc-footer">
+          <span class="sc-meta">5問 · 約5分 · 管理者向け</span>
+          <span class="sc-link">
+            始める
+            <svg class="arrow-sm" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </span>
         </div>
-      </div>
-    </a>
+      </a>
+    </div>
   </div>
 
-  <!-- Secondary: セキュリティ + 準備中 -->
+  <!-- ============================================ -->
+  <!-- Category: セキュリティ・コンプライアンス     -->
+  <!-- ============================================ -->
   <div class="secondary-area">
-    <div class="section-label">セキュリティ・権限設定</div>
-    <div class="secondary-row">
+    <div class="section-label">セキュリティ・コンプライアンス</div>
+    <div class="secondary-grid">
 
-      <a id="link-security" href="https://community.directcloud.jp/s/learning/security-check" target="_top" class="secondary-card">
-        <div class="sc-badge green">診断形式</div>
+      <a id="link-security" href="https://community.directcloud.jp/s/learning/security-check" target="_top" class="secondary-card" style="--accent:#475569; --accent-pale:#f1f5f9;">
+        <div class="sc-badge">診断形式</div>
+        <div class="sc-tags">
+          <span class="tag-pill tag-security">セキュリティ</span>
+          <span class="tag-pill tag-admin">管理者</span>
+        </div>
         <div class="sc-title">セキュリティ設定チェック</div>
         <div class="sc-desc">パスワードポリシーからログイン設定まで、10の質問で組織に最適なセキュリティ設定を診断。優先度つきの推奨一覧を表示します。</div>
         <div class="sc-footer">
@@ -396,29 +352,12 @@
         </div>
       </a>
 
-      <a id="link-guest" href="https://community.directcloud.jp/s/learning/guest-permissions" target="_top" class="secondary-card">
-        <div class="sc-badge green">比較+クイズ形式</div>
-        <div class="sc-title">ゲスト招待 権限設定ガイド</div>
-        <div class="sc-desc">7段階のアクセスレベルを比較して最適な権限設定を学びます。シナリオクイズで理解度をチェック。</div>
-        <div class="sc-footer">
-          <span class="sc-meta">5問 · 約5分 · 管理者向け</span>
-          <span class="sc-link">
-            始める
-            <svg class="arrow-sm" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-          </span>
+      <a id="link-supplychain" href="https://community.directcloud.jp/s/learning/supply-chain-check" target="_top" class="secondary-card" style="--accent:#0D9488; --accent-pale:#f0fdfa;">
+        <div class="sc-badge">診断形式</div>
+        <div class="sc-tags">
+          <span class="tag-pill tag-security">セキュリティ</span>
+          <span class="tag-pill tag-compliance">コンプライアンス</span>
         </div>
-      </a>
-
-    </div>
-  </div>
-
-  <!-- サプライチェーン -->
-  <div class="secondary-area" style="margin-top:32px;">
-    <div class="section-label">サプライチェーン・コンプライアンス</div>
-    <div class="secondary-row">
-
-      <a id="link-supplychain" href="https://community.directcloud.jp/s/learning/supply-chain-check" target="_top" class="secondary-card">
-        <div class="sc-badge green">診断形式</div>
         <div class="sc-title">サプライチェーンセキュリティ 対応度チェック</div>
         <div class="sc-desc">経済産業省「セキュリティ対策評価制度」の★3・★4要件に基づき、DirectCloudの設定状況から対応度を診断します。</div>
         <div class="sc-footer">
@@ -430,13 +369,72 @@
         </div>
       </a>
 
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- Coming Soon                                  -->
+  <!-- ============================================ -->
+  <div class="coming-area">
+    <div class="section-label">準備中のコンテンツ</div>
+    <div class="coming-grid">
+
+      <!-- 管理・運用 -->
       <div class="coming-card">
         <div class="cc-badge">準備中</div>
+        <div class="cc-tags">
+          <span class="tag-pill tag-beginner">初心者</span>
+          <span class="tag-pill tag-admin">管理者</span>
+        </div>
         <div class="cc-title">初期設定ガイド</div>
         <div class="cc-desc">グループ・ユーザー・フォルダ・アクセス権の初期設定を5STEPで学びます。</div>
         <div class="cc-status">
           <span class="cc-dot"></span>
-          準備中
+          5STEP学習+クイズ · 管理者向け
+        </div>
+      </div>
+
+      <div class="coming-card">
+        <div class="cc-badge">準備中</div>
+        <div class="cc-tags">
+          <span class="tag-pill tag-admin">管理者</span>
+          <span class="tag-pill tag-ops">運用管理</span>
+        </div>
+        <div class="cc-title">ストレージ階層化ガイド</div>
+        <div class="cc-desc">フォルダ設計・容量管理・アーカイブ運用を4STEPで学びます。</div>
+        <div class="cc-status">
+          <span class="cc-dot"></span>
+          4STEP学習+クイズ · 管理者向け
+        </div>
+      </div>
+
+      <!-- セキュリティ -->
+      <div class="coming-card">
+        <div class="cc-badge">準備中</div>
+        <div class="cc-tags">
+          <span class="tag-pill tag-security">セキュリティ</span>
+          <span class="tag-pill tag-admin">管理者</span>
+        </div>
+        <div class="cc-title">SHIELD セキュリティガイド</div>
+        <div class="cc-desc">IRM・DLPなどSHIELD機能の設定と活用方法を学びます。</div>
+        <div class="cc-status">
+          <span class="cc-dot"></span>
+          IRM/DLP学習+クイズ · 管理者向け
+        </div>
+      </div>
+
+      <!-- トラブル解決 -->
+      <div class="coming-card">
+        <div class="cc-badge">準備中</div>
+        <div class="cc-tags">
+          <span class="tag-pill tag-troubleshoot">トラブル解決</span>
+          <span class="tag-pill tag-drive">ドライブ</span>
+        </div>
+        <div class="cc-title">ドライブ トラブル解決ガイド</div>
+        <div class="cc-desc">よくある質問をFAQ形式で解説。同期エラーやアクセスの問題をクイズで学びます。</div>
+        <div class="cc-status">
+          <span class="cc-dot"></span>
+          FAQ型+クイズ · 全ユーザー向け
         </div>
       </div>
 
@@ -489,18 +487,13 @@
 <script>
 // iframe外（直接アクセス時）はローカルHTMLにリンク
 if (window === window.top) {
-  var l1 = document.getElementById('link-filesharing');
-  l1.href = 'file-sharing.html';
-  l1.target = '_self';
-  var l2 = document.getElementById('link-security');
-  l2.href = 'security-check.html';
-  l2.target = '_self';
-  var l3 = document.getElementById('link-guest');
-  l3.href = 'guest-permissions.html';
-  l3.target = '_self';
-  var l4 = document.getElementById('link-supplychain');
-  l4.href = 'supply-chain-check.html';
-  l4.target = '_self';
+  // 公開中
+  document.getElementById('link-filesharing').href = 'file-sharing.html';
+  document.getElementById('link-security').href = 'security-check.html';
+  document.getElementById('link-guest').href = 'guest-permissions.html';
+  document.getElementById('link-supplychain').href = 'supply-chain-check.html';
+  // すべてtarget='_self'に
+  document.querySelectorAll('[id^="link-"]').forEach(function(el) { el.target = '_self'; });
 }
 </script>
 </body>
