@@ -856,7 +856,8 @@
           <div class="quiz-counter">多要素認証</div>
         </div>
         <div class="quiz-body">
-          <p style="font-weight:700; font-size:17px; margin-bottom:20px;">多要素認証（二要素認証）を有効にしていますか？</p>
+          <p style="font-weight:700; font-size:17px; margin-bottom:12px;">多要素認証（二要素認証）を有効にしていますか？</p>
+          <p style="font-size:12px; color:#666; margin-bottom:20px; line-height:1.6;">※「二要素認証」は、パスワード（知識）＋ OTPアプリやSMS（所持）など<strong>異なる種類の要素を2つ</strong>組み合わせる方式です。同じ種類の要素を2回入力する「二段階認証」とは異なります。DirectCloudでは、メール/アプリによるワンタイムパスワードを利用した二要素認証に対応しています。</p>
           <div class="choices-grid two-col" id="q5choices">
             <div class="choice-card" onclick="selectAnswer('q5', 0, this)">
               <div class="choice-letter">A</div>
@@ -1157,6 +1158,10 @@
         <div class="info-box">
           <strong>ヒント:</strong> 各項目の「詳細」リンクからDirectCloudのWEBマニュアルを確認できます。ご不明な点は <a href="https://community.directcloud.jp/s/FAQ" target="_top" style="color:var(--dc-blue); font-weight:600;">質問して</a> みてください。
         </div>
+      </div>
+
+      <div style="background:#F0F5F3; border-radius:10px; padding:16px 20px; margin-top:20px; font-size:13px; color:#374151; line-height:1.7;">
+        設定方法や対応についてご不明な点がございましたら、弊社カスタマーサクセスまでお気軽にご相談ください。
       </div>
 
       <div class="btn-row">
@@ -1483,7 +1488,7 @@
       let irmPriority = f.irm ? '設定済み' : ((star >= 4) ? '必須' : '推奨');
       recommendations.push({
         name: '機密区分管理（IRM）', priority: irmPriority,
-        desc: 'SHIELD IRMでファイルに機密度ラベルを付与し、AES-256暗号化で保護します。要件 3-1-4, 4-3-1 に対応。',
+        desc: 'SHIELD IRMでファイルに機密度ラベルを付与し、AES-256暗号化で保護します。要件 3-1-4, 4-3-1 に対応。IRM/DLPの違いや設定方法は <a href="shield-security.html" style="color:var(--dc-blue);">SHIELD セキュリティガイド</a> で詳しく解説しています。',
         link: 'https://help.directcloud.jp/s/admin-manual-shield-irm',
       });
     }
