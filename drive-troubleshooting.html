@@ -23,11 +23,14 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html { height: 100%; }
   body {
     font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
     background: #FFFCF5;
     color: #1A2332;
     line-height: 1.8;
+    height: 100%;
+    overflow: hidden;
   }
 
   /* ===== Top bar ===== */
@@ -66,7 +69,8 @@
   .layout {
     display: grid;
     grid-template-columns: 240px 1fr;
-    min-height: calc(100vh - 52px);
+    height: calc(100vh - 52px);
+    overflow: hidden;
   }
 
   /* ===== Sidebar ===== */
@@ -74,9 +78,6 @@
     background: #fff;
     border-right: 1px solid #E0E6ED;
     padding: 24px 0;
-    position: sticky;
-    top: 52px;
-    height: calc(100vh - 52px);
     overflow-y: auto;
   }
   .sidebar-title {
@@ -104,7 +105,7 @@
   .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
 
   /* ===== Main ===== */
-  .main { padding: 40px 56px 80px; }
+  .main { padding: 40px 56px 80px; overflow-y: auto; }
 
   .section { display: none; }
   .section.active { display: block; animation: fadeUp 0.4s ease; }
@@ -627,8 +628,7 @@
 
       <div class="card">
         <div class="scenario">
-          <p>DirectCloudドライブに関するサポート問い合わせを分析したところ、<strong>2026年1〜4月の4か月間で1,017件</strong>のお問い合わせがありました。<br>
-          その中でも特に多い症状には共通したパターンがあり、<strong>原因と対処法を知っておくだけで多くのケースを自力解決</strong>できます。</p>
+          <p>DirectCloudドライブでよくある症状には共通したパターンがあり、<strong>原因と対処法を知っておくだけで多くのケースを自力解決</strong>できます。</p>
         </div>
 
         <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">よくあるトラブル TOP 3</h3>
@@ -1281,7 +1281,8 @@ function goTo(sec) {
   currentSection = sec;
   updateSidebar(sec);
   updateProgress(sec);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  var mainEl = document.querySelector('.main');
+  if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateSidebar(sec) {
