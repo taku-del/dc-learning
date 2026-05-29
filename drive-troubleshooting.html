@@ -1390,6 +1390,19 @@ function showResult() {
 
   submitResults({ score: score, total: 5 });
 }
+
+/* ===== iframe auto-resize ===== */
+function notifyParentHeight() {
+  var h = document.body.scrollHeight;
+  try { window.parent.postMessage({ type: 'dc-learning-resize', height: h }, '*'); } catch(e) {}
+}
+window.addEventListener('load', notifyParentHeight);
+// セクション切替後にも高さを再通知
+var _origGoTo = goTo;
+goTo = function(sec) {
+  _origGoTo(sec);
+  setTimeout(notifyParentHeight, 100);
+};
 </script>
 </body>
 </html>
