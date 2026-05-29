@@ -23,14 +23,11 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { height: 100%; }
   body {
     font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
     background: #FFFCF5;
     color: #1A2332;
     line-height: 1.8;
-    height: 100%;
-    overflow: hidden;
   }
 
   /* ===== Top bar ===== */
@@ -69,8 +66,7 @@
   .layout {
     display: grid;
     grid-template-columns: 240px 1fr;
-    height: calc(100vh - 52px);
-    overflow: hidden;
+    min-height: calc(100vh - 52px);
   }
 
   /* ===== Sidebar ===== */
@@ -78,6 +74,9 @@
     background: #fff;
     border-right: 1px solid #E0E6ED;
     padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
     overflow-y: auto;
   }
   .sidebar-title {
@@ -105,7 +104,7 @@
   .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
 
   /* ===== Main ===== */
-  .main { padding: 40px 56px 80px; overflow-y: auto; }
+  .main { padding: 40px 56px 80px; }
 
   .section { display: none; }
   .section.active { display: block; animation: fadeUp 0.4s ease; }
@@ -1281,8 +1280,7 @@ function goTo(sec) {
   currentSection = sec;
   updateSidebar(sec);
   updateProgress(sec);
-  var mainEl = document.querySelector('.main');
-  if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateSidebar(sec) {
@@ -1391,18 +1389,6 @@ function showResult() {
   submitResults({ score: score, total: 5 });
 }
 
-/* ===== iframe auto-resize ===== */
-function notifyParentHeight() {
-  var h = document.body.scrollHeight;
-  try { window.parent.postMessage({ type: 'dc-learning-resize', height: h }, '*'); } catch(e) {}
-}
-window.addEventListener('load', notifyParentHeight);
-// セクション切替後にも高さを再通知
-var _origGoTo = goTo;
-goTo = function(sec) {
-  _origGoTo(sec);
-  setTimeout(notifyParentHeight, 100);
-};
 </script>
 </body>
 </html>
