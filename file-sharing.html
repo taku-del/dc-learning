@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 運用きほんのき — ファイル共有方法の選び方</title>
+<style>
+  :root {
+    --dc-blue: #2E6DFE;
+    --dc-blue-light: #E8F0FF;
+    --dc-blue-dark: #1A5FE0;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-purple: #7B61FF;
+    --dc-purple-light: #F0EDFF;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F0F4F8;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-blue);
+  }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue); }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step {
+    font-size: 13px; color: #888;
+  }
+  .topbar-step strong { color: var(--dc-blue); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 49px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 49px;
+    height: calc(100vh - 49px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #F5F8FB; color: #333; }
+  .sidebar-item.active {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue);
+    font-weight: 600;
+    border-left-color: var(--dc-blue);
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item.done .sidebar-icon { color: var(--dc-green); }
+  .sidebar-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+
+  /* ===== Content ===== */
+  .content {
+    padding: 40px 48px 80px;
+    overflow-y: auto;
+  }
+
+  /* ===== Section pages ===== */
+  .section {
+    display: none;
+    animation: fadeSlideIn 0.4s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== Content header ===== */
+  .content-header {
+    margin-bottom: 32px;
+  }
+  .content-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .content-header p { font-size: 14px; color: #666; }
+
+  /* ===== Cards ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--dc-blue-dark);
+  }
+  .card h3 {
+    font-size: 17px;
+    margin-bottom: 12px;
+    color: #374151;
+  }
+  .card p {
+    font-size: 15px;
+    color: #4B5563;
+    margin-bottom: 12px;
+  }
+
+  /* ===== 3-Column Feature Cards ===== */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .feature {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .feature:hover {
+    border-color: var(--dc-blue);
+    box-shadow: 0 4px 16px rgba(0,102,204,0.1);
+  }
+  .feature-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .feature-badge {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .feature-badge.blue { background: var(--dc-blue-light); }
+  .feature-badge.green { background: var(--dc-green-light); }
+  .feature-badge.purple { background: var(--dc-purple-light); }
+  .feature h4 { font-size: 15px; font-weight: 700; }
+  .feature p { font-size: 13px; color: #666; margin-bottom: 12px; }
+  .feature-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ftag {
+    font-size: 11px; padding: 2px 8px;
+    background: #F0F4F8; border-radius: 4px; color: #666;
+  }
+
+  /* ===== Scenario / Quiz ===== */
+  .quiz-card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .quiz-header {
+    background: var(--dc-blue);
+    color: #fff;
+    padding: 20px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .quiz-header h2 { font-size: 16px; font-weight: 600; margin: 0; color: #fff; }
+  .quiz-counter {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .quiz-body { padding: 28px; }
+
+  .scenario {
+    background: #FFF8F0;
+    border: 1px solid #FFE0B2;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex; gap: 14px;
+  }
+  .scenario-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .scenario p { font-size: 15px; color: #5D4037; margin: 0; }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .choice-card {
+    border: 2px solid #E0E6ED;
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-blue);
+    background: #F8FBFF;
+  }
+  .choice-card .choice-letter {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #F0F4F8;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: #999;
+    margin: 0 auto 12px;
+    transition: all 0.2s;
+  }
+  .choice-card:hover .choice-letter { background: var(--dc-blue); color: #fff; }
+  .choice-card h5 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .choice-card p { font-size: 12px; color: #888; margin: 0; }
+
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    animation: popIn 0.3s ease;
+  }
+  .choice-card.correct .choice-letter {
+    background: var(--dc-green); color: #fff;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    animation: shake 0.4s ease;
+  }
+  .choice-card.wrong .choice-letter {
+    background: var(--dc-red); color: #fff;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  @keyframes popIn {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    display: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 20px;
+    animation: fadeSlideIn 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.wrong-fb {
+    background: var(--dc-red-light);
+    border-left: 4px solid var(--dc-red);
+  }
+  .feedback-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .feedback p {
+    font-size: 14px;
+    color: #4B5563;
+  }
+
+  /* ===== Comparison Table ===== */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+  .compare-table th {
+    background: var(--dc-blue);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .compare-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  .compare-table tr:nth-child(even) td {
+    background: #F9FAFB;
+  }
+  .check { color: var(--dc-green); font-weight: 700; }
+  .cross { color: var(--dc-red); font-weight: 700; }
+
+  /* ===== Info Box ===== */
+  .info-box {
+    background: var(--dc-blue-light);
+    border-left: 4px solid var(--dc-blue);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .info-box strong {
+    color: var(--dc-blue-dark);
+  }
+
+  /* ===== Buttons ===== */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--dc-blue);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--dc-blue-dark); }
+  .btn-secondary {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-secondary:hover { background: var(--dc-gray-light); }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.5s ease;
+  }
+  .score-circle.perfect { background: linear-gradient(135deg, var(--dc-green), #00C896); }
+  .score-circle.good    { background: linear-gradient(135deg, var(--dc-blue), #3B82F6); }
+  .score-circle.ok      { background: linear-gradient(135deg, var(--dc-orange), #F59E0B); }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .score-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+  @keyframes scaleIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  /* ===== Flow Diagram ===== */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid var(--dc-blue);
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    max-width: 360px;
+    width: 100%;
+    position: relative;
+  }
+  .flow-arrow {
+    font-size: 22px;
+    color: var(--dc-blue);
+    line-height: 1;
+    padding: 4px 0;
+  }
+  .flow-step.highlight {
+    background: var(--dc-blue);
+    color: #fff;
+  }
+
+  /* ===== Accordion ===== */
+  .accordion {
+    margin: 16px 0;
+  }
+  .accordion-item {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .accordion-header {
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 15px;
+    background: #FAFBFC;
+    transition: background 0.2s;
+  }
+  .accordion-header:hover { background: var(--dc-blue-light); }
+  .accordion-arrow { transition: transform 0.3s; }
+  .accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0 16px;
+    font-size: 14px;
+    color: #4B5563;
+  }
+  .accordion-body ul {
+    padding-left: 20px;
+  }
+  .accordion-item.open .accordion-body {
+    max-height: 500px;
+    padding: 0 16px 16px;
+  }
+
+  /* ===== Tags ===== */
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 2px;
+  }
+  .tag-blue   { background: var(--dc-blue-light);   color: var(--dc-blue); }
+  .tag-green  { background: var(--dc-green-light);  color: var(--dc-green); }
+  .tag-purple { background: var(--dc-purple-light); color: var(--dc-purple); }
+  .tag-orange { background: var(--dc-orange-light); color: #92400E; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .topbar { padding: 12px 20px; }
+    .content { padding: 24px 20px 80px; }
+    .features { grid-template-columns: 1fr; }
+    .choices-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Next Guides (Bowling Alley) ===== */
+  .next-guides {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .next-guides h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .next-guides .next-guides-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .next-guide-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .next-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .next-guide-card:hover {
+    border-color: #94A3B8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .next-guide-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .next-guide-card h5 {
+    font-size: 14px; font-weight: 600; color: #1A2332; margin-bottom: 3px;
+  }
+  .next-guide-card p {
+    font-size: 12px; color: #888; line-height: 1.5;
+  }
+  .next-guide-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a id="back-link" href="https://community.directcloud.jp/s/learning" target="_top" class="topbar-back">&#8592; 活用ガイド一覧</a>
+    <div class="topbar-sep">|</div>
+    <div class="topbar-title">ファイル共有方法の選び方</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-step" id="topbarStep">Step <strong>1</strong> / 8</div>
+    <div class="progress-mini"><div class="progress-mini-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- ===== Sidebar ===== -->
+  <div class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <div class="sidebar-item active" data-sec="1" onclick="goTo(1)">
+      <div class="sidebar-icon">&#9654;</div><span>はじめに</span>
+    </div>
+    <div class="sidebar-item" data-sec="2" onclick="goTo(2)">
+      <div class="sidebar-icon">&#9675;</div><span>3つの方法</span>
+    </div>
+    <div class="sidebar-item" data-sec="3" onclick="goTo(3)">
+      <div class="sidebar-icon">&#9675;</div><span>クイズ 1</span>
+    </div>
+    <div class="sidebar-item" data-sec="4" onclick="goTo(4)">
+      <div class="sidebar-icon">&#9675;</div><span>クイズ 2</span>
+    </div>
+    <div class="sidebar-item" data-sec="5" onclick="goTo(5)">
+      <div class="sidebar-icon">&#9675;</div><span>クイズ 3</span>
+    </div>
+    <div class="sidebar-item" data-sec="6" onclick="goTo(6)">
+      <div class="sidebar-icon">&#9675;</div><span>クイズ 4</span>
+    </div>
+    <div class="sidebar-item" data-sec="7" onclick="goTo(7)">
+      <div class="sidebar-icon">&#9675;</div><span>クイズ 5</span>
+    </div>
+    <div class="sidebar-item" data-sec="8" onclick="goTo(8)">
+      <div class="sidebar-icon">&#9675;</div><span>まとめ</span>
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+
+    <!-- ========== Section 1: イントロ ========== -->
+    <div class="section active" id="sec1">
+      <div class="content-header">
+        <h1>こんなお悩みありませんか？</h1>
+        <p>DirectCloudのファイル共有機能を学びましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <div class="scenario-icon">&#128172;</div>
+          <p>
+            「取引先にファイルを送りたいけど、メール添付だと容量オーバー...」<br>
+            「社外の人と一緒にファイルを編集したいけど、どうすれば？」<br>
+            「パスワード付きZIPで送ってるけど、これってセキュリティ的にどうなの？」
+          </p>
+        </div>
+        <p>DirectCloudには、こうした課題を解決する <strong>3つのファイル共有方法</strong> があります。このコンテンツでは、各機能の特長を学び、シナリオ別の使い分けをマスターします。</p>
+        <div class="info-box">
+          <strong>所要時間:</strong> 約5分 ／ <strong>形式:</strong> 解説 + シナリオクイズ5問
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo(2)">学習を始める →</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== Section 2: 3つの方法 概要 ========== -->
+    <div class="section" id="sec2">
+      <div class="content-header">
+        <h1>ファイル共有の3つの方法</h1>
+        <p>DirectCloudでは、相手や目的に応じて最適な共有方法を選べます。</p>
+      </div>
+
+      <!-- 3-column feature cards with tags -->
+      <div class="features">
+        <div class="feature">
+          <div class="feature-header">
+            <div class="feature-badge blue">&#128279;</div>
+            <h4>共有リンク</h4>
+          </div>
+          <p>ファイルのリンクURLを発行してメールで送信</p>
+          <div class="feature-tags">
+            <span class="ftag">パスワード</span>
+            <span class="ftag">有効期限</span>
+            <span class="ftag">承認WF</span>
+            <span class="ftag">誤送信対策</span>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-header">
+            <div class="feature-badge green">&#128230;</div>
+            <h4>受取フォルダ</h4>
+          </div>
+          <p>社外から相手のアカウント不要でファイルを受領</p>
+          <div class="feature-tags">
+            <span class="ftag">アカウント不要</span>
+            <span class="ftag">通知</span>
+            <span class="ftag">容量制限</span>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-header">
+            <div class="feature-badge purple">&#129309;</div>
+            <h4>ゲスト招待</h4>
+          </div>
+          <p>ゲストアカウントを発行して継続的に共同作業</p>
+          <div class="feature-tags">
+            <span class="ftag">同時編集</span>
+            <span class="ftag">コメント</span>
+            <span class="ftag">7段階権限</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 共有リンク 詳細 -->
+      <div class="card">
+        <h3>&#128279; 共有リンク — 「送る」</h3>
+        <p>ファイルやフォルダのURLを発行し、メールで送信。<strong>脱PPAPの基本手段</strong>です。</p>
+        <div class="accordion">
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              <span>セキュリティ機能</span>
+              <span class="accordion-arrow">&#9660;</span>
+            </div>
+            <div class="accordion-body">
+              <ul>
+                <li><strong>パスワード設定</strong> — 自動生成 or 手動設定</li>
+                <li><strong>有効期限</strong> — 指定日で自動無効化</li>
+                <li><strong>アクセス回数制限</strong> — 最大回数を指定</li>
+                <li><strong>誤送信時の無効化</strong> — いつでもリンク削除可能</li>
+                <li><strong>承認ワークフロー</strong> — 上長承認を必須にできる</li>
+              </ul>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              <span>暗号化の仕組み</span>
+              <span class="accordion-arrow">&#9660;</span>
+            </div>
+            <div class="accordion-body">
+              <ul>
+                <li><strong>ファイル保存:</strong> AES-256で暗号化してS3に格納</li>
+                <li><strong>パスワード:</strong> SHA-1でハッシュ化してDBに保存</li>
+                <li><strong>通信:</strong> SSL/TLSで暗号化</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 受取フォルダ 詳細 -->
+      <div class="card">
+        <h3>&#128230; 受取フォルダ — 「もらう」</h3>
+        <p>社外の方にアカウント不要でファイルをアップロードしてもらう仕組みです。</p>
+        <div class="flow">
+          <div class="flow-step">社内担当者が受取リンクを発行</div>
+          <div class="flow-arrow">&#8595;</div>
+          <div class="flow-step">社外の方がリンクからファイルをアップロード</div>
+          <div class="flow-arrow">&#8595;</div>
+          <div class="flow-step">アップロード通知が届く</div>
+          <div class="flow-arrow">&#8595;</div>
+          <div class="flow-step highlight">アクセス権を持つ社内メンバー全員で確認</div>
+        </div>
+        <div class="info-box">
+          <strong>ポイント:</strong> 相手にDirectCloudのアカウントを発行する必要がありません。一回限りのファイル受領に最適です。
+        </div>
+      </div>
+
+      <!-- ゲスト招待 詳細 -->
+      <div class="card">
+        <h3>&#129309; ゲスト招待 — 「一緒に使う」</h3>
+        <p>社外の方にゲストアカウントを発行し、DirectCloud上で継続的に共同作業できます。</p>
+
+        <table class="compare-table">
+          <tr>
+            <th>アクセスレベル</th>
+            <th>できること</th>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">オーナー</span></td>
+            <td>すべての操作 + 権限管理</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">編集者</span></td>
+            <td>プレビュー / アップロード / ダウンロード / 編集</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">閲覧者</span></td>
+            <td>プレビュー / コメントのみ</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">アップローダ</span></td>
+            <td>アップロードのみ（中身は見えない）</td>
+          </tr>
+        </table>
+        <div class="info-box">
+          <strong>セキュリティ:</strong> IPアドレス制限 / OTP / デバイス認証に加え、管理者承認を必須にする設定も可能。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(1)">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo(3)">クイズに挑戦 →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 3: Quiz 1 ========== -->
+    <div class="section" id="sec3">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>学んだ内容を実践的なシナリオで確認しましょう</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>シナリオクイズ</h2>
+          <div class="quiz-counter">1 / 5</div>
+        </div>
+        <div class="quiz-body">
+          <div class="scenario">
+            <div class="scenario-icon">&#128161;</div>
+            <p>取引先に見積書のPDFを送りたい。相手はDirectCloudのアカウントを持っていない。やり取りは今回1回きりの予定。</p>
+          </div>
+          <p style="font-weight:600; margin-bottom:16px;">最適な共有方法は？</p>
+          <div class="choices-grid" id="q1choices">
+            <div class="choice-card" onclick="answer(1, 0, true)">
+              <div class="choice-letter">A</div>
+              <h5>共有リンク</h5>
+              <p>リンクを発行してメールで送る</p>
+            </div>
+            <div class="choice-card" onclick="answer(1, 1, false)">
+              <div class="choice-letter">B</div>
+              <h5>受取フォルダ</h5>
+              <p>受取リンクを送る</p>
+            </div>
+            <div class="choice-card" onclick="answer(1, 2, false)">
+              <div class="choice-letter">C</div>
+              <h5>ゲスト招待</h5>
+              <p>アカウントを発行する</p>
+            </div>
+          </div>
+          <div class="feedback" id="q1fb_correct">
+            <div class="feedback-title">&#9989; 正解！</div>
+            <p>1回きりのファイル送付には<strong>共有リンク</strong>が最適です。パスワードと有効期限を設定すれば、セキュアに送信できます。受取フォルダは「もらう」ための機能、ゲスト招待は継続的な共同作業向けです。</p>
+          </div>
+          <div class="feedback" id="q1fb_wrong">
+            <div class="feedback-title">&#10060; 惜しい！</div>
+            <p>1回きりのファイル「送付」には<strong>共有リンク</strong>が最適です。受取フォルダは相手からファイルを「受け取る」機能、ゲスト招待は継続的な共同作業に向いています。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(2)">← 戻る</button>
+        <button class="btn btn-primary" id="q1next" onclick="goTo(4)" disabled>次のシナリオ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 4: Quiz 2 ========== -->
+    <div class="section" id="sec4">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>場面に応じた使い分けを考えてみましょう</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>シナリオクイズ</h2>
+          <div class="quiz-counter">2 / 5</div>
+        </div>
+        <div class="quiz-body">
+          <div class="scenario">
+            <div class="scenario-icon">&#128161;</div>
+            <p>社外の設計事務所から、大容量の設計図面データ（500MB）を受け取りたい。相手にDirectCloudアカウントは発行したくない。</p>
+          </div>
+          <p style="font-weight:600; margin-bottom:16px;">最適な共有方法は？</p>
+          <div class="choices-grid" id="q2choices">
+            <div class="choice-card" onclick="answer(2, 0, false)">
+              <div class="choice-letter">A</div>
+              <h5>共有リンク</h5>
+              <p>リンクを発行して相手に送る</p>
+            </div>
+            <div class="choice-card" onclick="answer(2, 1, true)">
+              <div class="choice-letter">B</div>
+              <h5>受取フォルダ</h5>
+              <p>受取リンクを送る</p>
+            </div>
+            <div class="choice-card" onclick="answer(2, 2, false)">
+              <div class="choice-letter">C</div>
+              <h5>ゲスト招待</h5>
+              <p>アカウントを発行する</p>
+            </div>
+          </div>
+          <div class="feedback" id="q2fb_correct">
+            <div class="feedback-title">&#9989; 正解！</div>
+            <p>相手からファイルを「受け取る」場合は<strong>受取フォルダ</strong>が最適です。アカウント不要で、アップロード時に通知が届き、チーム全員で確認できます。容量制限も設定可能です。</p>
+          </div>
+          <div class="feedback" id="q2fb_wrong">
+            <div class="feedback-title">&#10060; 惜しい！</div>
+            <p>ファイルを「受け取る」には<strong>受取フォルダ</strong>が最適です。共有リンクは「送る」機能、ゲスト招待はアカウント発行が必要です。受取フォルダなら相手のアカウント不要で安全にファイルを受領できます。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(3)">← 戻る</button>
+        <button class="btn btn-primary" id="q2next" onclick="goTo(5)" disabled>次のシナリオ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 5: Quiz 3 ========== -->
+    <div class="section" id="sec5">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>継続的なコラボレーションが求められるケースです</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>シナリオクイズ</h2>
+          <div class="quiz-counter">3 / 5</div>
+        </div>
+        <div class="quiz-body">
+          <div class="scenario">
+            <div class="scenario-icon">&#128161;</div>
+            <p>取引先のA社と共同プロジェクトを進めることに。Excelの進捗管理表を双方で継続的に編集したい。コメントのやり取りもしたい。</p>
+          </div>
+          <p style="font-weight:600; margin-bottom:16px;">最適な共有方法は？</p>
+          <div class="choices-grid" id="q3choices">
+            <div class="choice-card" onclick="answer(3, 0, false)">
+              <div class="choice-letter">A</div>
+              <h5>共有リンク</h5>
+              <p>リンクを発行してメールで送る</p>
+            </div>
+            <div class="choice-card" onclick="answer(3, 1, false)">
+              <div class="choice-letter">B</div>
+              <h5>受取フォルダ</h5>
+              <p>受取リンクを送る</p>
+            </div>
+            <div class="choice-card" onclick="answer(3, 2, true)">
+              <div class="choice-letter">C</div>
+              <h5>ゲスト招待</h5>
+              <p>アカウントを発行する</p>
+            </div>
+          </div>
+          <div class="feedback" id="q3fb_correct">
+            <div class="feedback-title">&#9989; 正解！</div>
+            <p>継続的な共同編集・コメントには<strong>ゲスト招待</strong>が最適です。Officeファイルの同時編集、ファイルへのコメント、@メンションによる通知など、コラボレーション機能をフル活用できます。</p>
+          </div>
+          <div class="feedback" id="q3fb_wrong">
+            <div class="feedback-title">&#10060; 惜しい！</div>
+            <p>継続的な共同作業には<strong>ゲスト招待</strong>が最適です。共有リンクは一方向の送付、受取フォルダはファイル受領に特化しています。ゲスト招待なら同時編集・コメント・通知ができます。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(4)">← 戻る</button>
+        <button class="btn btn-primary" id="q3next" onclick="goTo(6)" disabled>次のシナリオ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 6: Quiz 4 ========== -->
+    <div class="section" id="sec6">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>セキュリティと承認フローを考慮したケースです</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>シナリオクイズ</h2>
+          <div class="quiz-counter">4 / 5</div>
+        </div>
+        <div class="quiz-body">
+          <div class="scenario">
+            <div class="scenario-icon">&#128161;</div>
+            <p>機密性の高い契約書を取引先に送る必要がある。万が一の誤送信に備えたい。社内規定で上長承認が必要。</p>
+          </div>
+          <p style="font-weight:600; margin-bottom:16px;">最も適切な運用は？</p>
+          <div class="choices-grid" id="q4choices">
+            <div class="choice-card" onclick="answer(4, 0, false)">
+              <div class="choice-letter">A</div>
+              <h5>共有リンク</h5>
+              <p>リンクを発行してすぐ送る</p>
+            </div>
+            <div class="choice-card" onclick="answer(4, 1, true)">
+              <div class="choice-letter">B</div>
+              <h5>承認WF + リンク</h5>
+              <p>承認ワークフローを有効にして発行</p>
+            </div>
+            <div class="choice-card" onclick="answer(4, 2, false)">
+              <div class="choice-letter">C</div>
+              <h5>ゲスト招待</h5>
+              <p>契約書フォルダを共有する</p>
+            </div>
+          </div>
+          <div class="feedback" id="q4fb_correct">
+            <div class="feedback-title">&#9989; 正解！</div>
+            <p><strong>承認ワークフロー</strong>を使えば、上長が承認するまでリンクは送信されません。誤送信防止と社内統制を両立できます。万が一承認後に問題が見つかっても、リンクの無効化で即座に対応可能です。</p>
+          </div>
+          <div class="feedback" id="q4fb_wrong">
+            <div class="feedback-title">&#10060; 惜しい！</div>
+            <p>機密文書 + 上長承認が必要な場合は、<strong>共有リンク + 承認ワークフロー</strong>の組み合わせが最適です。承認なしで送ると誤送信リスクあり。ゲスト招待は継続的な共有向きで、1回の送付には過剰です。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(5)">← 戻る</button>
+        <button class="btn btn-primary" id="q4next" onclick="goTo(7)" disabled>次のシナリオ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 7: Quiz 5 ========== -->
+    <div class="section" id="sec7">
+      <div class="content-header">
+        <h1>シナリオクイズ</h1>
+        <p>最後のシナリオです。大人数への配布を考えます</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2>シナリオクイズ</h2>
+          <div class="quiz-counter">5 / 5</div>
+        </div>
+        <div class="quiz-body">
+          <div class="scenario">
+            <div class="scenario-icon">&#128161;</div>
+            <p>研修の受講者100名に、一人ひとりアカウントを発行するのは現実的でない。研修資料を受講者全員に配布したい。</p>
+          </div>
+          <p style="font-weight:600; margin-bottom:16px;">最適な共有方法は？</p>
+          <div class="choices-grid" id="q5choices">
+            <div class="choice-card" onclick="answer(5, 0, true)">
+              <div class="choice-letter">A</div>
+              <h5>共有リンク</h5>
+              <p>リンクを発行して受講者に配布</p>
+            </div>
+            <div class="choice-card" onclick="answer(5, 1, false)">
+              <div class="choice-letter">B</div>
+              <h5>受取フォルダ</h5>
+              <p>受講者にアップロードしてもらう</p>
+            </div>
+            <div class="choice-card" onclick="answer(5, 2, false)">
+              <div class="choice-letter">C</div>
+              <h5>ゲスト招待</h5>
+              <p>100名分のアカウントを発行</p>
+            </div>
+          </div>
+          <div class="feedback" id="q5fb_correct">
+            <div class="feedback-title">&#9989; 正解！</div>
+            <p>大人数への一方向配布には<strong>共有リンク</strong>が最適です。1つのリンクで全員に配布でき、有効期限で期間管理も可能です。なお、アクセス回数制限の上限は99回のため、100名以上に配布する場合は回数制限を解除して運用しましょう。DirectCloudはユーザー数無制限の定額制なので、コスト面でも安心です。</p>
+          </div>
+          <div class="feedback" id="q5fb_wrong">
+            <div class="feedback-title">&#10060; 惜しい！</div>
+            <p>100名への資料配布には<strong>共有リンク</strong>が最適です。受取フォルダは「もらう」機能、100名分のゲスト発行は管理コストが高すぎます。共有リンクなら1つのURLで全員に配布できます。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(6)">← 戻る</button>
+        <button class="btn btn-primary" id="q5next" onclick="showResult()" disabled>結果を見る →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 8: Result ========== -->
+    <div class="section" id="sec8">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！あなたのスコアを確認しましょう</p>
+      </div>
+
+      <div class="card" style="text-align: center;">
+        <h2>あなたのスコア</h2>
+        <div class="score-circle" id="scoreCircle">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-label">/ 5 問正解</div>
+        </div>
+        <p id="scoreMsg" style="font-size:16px; font-weight:600; margin: 16px 0;"></p>
+      </div>
+
+      <div class="card">
+        <h3>まとめ: 使い分け早見表</h3>
+        <table class="compare-table">
+          <tr>
+            <th>場面</th>
+            <th>方法</th>
+            <th>ポイント</th>
+          </tr>
+          <tr>
+            <td>ファイルを<strong>送りたい</strong></td>
+            <td><span class="tag tag-blue">共有リンク</span></td>
+            <td>パスワード・有効期限・承認WF</td>
+          </tr>
+          <tr>
+            <td>ファイルを<strong>受け取りたい</strong></td>
+            <td><span class="tag tag-green">受取フォルダ</span></td>
+            <td>相手のアカウント不要</td>
+          </tr>
+          <tr>
+            <td><strong>継続的に共同作業</strong>したい</td>
+            <td><span class="tag tag-purple">ゲスト招待</span></td>
+            <td>同時編集・コメント・通知</td>
+          </tr>
+          <tr>
+            <td>機密文書を<strong>承認付きで送る</strong></td>
+            <td><span class="tag tag-blue">リンク</span>+<span class="tag tag-orange">承認WF</span></td>
+            <td>上長承認 + 誤送信対策</td>
+          </tr>
+          <tr>
+            <td>大人数に<strong>一斉配布</strong></td>
+            <td><span class="tag tag-blue">共有リンク</span></td>
+            <td>1URLで全員に配布</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>もっと詳しく知りたい方へ</h3>
+        <div class="accordion">
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              <span>&#128279; 共有リンクの詳細設定</span>
+              <span class="accordion-arrow">&#9660;</span>
+            </div>
+            <div class="accordion-body">
+              <ul>
+                <li>アクセスレベル（閲覧のみ / ダウンロード可）を選択可能</li>
+                <li>パスワードを別メールで送信 or 同梱から選べる</li>
+                <li>自社ドメインのメールアドレスで送信可能</li>
+                <li>全リンクの履歴を管理画面から確認可能</li>
+              </ul>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              <span>&#128230; 受取フォルダの活用Tips</span>
+              <span class="accordion-arrow">&#9660;</span>
+            </div>
+            <div class="accordion-body">
+              <ul>
+                <li>容量制限を設定して大容量ファイルのアップロードを制御</li>
+                <li>アップロード完知で見逃し防止</li>
+                <li>フォルダのアクセス権を持つメンバー全員で受領ファイルを確認</li>
+              </ul>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              <span>&#129309; ゲスト招待のセキュリティ</span>
+              <span class="accordion-arrow">&#9660;</span>
+            </div>
+            <div class="accordion-body">
+              <ul>
+                <li>7段階のアクセスレベル（オーナー〜アップローダ）</li>
+                <li>IPアドレス制限・OTP・デバイス認証</li>
+                <li>有効期限設定・自動削除設定</li>
+                <li>管理者承認を必須にする設定</li>
+                <li>全操作のログ記録</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+        <div id="nextGuides"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="resetQuiz()">&#8635; もう一度挑戦</button>
+        <p style="font-size:11px; color:#999;">&#10003; 結果を保存しました</p>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /layout -->
+
+<script>
+  // ===== Collect endpoint (PA HTTP trigger URL) =====
+  const COLLECT_ENDPOINT = 'YOUR_POWER_AUTOMATE_ENDPOINT_HERE';
+
+  function getUser() { return new URLSearchParams(window.location.search).get('user') || ''; }
+
+  function submitResults(extra) {
+    if (!COLLECT_ENDPOINT) return;
+    var payload = { page: 'ファイル共有方法の選び方', timestamp: new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo'}), user: getUser(), answers: answered };
+    Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+    fetch(COLLECT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(function() {});
+  }
+
+  const totalSections = 8;
+  let currentSection = 1;
+  let score = 0;
+  let answered = {};
+  let visited = { 1: true };
+
+  const sidebarLabels = [
+    'はじめに', '3つの方法',
+    'クイズ 1', 'クイズ 2', 'クイズ 3', 'クイズ 4', 'クイズ 5',
+    'まとめ'
+  ];
+
+  function updateSidebar(n) {
+    const items = document.querySelectorAll('.sidebar-item');
+    items.forEach((item, i) => {
+      const secNum = i + 1;
+      item.classList.remove('active', 'done');
+      const icon = item.querySelector('.sidebar-icon');
+
+      if (secNum === n) {
+        item.classList.add('active');
+        icon.innerHTML = '&#9654;';
+      } else if (visited[secNum]) {
+        item.classList.add('done');
+        icon.innerHTML = '&#10003;';
+      } else {
+        icon.innerHTML = '&#9675;';
+      }
+    });
+  }
+
+  function goTo(n) {
+    // Mark current section as visited
+    visited[currentSection] = true;
+    currentSection = n;
+    visited[n] = true;
+
+    // Switch section visibility
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec' + n).classList.add('active');
+
+    // Update progress bar
+    const pct = Math.round(((n - 1) / (totalSections - 1)) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('topbarStep').innerHTML = 'Step <strong>' + n + '</strong> / ' + totalSections;
+
+    // Update sidebar
+    updateSidebar(n);
+
+    // Scroll content area to top
+    document.querySelector('.content').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function answer(q, idx, isCorrect) {
+    if (answered[q]) return;
+    answered[q] = true;
+
+    const cards = document.querySelectorAll('#q' + q + 'choices .choice-card');
+    cards.forEach((card, i) => {
+      if (i === idx) {
+        card.classList.add(isCorrect ? 'correct' : 'wrong');
+      }
+      card.classList.add('disabled');
+    });
+
+    answered[q] = isCorrect ? '正解' : '不正解';
+
+    if (isCorrect) {
+      score++;
+      document.getElementById('q' + q + 'fb_correct').classList.add('show', 'correct-fb');
+    } else {
+      document.getElementById('q' + q + 'fb_wrong').classList.add('show', 'wrong-fb');
+    }
+
+    document.getElementById('q' + q + 'next').disabled = false;
+  }
+
+  function showResult() {
+    goTo(8);
+    const el = document.getElementById('scoreNum');
+    el.textContent = score;
+
+    const circle = document.getElementById('scoreCircle');
+    const msg = document.getElementById('scoreMsg');
+    if (score === 5) {
+      circle.className = 'score-circle perfect';
+      msg.textContent = 'パーフェクト！ファイル共有マスターです！';
+      msg.style.color = '#00A676';
+    } else if (score >= 3) {
+      circle.className = 'score-circle good';
+      msg.textContent = 'よくできました！基本はバッチリです。';
+      msg.style.color = '#2E6DFE';
+    } else {
+      circle.className = 'score-circle ok';
+      msg.textContent = 'もう少し！上の解説を復習してみましょう。';
+      msg.style.color = '#92400E';
+    }
+
+    // Send results
+    submitResults({ score: score, total: 5 });
+    var _ba_score = score;
+    var _ba_total = 5;
+    // --- Bowling Alley: score-based next guide recommendations ---
+    var _EC = 'https://community.directcloud.jp/s/learning/';
+    var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+    var _guides = {
+        'file-sharing': {title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+        'browser-guide': {title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+        'initial-setup': {title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+        'security-check': {title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+        'drive-troubleshooting': {title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+        'guest-permissions': {title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+        'link-to-guest': {title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+        'shield-security': {title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+        'supply-chain-check': {title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+        'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+        'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+        'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+        'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'}
+      };
+    var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
+    var _picks, _h, _s;
+    if (_pct >= 80) {
+      _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+      _s = '\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
+      _picks = ['guest-permissions', 'link-to-guest'];
+    } else if (_pct >= 40) {
+      _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
+      _s = '\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
+      _picks = ['guest-permissions', 'security-check'];
+    } else {
+      _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+      _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
+      _picks = ['initial-setup', 'drive-troubleshooting'];
+    }
+    var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
+    for (var _gi = 0; _gi < _picks.length; _gi++) {
+      var _g = _guides[_picks[_gi]];
+      _gh += '<a class="next-guide-card" href="' + _EC + _picks[_gi] + _up + '" target="_top">';
+      _gh += '<div class="next-guide-icon" style="background:' + _g.bg + ';">' + _g.icon + '</div>';
+      _gh += '<div><h5>' + _g.title + '</h5><p>' + _g.desc + '</p>';
+      _gh += '<span class="next-guide-tag" style="background:' + _g.bg + ';color:' + _g.color + ';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+    }
+    _gh += '</div></div>';
+    document.getElementById('nextGuides').innerHTML = _gh;
+
+  }
+
+  function resetQuiz() {
+    score = 0;
+    answered = {};
+    visited = { 1: true };
+    for (let q = 1; q <= 5; q++) {
+      const cards = document.querySelectorAll('#q' + q + 'choices .choice-card');
+      cards.forEach(card => {
+        card.classList.remove('correct', 'wrong', 'disabled');
+      });
+      const fbC = document.getElementById('q' + q + 'fb_correct');
+      const fbW = document.getElementById('q' + q + 'fb_wrong');
+      if (fbC) fbC.classList.remove('show', 'correct-fb');
+      if (fbW) fbW.classList.remove('show', 'wrong-fb');
+      const next = document.getElementById('q' + q + 'next');
+      if (next) next.disabled = true;
+    }
+    goTo(1);
+  }
+
+  function toggleAccordion(header) {
+    const item = header.parentElement;
+    item.classList.toggle('open');
+  }
+
+  // iframe外ならローカルリンクにフォールバック
+  if (window === window.top) {
+    var backLink = document.getElementById('back-link');
+    backLink.href = 'index.html';
+    backLink.target = '_self';
+  }
+</script>
+</body>
+</html>

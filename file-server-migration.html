@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud ファイルサーバー移行ガイド</title>
+<style>
+  :root {
+    --dc-primary: #4f46e5;
+    --dc-primary-light: #eef2ff;
+    --dc-primary-dark: #4338ca;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F5F3FF;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-primary);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-primary);
+  }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-primary); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-primary); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #EEF2FF; color: var(--dc-primary); }
+  .sidebar-item.active {
+    color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    border-left-color: var(--dc-primary);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-primary-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-primary-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Step Cards ===== */
+  .step-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .step-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .step-card:hover {
+    border-color: var(--dc-primary);
+    transform: translateY(-2px);
+  }
+  .step-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 4px;
+  }
+  .step-card p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .step-card .step-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .step-card .step-num {
+    display: inline-block;
+    background: var(--dc-primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 50%;
+    margin-bottom: 8px;
+  }
+
+  /* ===== Flow diagram ===== */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .flow-item {
+    background: var(--dc-primary-light);
+    border: 1px solid #C7D2FE;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dc-primary-dark);
+    text-align: center;
+    min-width: 100px;
+  }
+  .flow-arrow {
+    font-size: 18px;
+    color: #CCC;
+  }
+
+  /* ===== Compare Table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 600px;
+  }
+  .compare-table th {
+    background: #EEF2FF;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 140px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #EEF2FF; }
+  .compare-table .cell-ok { color: var(--dc-green); font-weight: 700; }
+  .compare-table .cell-no { color: #D1D5DB; }
+
+  /* ===== Procedure List ===== */
+  .proc-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    counter-reset: proc;
+  }
+  .proc-list li {
+    position: relative;
+    padding: 12px 16px 12px 52px;
+    margin-bottom: 8px;
+    background: #EEF2FF;
+    border-radius: 8px;
+    border: 1px solid #C7D2FE;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+    counter-increment: proc;
+  }
+  .proc-list li::before {
+    content: counter(proc);
+    position: absolute;
+    left: 14px;
+    top: 12px;
+    background: var(--dc-primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+  }
+
+  /* ===== Detail Box ===== */
+  .detail-box {
+    background: #EEF2FF;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .detail-box h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+  }
+  .detail-box ul {
+    list-style: none;
+    padding: 0;
+  }
+  .detail-box li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .detail-box li::before {
+    content: '\25B8';
+    position: absolute;
+    left: 4px;
+    color: var(--dc-primary);
+    font-weight: 700;
+  }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\1F4A1';
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+  }
+
+  /* ===== Level Cards ===== */
+  .level-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .level-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .level-card:hover {
+    border-color: var(--dc-primary);
+    transform: translateY(-2px);
+  }
+  .level-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 4px;
+  }
+  .level-card p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .level-card .level-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  /* ===== Choice cards (quiz) ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .choice-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .choice-card.selected {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    pointer-events: none;
+  }
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.incorrect {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feedback.correct h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-primary);
+    color: #fff;
+    border: 1px solid var(--dc-primary);
+  }
+  .btn-primary:hover { background: var(--dc-primary-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-area {
+    text-align: center;
+    margin: 32px 0;
+  }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-primary) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-primary);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review {
+    margin: 24px 0;
+  }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Checklist ===== */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  .checklist li {
+    font-size: 14px;
+    color: #374151;
+    padding: 10px 16px;
+    margin-bottom: 6px;
+    background: #EEF2FF;
+    border-radius: 8px;
+    border: 1px solid #C7D2FE;
+    line-height: 1.7;
+  }
+
+
+  /* ===== Next Guides (Bowling Alley) ===== */
+  .next-guides {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .next-guides h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .next-guides .next-guides-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .next-guide-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .next-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .next-guide-card:hover {
+    border-color: #94A3B8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .next-guide-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .next-guide-card h5 {
+    font-size: 14px; font-weight: 600; color: #1A2332; margin-bottom: 3px;
+  }
+  .next-guide-card p {
+    font-size: 12px; color: #888; line-height: 1.5;
+  }
+  .next-guide-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .choices { grid-template-columns: 1fr; }
+    .flow-row { gap: 4px; }
+    .flow-item { min-width: 80px; font-size: 12px; padding: 8px 10px; }
+    .level-cards { grid-template-columns: 1fr 1fr; }
+    .step-cards { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">ファイルサーバー移行ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 12</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">&#128214;</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="step1" onclick="goTo('step1')">
+      <span class="icon">&#128270;</span> STEP1 現状整理
+    </div>
+    <div class="sidebar-item" data-sec="step2" onclick="goTo('step2')">
+      <span class="icon">&#128203;</span> STEP2 移行対象の選定
+    </div>
+    <div class="sidebar-item" data-sec="step3" onclick="goTo('step3')">
+      <span class="icon">&#128193;</span> STEP3 フォルダ設計
+    </div>
+    <div class="sidebar-item" data-sec="step4" onclick="goTo('step4')">
+      <span class="icon">&#128228;</span> STEP4 データ移行
+    </div>
+    <div class="sidebar-item" data-sec="step5" onclick="goTo('step5')">
+      <span class="icon">&#128260;</span> STEP5 切り替え
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 移行の進め方
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> 現状整理
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> フォルダ設計
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> データ移行方法
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> 切り替え
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">&#128203;</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>ファイルサーバー移行ガイド</h1>
+        <p>既存のファイルサーバーから DirectCloud への移行を、段階的に進める</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudを契約したものの、<strong>既存のファイルサーバーやNASにデータが残ったまま</strong>になっていませんか？<br>
+          二重管理の状態が続くと、どちらに最新ファイルがあるかわからなくなり、業務効率が下がります。このガイドでは、ファイルサーバーからDirectCloudへの移行を段階的に進める方法を学びます。</p>
+        </div>
+
+        <p style="font-size:15px; line-height:1.8; color:#374151;">
+          移行は大きく<strong>5つのSTEP</strong>で進めます。<br>
+          現状の整理から移行対象の選定、フォルダ設計、データ移行、そして切り替えまで、順番に見ていきましょう。
+        </p>
+
+        <div class="flow-row">
+          <div class="flow-item">STEP1<br>現状整理</div>
+          <span class="flow-arrow">&#8594;</span>
+          <div class="flow-item">STEP2<br>移行対象の選定</div>
+          <span class="flow-arrow">&#8594;</span>
+          <div class="flow-item">STEP3<br>フォルダ設計</div>
+          <span class="flow-arrow">&#8594;</span>
+          <div class="flow-item">STEP4<br>データ移行</div>
+          <span class="flow-arrow">&#8594;</span>
+          <div class="flow-item">STEP5<br>切り替え</div>
+        </div>
+
+        <div class="tip">
+          <strong>このガイドの流れ:</strong><br>
+          各STEPのポイントを学んだあと、確認クイズ（5問）で理解度をチェックします。
+        </div>
+
+        <div style="background:#EEF2FF; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666; line-height:1.8;">
+          <strong>こんな方向け:</strong><br>
+          ・ ファイルサーバーやNASが社内に残っていて、DirectCloudと二重管理になっている<br>
+          ・ 移行したいが、どこから手をつけるか・どのくらい時間がかかるか見えない<br>
+          ・ 一部のフォルダだけ移したが、残りが放置されている<br>
+          <span style="margin-top:6px; display:inline-block;"><strong>形式:</strong> ステップ学習＋クイズ5問 ／ <strong>所要時間:</strong> 約8分</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('step1')">学習を始める &#8594;</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== STEP 1: 現状を整理する ========== -->
+    <div class="section" id="sec-step1">
+      <div class="content-header">
+        <h1>STEP 1 &#8212; 現状を整理する</h1>
+        <p>まず既存ファイルサーバーの全体像を把握します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>移行の第一歩は、<strong>既存ファイルサーバーの現状を把握すること</strong>です。<br>
+          「全部移行する」と決める前に、まず何がどこにあるかを可視化しましょう。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">確認すべき項目</h3>
+        <div class="detail-box">
+          <h4>棚卸しチェックリスト</h4>
+          <ul>
+            <li><strong>総容量</strong>：ファイルサーバー全体で何GB（何TB）使っているか</li>
+            <li><strong>フォルダ数</strong>：第1階層・第2階層のフォルダ構成を一覧化</li>
+            <li><strong>利用頻度</strong>：毎日使う / 月1回程度 / アーカイブ（ほぼ触らない）</li>
+            <li><strong>アクセス権の構造</strong>：誰がどのフォルダにアクセスできるか</li>
+          </ul>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">なぜ可視化が重要か</h3>
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h4>優先順位がつけられる</h4>
+            <p>利用頻度の高いフォルダから移行すれば、業務への効果が早く出る</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h4>不要データを除外できる</h4>
+            <p>放置されたフォルダや重複ファイルを移行対象から外せる</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h4>スケジュールが立てられる</h4>
+            <p>容量やフォルダ数がわかれば、移行にかかる時間の見積もりが可能に</p>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>移行の目安</h4>
+          <ul>
+            <li>利用頻度が高いフォルダから優先的に移行する</li>
+            <li><strong>1年以上アクセスのないフォルダ</strong>は移行ではなく、アーカイブとして別途検討する</li>
+            <li>フォルダ単位で「最終更新日」を確認すると、実際に使われているフォルダと放置されたフォルダが見分けられる</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>Tip:</strong> フォルダ単位で「最終更新日」を確認すると、実際に使われているフォルダと放置されたフォルダが見分けられます。Windowsのエクスプローラーで「更新日時」列を表示して並べ替えるだけでも、概要をつかめます。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step2')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 2: 移行対象を選定する ========== -->
+    <div class="section" id="sec-step2">
+      <div class="content-header">
+        <h1>STEP 2 &#8212; 移行対象を選定する</h1>
+        <p>全部一気に移行しない。「フェーズ分け」が成功の鍵です</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>現状が把握できたら、次は<strong>移行対象を選定</strong>します。<br>
+          一度にすべてを移行しようとするとトラブルの原因になります。<strong>フェーズ分け</strong>で段階的に進めましょう。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">推奨フェーズ分け</h3>
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h4>フェーズ1: 毎日使うフォルダ</h4>
+            <p>部署共有フォルダ、プロジェクト進行中のフォルダなど、日常的にアクセスするもの</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h4>フェーズ2: 定期的に使うフォルダ</h4>
+            <p>月次レポート、テンプレート、定型書類など、定期的に参照するもの</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h4>フェーズ3: アーカイブ</h4>
+            <p>過去プロジェクト、法定保存文書など、頻繁にはアクセスしないもの</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">移行しないもの</h3>
+        <div class="detail-box">
+          <h4>除外対象</h4>
+          <ul>
+            <li><strong>個人PC内のローカルファイル</strong>：ファイルサーバー移行とは別管理</li>
+            <li><strong>重複ファイル</strong>：同じファイルが複数フォルダにあれば整理してから移行</li>
+            <li><strong>一時ファイル</strong>：tmpファイル、作業途中の下書きなど</li>
+          </ul>
+        </div>
+
+        <div class="insight">
+          <h4>移行対象リストの作成</h4>
+          <ul>
+            <li>Excelで管理すると全体像が把握しやすい</li>
+            <li>列の例: <strong>フォルダ名 / 容量 / 優先度 / 担当者 / 移行予定日</strong></li>
+            <li>フェーズごとに色分けすると、進捗管理がしやすくなる</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>Tip:</strong> 移行対象リストをExcelで作成しておくと、担当者の割り当てや進捗管理がしやすくなります。フォルダ名・容量・優先度・担当者・移行予定日の列を作り、フェーズごとに整理しましょう。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step1')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step3')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 3: DirectCloud側のフォルダを設計する ========== -->
+    <div class="section" id="sec-step3">
+      <div class="content-header">
+        <h1>STEP 3 &#8212; DirectCloud側のフォルダを設計する</h1>
+        <p>既存の構成をそのまま移すのではなく、整理するチャンスです</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>移行先のフォルダ構成は、<strong>既存サーバーをそのままコピーする必要はありません</strong>。<br>
+          むしろ、移行はフォルダ構成を見直す絶好のタイミングです。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">フォルダ設計のポイント</h3>
+        <div class="level-cards">
+          <div class="level-card">
+            <div class="level-icon">&#128193;</div>
+            <h4>第1階層の設計</h4>
+            <p>部署単位またはプロジェクト単位で構成。深すぎる階層は3〜4階層までに整理</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">&#128101;</div>
+            <h4>アクセス権の設計</h4>
+            <p>グループ単位でアクセスレベルを設定。個人単位の設定は最小限に</p>
+          </div>
+          <div class="level-card">
+            <div class="level-icon">&#128221;</div>
+            <h4>命名規則の策定</h4>
+            <p>フォルダ名・ファイル名の統一ルール（日付形式、バージョン管理など）を決める</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">推奨フォルダ構成の例</h3>
+        <ol class="proc-list">
+          <li><strong>第1階層</strong>：部署名（営業部、総務部、開発部など）</li>
+          <li><strong>第2階層</strong>：業務カテゴリ（案件管理、月次報告、共有テンプレートなど）</li>
+          <li><strong>第3階層</strong>：年度やプロジェクト名（2026年度、ProjectAなど）</li>
+          <li><strong>第4階層以降</strong>：必要に応じて。ただし深くしすぎない</li>
+        </ol>
+
+        <div class="detail-box">
+          <h4>公式マニュアル</h4>
+          <ul>
+            <li><strong>管理者マニュアル</strong>：<a href="https://help.directcloud.jp/s/admin-manual" target="_blank" rel="noopener noreferrer" style="color:var(--dc-primary);">https://help.directcloud.jp/s/admin-manual</a></li>
+          </ul>
+        </div>
+
+        <div class="insight">
+          <h4>フォルダ構成の見直しは今がチャンス</h4>
+          <ul>
+            <li>フォルダ構成の見直しは、<strong>移行時にしかできないタイミング</strong></li>
+            <li>後から変更するのは、ファイルの移動やリンクの修正が必要になり大変</li>
+            <li>このステップに時間をかける価値がある</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>Tip:</strong> アクセス権はグループ単位で設定するのが管理効率の面で推奨です。個人単位で細かく設定すると、異動や退職のたびに修正が必要になります。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step2')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step4')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 4: データを移行する ========== -->
+    <div class="section" id="sec-step4">
+      <div class="content-header">
+        <h1>STEP 4 &#8212; データを移行する</h1>
+        <p>プランに応じた移行方法を選び、計画的にデータを移行します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>フォルダ設計ができたら、いよいよ<strong>データの移行</strong>です。<br>
+          契約プランによって利用できる移行方法が異なります。自社の状況に合った方法を選びましょう。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">移行方法の比較</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>方法</th>
+                <th>向いている場面</th>
+                <th>注意点</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Webアプリからアップロード</td>
+                <td>少量のフォルダ（数GB程度）</td>
+                <td>1ファイル最大10GB（スタンダードプラン）</td>
+              </tr>
+              <tr>
+                <td>DirectCloudドライブ経由</td>
+                <td>大量ファイルの移行</td>
+                <td>エクスプローラー感覚で操作可能。ネットワーク速度に依存</td>
+              </tr>
+              <tr>
+                <td>DCMigrator</td>
+                <td>大規模移行</td>
+                <td>自己利用は<strong>エンタープライズプラン</strong>のみ。パートナー経由の初期移行は全プラン対応（別途費用）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">移行中のルール</h3>
+        <div class="detail-box">
+          <h4>並行運用時の基本ルール</h4>
+          <ul>
+            <li><strong>ファイルサーバーは読み取り専用</strong>にする（新規保存・編集を禁止）</li>
+            <li><strong>新規ファイルはDirectCloudに保存</strong>するルールを全社に周知</li>
+            <li>移行対象フォルダごとに完了チェックを行い、漏れを防ぐ</li>
+          </ul>
+        </div>
+
+        <div class="insight">
+          <h4>DCMigratorについて</h4>
+          <ul>
+            <li>ユーザー自身での利用は<strong>エンタープライズプラン</strong>のみ</li>
+            <li>パートナー（販売代理店）による初期移行作業であれば<strong>全プラン</strong>で利用可能（別途費用が発生します）</li>
+            <li>移行元のファイルサーバーにエージェントをインストールして実行する</li>
+            <li>大規模なデータ（数百GB〜TB規模）の移行に適している</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>Tip:</strong> 一度に大量のファイルをアップロードするとネットワーク帯域に影響する場合があります。業務時間外や週末に実施するのが安全です。DirectCloudドライブを使えばエクスプローラーのドラッグ&amp;ドロップ感覚で移行できます。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step3')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step5')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP 5: 切り替えと旧サーバーの扱い ========== -->
+    <div class="section" id="sec-step5">
+      <div class="content-header">
+        <h1>STEP 5 &#8212; 切り替えと旧サーバーの扱い</h1>
+        <p>移行完了後の並行運用期間と、旧サーバー停止の進め方を確認します</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>データ移行が完了しても、<strong>すぐにファイルサーバーを停止しない</strong>のがポイントです。<br>
+          並行運用期間を設け、段階的にアクセスを閉じていきましょう。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">並行運用の進め方</h3>
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h4>並行運用期間を設ける</h4>
+            <p>推奨: 2〜4週間。DirectCloud側のデータが正しいか、業務フローが回っているかを確認</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h4>段階的にアクセスを閉じる</h4>
+            <p>まず書き込み禁止 &#8594; その後読み取りも閉じる。いきなり全停止しない</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h4>旧データのバックアップ保持</h4>
+            <p>旧サーバーのデータは即削除せず、3〜6ヶ月はバックアップとして保持</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">並行運用中に確認すること</h3>
+        <ol class="proc-list">
+          <li>DirectCloud側のデータが正しく移行されているか（ファイル数・フォルダ構成）</li>
+          <li>アクセス権が想定通りに設定されているか（各部署のメンバーで確認）</li>
+          <li>業務フローが問題なく回っているか（日常業務で支障がないか）</li>
+          <li>ユーザーからの問い合わせ内容を記録し、共通の課題がないか確認</li>
+        </ol>
+
+        <div class="insight">
+          <h4>切り替え後に多い問い合わせ</h4>
+          <ul>
+            <li>「ファイルが見つからない」という声が増えやすい</li>
+            <li>DirectCloudの<strong>検索機能の使い方を事前に案内</strong>しておくと問い合わせが減る</li>
+            <li>旧サーバーのフォルダパスとDirectCloudのフォルダ構成の対応表を共有すると効果的</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>Tip:</strong> 切り替え後に「ファイルが見つからない」という問い合わせが増えがちです。DirectCloudの検索機能やフォルダ構成の対応表を事前に案内しておくと、ユーザーの混乱を防げます。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step4')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">確認クイズへ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>ファイルサーバー移行で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> ファイルサーバーからDirectCloudへの移行で、最も効果的な進め方は？</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>A. 全フォルダを一括で移行し、ファイルサーバーを即停止する</h5>
+            <p>スピード重視で一度に全データを移行して旧サーバーを停止</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>B. 利用頻度の高いフォルダから段階的に移行する</h5>
+            <p>フェーズを分けて、毎日使うフォルダから順に移行を進める</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>C. 容量の大きいフォルダから順に移行する</h5>
+            <p>データ量の多いフォルダから優先的に移行する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <h5>D. 移行せず、必要なときにファイルをコピーする</h5>
+            <p>都度必要なファイルだけをDirectCloudにコピーする</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('step5')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>ファイルサーバー移行で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> 移行前の現状整理で、最も優先して確認すべきことは？</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>A. ファイルサーバーの購入価格と減価償却状況</h5>
+            <p>ハードウェアの資産管理情報を確認する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>B. フォルダごとの利用頻度と最終更新日</h5>
+            <p>各フォルダがどの程度使われているかを把握する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>C. 全ファイルのウイルススキャン結果</h5>
+            <p>移行前にセキュリティスキャンを完了させる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <h5>D. ファイルサーバーのハードウェアスペック</h5>
+            <p>CPUやメモリ、ディスク種別などの仕様を確認する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>ファイルサーバー移行で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> DirectCloud側のフォルダ構成について、正しいのはどれ？</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>A. 既存サーバーのフォルダ構成をそのままコピーするのがベスト</h5>
+            <p>慣れた構成をそのまま再現して違和感なく使えるようにする</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>B. 全ファイルを1つのフォルダにまとめて検索で探す</h5>
+            <p>フォルダ分けをやめて全文検索に頼る</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>C. 移行を機にフォルダ構成を整理し、3〜4階層までにまとめる</h5>
+            <p>構成を見直して深すぎる階層を整理する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <h5>D. ユーザーごとに個別のフォルダを作成する</h5>
+            <p>全ユーザーに個人フォルダを割り当てて管理する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>ファイルサーバー移行で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> スタンダードプランでファイルサーバーのデータを移行する場合、最も実用的な方法は？</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>A. DCMigratorを使って自動移行する</h5>
+            <p>専用ツールで移行元から自動的にデータを転送する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>B. FTPで直接転送する</h5>
+            <p>FTPプロトコルを使ってファイルサーバーから転送する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>C. DirectCloudドライブ経由でエクスプローラーからコピーする</h5>
+            <p>デスクトップアプリでマウント先にドラッグ&amp;ドロップで移行</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <h5>D. APIスクリプトを作成して自動アップロードする</h5>
+            <p>プログラムを書いてAPIで自動転送する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>確認クイズ</h1>
+        <p>ファイルサーバー移行で学んだ内容をチェックしましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> データ移行完了後、旧ファイルサーバーの扱いとして最も適切なのは？</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>A. 移行完了と同時に即停止・データ削除する</h5>
+            <p>移行が終わったらすぐに旧サーバーを停止して片付ける</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>B. 並行運用期間（2〜4週間）を設け、段階的にアクセスを閉じる</h5>
+            <p>一定期間は両方使える状態にして、問題がないことを確認してから閉じる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>C. 永久にそのまま残しておく</h5>
+            <p>万が一のためにファイルサーバーをずっと稼働させておく</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <h5>D. 移行完了後、社員全員に旧サーバーのデータを個人PCにバックアップさせる</h5>
+            <p>各自の判断で必要なファイルをローカルに保存してもらう</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div style="margin-top:32px;">
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin-bottom:12px;">移行フロー（まとめ）</h3>
+          <div class="flow-row" style="margin:16px 0;">
+            <div class="flow-item">STEP1<br>現状整理</div>
+            <span class="flow-arrow">&#8594;</span>
+            <div class="flow-item">STEP2<br>移行対象の選定</div>
+            <span class="flow-arrow">&#8594;</span>
+            <div class="flow-item">STEP3<br>フォルダ設計</div>
+            <span class="flow-arrow">&#8594;</span>
+            <div class="flow-item">STEP4<br>データ移行</div>
+            <span class="flow-arrow">&#8594;</span>
+            <div class="flow-item">STEP5<br>切り替え</div>
+          </div>
+
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin:28px 0 12px;">移行チェックリスト</h3>
+          <ul class="checklist">
+            <li>&#9744; 既存サーバーのフォルダ構成と容量を棚卸しした</li>
+            <li>&#9744; 移行対象フォルダの優先順位をつけた</li>
+            <li>&#9744; DirectCloud側のフォルダ構成とアクセス権を設計した</li>
+            <li>&#9744; フェーズ1のデータ移行を実施した</li>
+            <li>&#9744; 並行運用期間のスケジュールを決めた</li>
+          </ul>
+        </div>
+
+
+        <div id="nextGuides"></div>
+        <div class="saved-notice" id="savedNotice" style="display:none;">&#10003; 結果を保存しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'YOUR_POWER_AUTOMATE_ENDPOINT_HERE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'DirectCloud ファイルサーバー移行ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 1, // B. 利用頻度の高いフォルダから段階的に移行する
+  q2: 1, // B. フォルダごとの利用頻度と最終更新日
+  q3: 2, // C. 移行を機にフォルダ構成を整理し、3〜4階層までにまとめる
+  q4: 2, // C. DirectCloudドライブ経由でエクスプローラーからコピーする
+  q5: 1  // B. 並行運用期間（2〜4週間）を設け、段階的にアクセスを閉じる
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ 利用頻度の高いフォルダから段階的に移行することで、業務への影響を最小限に抑えながら確実に移行を進められます。',
+    wrong: {
+      0: '全フォルダを一括で移行して即停止するのはリスクが高く、移行漏れやトラブルの原因になります。利用頻度の高いフォルダから段階的に移行するのが効果的です。',
+      2: '容量の大きさよりも利用頻度を優先しましょう。毎日使うフォルダを先に移行すれば、業務への効果が早く実感できます。',
+      3: '都度コピーでは二重管理が解消されず、どちらに最新ファイルがあるかわからなくなります。段階的に移行を進めて完全移行を目指しましょう。'
+    }
+  },
+  q2: {
+    correct: '正解！ フォルダごとの利用頻度と最終更新日を確認することで、移行の優先順位を正しく判断できます。1年以上アクセスのないフォルダはアーカイブとして別途検討します。',
+    wrong: {
+      0: '購入価格や減価償却は移行の優先順位には直接関係しません。まずフォルダごとの利用頻度と最終更新日を確認しましょう。',
+      2: 'ウイルススキャンも重要ですが、移行計画を立てるうえで最も優先すべきはフォルダごとの利用頻度と最終更新日の確認です。',
+      3: 'ハードウェアスペックは移行の優先順位には直接関係しません。フォルダごとの利用頻度と最終更新日を確認して、移行の優先順位をつけましょう。'
+    }
+  },
+  q3: {
+    correct: '正解！ 移行はフォルダ構成を見直す良い機会です。深すぎる階層は管理が煩雑になるため、3〜4階層までにまとめ、アクセス権はグループ単位で設定するのが推奨です。',
+    wrong: {
+      0: '既存サーバーのフォルダ構成をそのままコピーすると、長年の蓄積で複雑になった構成がそのまま残ります。移行を機に整理するのが推奨です。',
+      1: '全ファイルを1つのフォルダにまとめると、アクセス権の制御ができず、検索だけに頼るのは非効率です。適切な階層構造で管理しましょう。',
+      3: 'ユーザーごとに個別フォルダを作成すると、組織の情報共有が進みません。部署やプロジェクト単位で構成し、グループ単位のアクセス権を設定しましょう。'
+    }
+  },
+  q4: {
+    correct: '正解！ DCMigratorの自己利用はエンタープライズプラン限定です（パートナー経由の初期移行は全プラン対応）。DirectCloudドライブを使えば、エクスプローラーのドラッグ&ドロップ感覚で移行できます。大量ファイルの場合は業務時間外の実施がおすすめです。',
+    wrong: {
+      0: 'DCMigratorの自己利用はエンタープライズプランのみです。パートナー経由の初期移行なら全プランで利用可能ですが別途費用がかかります。自分で実施する場合はDirectCloudドライブ経由でのコピーが最も実用的です。',
+      1: 'DirectCloudはFTPでの直接転送には対応していません。DirectCloudドライブを使えば、エクスプローラー感覚で簡単に移行できます。',
+      3: 'APIスクリプトの作成は技術的なハードルが高く、多くの場合DirectCloudドライブ経由のコピーで十分対応できます。'
+    }
+  },
+  q5: {
+    correct: '正解！ 並行運用期間を設けることで、移行漏れや権限設定の不備を発見して修正できます。期間終了後もバックアップとして3〜6ヶ月は旧データを保持しておくのが安全です。',
+    wrong: {
+      0: '即停止・即削除は非常にリスクが高い対応です。移行漏れや権限設定の不備が発覚した場合に対応できなくなります。並行運用期間を設けましょう。',
+      2: '永久に残しておくと、二重管理が解消されません。並行運用期間（2〜4週間）で問題がないことを確認し、段階的にアクセスを閉じましょう。',
+      3: '個人PCへのバックアップはセキュリティ上望ましくありません。旧サーバーのデータはサーバー上でバックアップとして3〜6ヶ月保持するのが適切です。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'step1', 'step2', 'step3', 'step4', 'step5', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>\u2B55 正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>\u274C 不正解…正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#4f46e5 ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '全問正解！ファイルサーバー移行の進め方を完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！この知識があれば移行もスムーズに進められるでしょう';
+  else if (score >= 3) msg = '基本はOK！間違えた部分を復習して、移行計画に活かしましょう';
+  else msg = '各STEPの内容を振り返り、もう一度チャレンジしてみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: '移行の進め方',
+    q2: '現状整理の優先事項',
+    q3: 'フォルダ構成の設計',
+    q4: 'データ移行方法',
+    q5: '旧サーバーの扱い'
+  };
+  var correctNames = {
+    q1: 'B. 利用頻度の高いフォルダから段階的に移行する',
+    q2: 'B. フォルダごとの利用頻度と最終更新日',
+    q3: 'C. 移行を機にフォルダ構成を整理し、3〜4階層までにまとめる',
+    q4: 'C. DirectCloudドライブ経由でエクスプローラーからコピーする',
+    q5: 'B. 並行運用期間（2〜4週間）を設け、段階的にアクセスを閉じる'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' \uFF0F あなたの回答: ' + answersLabel[q].replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  submitResults({ score: score, total: 5 });
+  var _ba_score = score;
+  var _ba_total = 5;
+  // --- Bowling Alley: score-based next guide recommendations ---
+  var _EC = 'https://community.directcloud.jp/s/learning/';
+  var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+  var _guides = {
+      'file-sharing': {title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+      'browser-guide': {title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+      'initial-setup': {title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+      'security-check': {title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+      'drive-troubleshooting': {title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+      'guest-permissions': {title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+      'link-to-guest': {title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+      'shield-security': {title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+      'supply-chain-check': {title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+      'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+      'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+      'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'}
+    };
+  var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
+  var _picks, _h, _s;
+  if (_pct >= 80) {
+    _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+    _s = '\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
+    _picks = ['initial-setup', 'storage-tiering'];
+  } else if (_pct >= 40) {
+    _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
+    _s = '\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
+    _picks = ['initial-setup', 'security-check'];
+  } else {
+    _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+    _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
+    _picks = ['initial-setup', 'drive-troubleshooting'];
+  }
+  var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
+  for (var _gi = 0; _gi < _picks.length; _gi++) {
+    var _g = _guides[_picks[_gi]];
+    _gh += '<a class="next-guide-card" href="' + _EC + _picks[_gi] + _up + '" target="_top">';
+    _gh += '<div class="next-guide-icon" style="background:' + _g.bg + ';">' + _g.icon + '</div>';
+    _gh += '<div><h5>' + _g.title + '</h5><p>' + _g.desc + '</p>';
+    _gh += '<span class="next-guide-tag" style="background:' + _g.bg + ';color:' + _g.color + ';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+  }
+  _gh += '</div></div>';
+  document.getElementById('nextGuides').innerHTML = _gh;
+
+}
+</script>
+</body>
+</html>
