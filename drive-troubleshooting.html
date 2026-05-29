@@ -512,6 +512,66 @@
   .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
   .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
 
+  /* ===== Next Guides (Bowling Alley) ===== */
+  .next-guides {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .next-guides h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .next-guides .next-guides-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .next-guide-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .next-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .next-guide-card:hover {
+    border-color: var(--dc-primary);
+    box-shadow: 0 2px 8px rgba(217,119,6,0.10);
+  }
+  .next-guide-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .next-guide-card h5 {
+    font-size: 14px; font-weight: 600; color: #1A2332; margin-bottom: 3px;
+  }
+  .next-guide-card p {
+    font-size: 12px; color: #888; line-height: 1.5;
+  }
+  .next-guide-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
   /* ===== Saved notice ===== */
   .saved-notice {
     text-align: center;
@@ -1169,6 +1229,8 @@
           </div>
         </div>
 
+        <div id="nextGuides"></div>
+
         <div class="saved-notice" id="savedNotice" style="display:none;">&#x2713; 結果を保存しました</div>
       </div>
 
@@ -1387,6 +1449,70 @@ function showResult() {
   document.getElementById('resultReview').innerHTML = html;
 
   submitResults({ score: score, total: 5 });
+
+  // --- Bowling Alley: スコアに応じた次のガイド推奨 ---
+  var EC_BASE = 'https://community.directcloud.jp/s/learning/';
+  var userParam = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+
+  var allGuides = {
+    'file-sharing': {
+      title: 'ファイル共有方法の選び方',
+      desc: '共有リンク・ゲスト招待・直接編集の使い分けを整理',
+      icon: '\uD83D\uDCC2',
+      bg: '#eef4ff', color: '#2E6DFE'
+    },
+    'browser-guide': {
+      title: 'ドライブ→ブラウザ併用ガイド',
+      desc: 'ブラウザ版との使い分けでトラブルを減らす',
+      icon: '\uD83C\uDF10',
+      bg: '#eef0ff', color: '#4F46E5'
+    },
+    'initial-setup': {
+      title: '初期設定ガイド',
+      desc: '推奨設定やフォルダ構成の基本をおさらい',
+      icon: '\u2699\uFE0F',
+      bg: '#f0fdf4', color: '#059669'
+    },
+    'security-check': {
+      title: 'セキュリティ設定チェック',
+      desc: '今の設定にリスクがないかセルフチェック',
+      icon: '\uD83D\uDEE1\uFE0F',
+      bg: '#f1f5f9', color: '#475569'
+    }
+  };
+
+  // スコア別の推奨（BJ Fogg: Motivation段階に合わせた導線）
+  var picks, heading, sub;
+  if (score === 5) {
+    heading = 'さらに活用の幅を広げてみませんか？';
+    sub = 'トラブル対応の知識を土台に、もう一歩先の使いこなしへ';
+    picks = ['file-sharing', 'browser-guide'];
+  } else if (score >= 3) {
+    heading = '関連するガイドもおすすめです';
+    sub = '日常の操作で役立つ知識を補強できます';
+    picks = ['file-sharing', 'security-check'];
+  } else {
+    heading = 'まずはこちらから確認してみましょう';
+    sub = '基本設定を見直すだけで、トラブルの多くを予防できます';
+    picks = ['initial-setup', 'file-sharing'];
+  }
+
+  var guideHtml = '<div class="next-guides">';
+  guideHtml += '<h3>' + heading + '</h3>';
+  guideHtml += '<p class="next-guides-sub">' + sub + '</p>';
+  guideHtml += '<div class="next-guide-cards">';
+  for (var gi = 0; gi < picks.length; gi++) {
+    var g = allGuides[picks[gi]];
+    var href = EC_BASE + picks[gi] + userParam;
+    guideHtml += '<a class="next-guide-card" href="' + href + '" target="_top">';
+    guideHtml += '<div class="next-guide-icon" style="background:' + g.bg + ';">' + g.icon + '</div>';
+    guideHtml += '<div><h5>' + g.title + '</h5>';
+    guideHtml += '<p>' + g.desc + '</p>';
+    guideHtml += '<span class="next-guide-tag" style="background:' + g.bg + ';color:' + g.color + ';">活用ガイド</span>';
+    guideHtml += '</div></a>';
+  }
+  guideHtml += '</div></div>';
+  document.getElementById('nextGuides').innerHTML = guideHtml;
 }
 
 </script>

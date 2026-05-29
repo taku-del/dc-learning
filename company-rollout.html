@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DirectCloud 運用きほんのき — 初期設定ガイド</title>
+<title>DirectCloud 全社展開ガイド</title>
 <style>
   :root {
-    --dc-primary: #E67E22;
-    --dc-primary-light: #FFF4EB;
-    --dc-primary-dark: #C0651A;
+    --dc-primary: #0891b2;
+    --dc-primary-light: #ecfeff;
+    --dc-primary-dark: #0e7490;
     --dc-green: #00A676;
     --dc-green-light: #E6F9F2;
     --dc-orange: #F5A623;
@@ -25,7 +25,7 @@
 
   body {
     font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
-    background: #FDF8F4;
+    background: #F0FDFA;
     color: #1A2332;
     line-height: 1.8;
   }
@@ -93,7 +93,7 @@
     transition: all 0.2s;
     border-left: 3px solid transparent;
   }
-  .sidebar-item:hover { background: #FFFAF6; color: var(--dc-primary); }
+  .sidebar-item:hover { background: #F0FDFA; color: var(--dc-primary); }
   .sidebar-item.active {
     color: var(--dc-primary);
     background: var(--dc-primary-light);
@@ -208,7 +208,7 @@
   }
   .flow-item {
     background: var(--dc-primary-light);
-    border: 1px solid #F0D8C0;
+    border: 1px solid #A5F3FC;
     border-radius: 8px;
     padding: 10px 16px;
     font-size: 13px;
@@ -222,7 +222,7 @@
     color: #CCC;
   }
 
-  /* ===== Access Level Table ===== */
+  /* ===== Compare Table ===== */
   .compare-table-wrap {
     overflow-x: auto;
     margin: 20px 0;
@@ -236,7 +236,7 @@
     min-width: 600px;
   }
   .compare-table th {
-    background: #FFF8F2;
+    background: #F0FDFA;
     padding: 10px 12px;
     font-weight: 700;
     text-align: center;
@@ -260,7 +260,7 @@
     font-weight: 600;
     color: #374151;
   }
-  .compare-table tr:hover td { background: #FFFBF7; }
+  .compare-table tr:hover td { background: #F0FDFA; }
   .compare-table .cell-ok { color: var(--dc-green); font-weight: 700; }
   .compare-table .cell-no { color: #D1D5DB; }
 
@@ -275,9 +275,9 @@
     position: relative;
     padding: 12px 16px 12px 52px;
     margin-bottom: 8px;
-    background: #FFFBF7;
+    background: #F0FDFA;
     border-radius: 8px;
-    border: 1px solid #F0E0D0;
+    border: 1px solid #A5F3FC;
     font-size: 14px;
     color: #374151;
     line-height: 1.7;
@@ -301,7 +301,7 @@
 
   /* ===== Detail Box ===== */
   .detail-box {
-    background: #F8F6F3;
+    background: #F0FDFA;
     border-radius: 10px;
     padding: 20px 24px;
     margin: 16px 0;
@@ -334,7 +334,7 @@
 
   /* ===== Insight Box ===== */
   .insight {
-    background: linear-gradient(135deg, #FFF8F2, #FFF0E0);
+    background: linear-gradient(135deg, #F0FDFA, #CFFAFE);
     border-radius: 10px;
     padding: 20px 24px;
     margin: 20px 0;
@@ -589,6 +589,42 @@
   .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
   .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
 
+  /* ===== Checklist ===== */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  .checklist li {
+    font-size: 14px;
+    color: #374151;
+    padding: 10px 16px;
+    margin-bottom: 6px;
+    background: #F0FDFA;
+    border-radius: 8px;
+    border: 1px solid #A5F3FC;
+    line-height: 1.7;
+  }
+
+  /* ===== Email Template Box ===== */
+  .email-template {
+    background: #F8FAFC;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #374151;
+  }
+  .email-template .email-subject {
+    font-weight: 700;
+    color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #E0E6ED;
+  }
+
 
   /* ===== Next Guides (Bowling Alley) ===== */
   .next-guides {
@@ -679,7 +715,7 @@
   <div class="topbar-left">
     <span class="topbar-logo">DirectCloud</span>
     <span class="topbar-sep">|</span>
-    <span class="topbar-title">初期設定ガイド</span>
+    <span class="topbar-title">全社展開ガイド</span>
   </div>
   <div class="topbar-right">
     <span class="topbar-step" id="stepLabel"><strong>1</strong> / 12</span>
@@ -699,34 +735,34 @@
       <span class="icon">📖</span> はじめに
     </div>
     <div class="sidebar-item" data-sec="step1" onclick="goTo('step1')">
-      <span class="icon">👥</span> STEP1 グループ作成
+      <span class="icon">📋</span> STEP1 展開計画
     </div>
     <div class="sidebar-item" data-sec="step2" onclick="goTo('step2')">
-      <span class="icon">🧑</span> STEP2 ユーザー追加
+      <span class="icon">🔧</span> STEP2 環境準備
     </div>
     <div class="sidebar-item" data-sec="step3" onclick="goTo('step3')">
-      <span class="icon">🔑</span> STEP3 パスワード
+      <span class="icon">👥</span> STEP3 ユーザー追加
     </div>
     <div class="sidebar-item" data-sec="step4" onclick="goTo('step4')">
-      <span class="icon">📁</span> STEP4 フォルダ作成
+      <span class="icon">📨</span> STEP4 社内案内
     </div>
     <div class="sidebar-item" data-sec="step5" onclick="goTo('step5')">
-      <span class="icon">🔒</span> STEP5 アクセス権
+      <span class="icon">📊</span> STEP5 定着フォロー
     </div>
     <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
-      <span class="icon">Q1</span> 機能制限の設定
+      <span class="icon">Q1</span> 展開の進め方
     </div>
     <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
-      <span class="icon">Q2</span> ユーザー必須項目
+      <span class="icon">Q2</span> ユーザー追加方法
     </div>
     <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
-      <span class="icon">Q3</span> パスワード再設定
+      <span class="icon">Q3</span> パスワード設定
     </div>
     <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
-      <span class="icon">Q4</span> アクセス権の単位
+      <span class="icon">Q4</span> 社内案内
     </div>
     <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
-      <span class="icon">Q5</span> 親子グループ
+      <span class="icon">Q5</span> 定着フォロー
     </div>
     <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
       <span class="icon">📋</span> 結果
@@ -739,31 +775,31 @@
     <!-- ========== Intro ========== -->
     <div class="section active" id="sec-intro">
       <div class="content-header">
-        <h1>DirectCloud 初期設定ガイド</h1>
-        <p>新規導入時に必要な「フォルダアクセス設定」の全体像を学びます</p>
+        <h1>DirectCloud 全社展開ガイド</h1>
+        <p>管理者だけの利用から、組織全体の定着へ</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p>DirectCloudを導入したら、まず行うのが<strong>フォルダアクセス設定</strong>です。<br>
-          「誰がどのフォルダにアクセスできるか」を正しく設定することで、<strong>安全で効率的なファイル管理</strong>が実現します。</p>
+          <p>DirectCloudを導入したものの、<strong>管理者だけが使っている状態</strong>になっていませんか？<br>
+          全社展開を進めることで、ファイル共有基盤として組織に定着し、業務効率が大きく変わります。</p>
         </div>
 
         <p style="font-size:15px; line-height:1.8; color:#374151;">
-          初期設定は大きく<strong>5つのSTEP</strong>で構成されています。<br>
-          グループの作成からアクセス権の付与まで、順番に進めていきましょう。
+          全社展開は大きく<strong>5つのSTEP</strong>で進めます。<br>
+          計画策定からユーザー追加、社内案内、そして定着フォローまで、順番に見ていきましょう。
         </p>
 
         <div class="flow-row">
-          <div class="flow-item">STEP1<br>グループ作成</div>
+          <div class="flow-item">STEP1<br>展開計画</div>
           <span class="flow-arrow">→</span>
-          <div class="flow-item">STEP2<br>ユーザー追加</div>
+          <div class="flow-item">STEP2<br>環境準備</div>
           <span class="flow-arrow">→</span>
-          <div class="flow-item">STEP3<br>パスワード</div>
+          <div class="flow-item">STEP3<br>ユーザー追加</div>
           <span class="flow-arrow">→</span>
-          <div class="flow-item">STEP4<br>フォルダ作成</div>
+          <div class="flow-item">STEP4<br>社内案内</div>
           <span class="flow-arrow">→</span>
-          <div class="flow-item">STEP5<br>アクセス権設定</div>
+          <div class="flow-item">STEP5<br>定着フォロー</div>
         </div>
 
         <div class="tip">
@@ -771,8 +807,12 @@
           各STEPのポイントを学んだあと、確認クイズ（5問）で理解度をチェックします。
         </div>
 
-        <div style="background:#FFF8F2; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666;">
-          <strong>対象:</strong> DirectCloud 新規導入管理者 ／ <strong>形式:</strong> ステップ学習＋クイズ ／ <strong>所要時間:</strong> 約7分
+        <div style="background:#F0FDFA; border-radius:8px; padding:14px 20px; margin-top:16px; font-size:13px; color:#666; line-height:1.8;">
+          <strong>こんな方向け:</strong><br>
+          ・ DirectCloudを導入したが、まだ一部の社員しか使っていない<br>
+          ・ これから社内展開を進める予定だが、どこから手をつけるか迷っている<br>
+          ・ 展開したが利用が広がらず、改善のヒントがほしい<br>
+          <span style="margin-top:6px; display:inline-block;"><strong>形式:</strong> ステップ学習＋クイズ5問 ／ <strong>所要時間:</strong> 約8分</span>
         </div>
       </div>
 
@@ -783,39 +823,55 @@
       <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
     </div>
 
-    <!-- ========== STEP 1: グループ作成 ========== -->
+    <!-- ========== STEP 1: 展開計画を立てる ========== -->
     <div class="section" id="sec-step1">
       <div class="content-header">
-        <h1>STEP 1 — グループ作成</h1>
-        <p>部署やチーム単位でグループを作成し、アクセス管理の基盤を整えます</p>
+        <h1>STEP 1 — 展開計画を立てる</h1>
+        <p>対象範囲とスケジュールを決め、展開の成功基準を明確にします</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p>DirectCloudでは、フォルダへのアクセス権を<strong>グループ単位</strong>で設定するのが基本です。<br>
-          まず「営業部」「経理部」などの<strong>部署やチームに対応したグループ</strong>を作成しましょう。</p>
+          <p>全社展開の第一歩は<strong>計画を立てること</strong>です。<br>
+          全社一斉か段階展開か、どちらが自社に合うかを見極め、<strong>成功基準</strong>を明確にしてからスタートしましょう。</p>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">グループ作成の手順</h3>
-        <ol class="proc-list">
-          <li>管理画面の「グループ管理」を開く</li>
-          <li>「グループ追加」をクリック</li>
-          <li>グループ名を入力（例: 営業部、管理部）</li>
-          <li><strong>機能制限の設定</strong>を確認 — グループごとにユーザーページで利用できる機能を制限可能</li>
-          <li>「保存」をクリックして完了</li>
-        </ol>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">展開方式の選択</h3>
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">A</div>
+            <h4>全社一斉展開</h4>
+            <p>全部署に同時にアカウントを配布。スピード重視だが、サポート負荷が集中しやすい</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">B</div>
+            <h4>段階展開（推奨）</h4>
+            <p>まず1部署で成功事例を作り、他部署へ横展開。課題を小規模のうちに解消できる</p>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">展開計画に含めるもの</h3>
+        <div class="detail-box">
+          <h4>計画テンプレート</h4>
+          <ul>
+            <li><strong>対象部署</strong>：まず展開する部署と、次のフェーズの対象部署</li>
+            <li><strong>展開スケジュール</strong>：各フェーズの開始日・完了目標日</li>
+            <li><strong>担当者</strong>：管理者 + 各部署の推進担当者（チャンピオンユーザー）</li>
+            <li><strong>成功基準</strong>：例）2週間以内に対象者全員がログイン完了</li>
+          </ul>
+        </div>
 
         <div class="insight">
-          <h4>なぜグループで管理するのか？</h4>
+          <h4>なぜ段階展開が効果的か</h4>
           <ul>
-            <li><strong>効率性</strong>：10人の部署にアクセス権を設定する場合、個別に10回設定する代わりにグループ1つで済む</li>
-            <li><strong>管理しやすさ</strong>：異動や入退社時もグループへの追加・削除だけで完了</li>
-            <li><strong>一貫性</strong>：同じ部署のメンバーに同一の権限を確実に適用できる</li>
+            <li>各フェーズで出てきた<strong>課題を小規模のうちに解消</strong>できる</li>
+            <li>最初の部署の成功事例が、次の部署の展開を後押しする</li>
+            <li>サポート負荷が分散されるため、管理者が丁寧にフォローできる</li>
           </ul>
         </div>
 
         <div class="tip">
-          <strong>機能制限の設定とは:</strong> グループごとに、ユーザーページで使える機能（共有リンクの作成、ゲスト招待など）を制限する設定です。セキュリティポリシーに応じてグループ単位で制御できます。
+          <strong>段階展開のメリット:</strong> まず1部署で成功事例を作れば、「隣の部署が便利に使っている」という口コミ効果で、次の部署の展開がスムーズになります。課題も小規模なうちに潰せます。
         </div>
       </div>
 
@@ -825,56 +881,58 @@
       </div>
     </div>
 
-    <!-- ========== STEP 2: ユーザー追加 ========== -->
+    <!-- ========== STEP 2: 環境を準備する ========== -->
     <div class="section" id="sec-step2">
       <div class="content-header">
-        <h1>STEP 2 — ユーザー追加</h1>
-        <p>グループにユーザーを追加し、ログイン情報を設定します</p>
+        <h1>STEP 2 — 環境を準備する</h1>
+        <p>フォルダ構成・セキュリティ設定・共有ルールを展開前に整理します</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p>グループを作成したら、次にそのグループへ<strong>ユーザーを追加</strong>します。<br>
-          ユーザー追加時には<strong>4つの必須項目</strong>の入力が必要です。</p>
+          <p>ユーザーを追加する前に、<strong>受け入れ環境</strong>を整えておくことが重要です。<br>
+          フォルダ構成の見直し、セキュリティ設定の確認、共有ルールの策定を済ませましょう。</p>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">ユーザー追加の必須項目</h3>
-        <div class="step-cards">
-          <div class="step-card">
-            <div class="step-num">1</div>
-            <h4>ユーザーID</h4>
-            <p>ログイン時に使用する一意のID。英数字で設定します</p>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">準備すべき3つの項目</h3>
+        <div class="level-cards">
+          <div class="level-card">
+            <div class="level-icon">📁</div>
+            <h4>フォルダ構成の見直し</h4>
+            <p>部署ごと or プロジェクトごとの構造を決め、展開前に整理しておく</p>
           </div>
-          <div class="step-card">
-            <div class="step-num">2</div>
-            <h4>名前</h4>
-            <p>管理画面やログに表示されるユーザーの氏名</p>
+          <div class="level-card">
+            <div class="level-icon">🔒</div>
+            <h4>セキュリティ設定</h4>
+            <p>パスワードポリシー、アクセス制限、デバイス制限を確認・設定</p>
           </div>
-          <div class="step-card">
-            <div class="step-num">3</div>
-            <h4>メールアドレス</h4>
-            <p>パスワード登録用メールの送信先。通知にも使用</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num">4</div>
-            <h4>割当容量</h4>
-            <p>ユーザーごとに使用できるストレージ上限を設定</p>
+          <div class="level-card">
+            <div class="level-icon">🔗</div>
+            <h4>共有ルールの策定</h4>
+            <p>共有リンクのデフォルト設定（有効期限・パスワード強制）を決める</p>
           </div>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">パスワード登録用メールの仕組み</h3>
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">操作マニュアル</h3>
         <div class="detail-box">
-          <h4>メール送信による初期パスワード設定</h4>
+          <h4>公式マニュアルへのリンク</h4>
           <ul>
-            <li>ユーザー追加時に「パスワード登録用メールを送信」を選択可能</li>
-            <li>送信すると、ユーザー自身がメールのリンクからパスワードを設定</li>
-            <li>ユーザーが自分で登録したパスワードは<strong>管理者にも見えない</strong></li>
-            <li>管理者がパスワードを直接設定する方法も選べる（この場合、管理者がパスワードを把握する形になる）</li>
+            <li><strong>管理者マニュアル</strong>：<a href="https://help.directcloud.jp/s/admin-manual" target="_blank" rel="noopener noreferrer" style="color:var(--dc-primary);">https://help.directcloud.jp/s/admin-manual</a></li>
+            <li><strong>ユーザーマニュアル</strong>：<a href="https://help.directcloud.jp/s/user-manual" target="_blank" rel="noopener noreferrer" style="color:var(--dc-primary);">https://help.directcloud.jp/s/user-manual</a></li>
+          </ul>
+        </div>
+
+        <div class="insight">
+          <h4>事前に決めておくと良いこと</h4>
+          <ul>
+            <li><strong>同名ファイルのアップロード挙動</strong>：上書き / ブロック / ユーザー選択のどれにするか</li>
+            <li><strong>ゴミ箱・バージョン管理のポリシー</strong>：保持期間や世代数</li>
+            <li><strong>誤削除の復元方法</strong>は展開後に多い質問のひとつ — 事前に復元手順をまとめておくと問い合わせが減る</li>
           </ul>
         </div>
 
         <div class="tip">
-          <strong>CSVでの一括登録も可能:</strong> 大量のユーザーを追加する場合は、CSV形式で一括インポートできます。テンプレートCSVをダウンロードして必要情報を入力してください。
+          <strong>同名ファイルの扱い:</strong> アップロード時に同じファイル名が存在した場合の挙動は、展開前に決めておきましょう。ユーザーから「ファイルが消えた」という問い合わせの原因になりやすいポイントです。
         </div>
       </div>
 
@@ -884,54 +942,57 @@
       </div>
     </div>
 
-    <!-- ========== STEP 3: パスワードポリシー ========== -->
+    <!-- ========== STEP 3: ユーザーを追加する ========== -->
     <div class="section" id="sec-step3">
       <div class="content-header">
-        <h1>STEP 3 — パスワードポリシー</h1>
-        <p>組織のセキュリティ要件に合わせたパスワードルールを設定します</p>
+        <h1>STEP 3 — ユーザーを追加する</h1>
+        <p>CSV一括登録やSSO連携で効率的にユーザーを追加します</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p>DirectCloudでは管理者が<strong>パスワードポリシー</strong>を設定し、組織全体のセキュリティレベルを統一できます。<br>
-          最小文字数や有効期間など、企業のセキュリティ基準に合わせて調整しましょう。</p>
+          <p>環境が整ったら、いよいよ<strong>ユーザーの追加</strong>です。<br>
+          少人数なら手動登録でも問題ありませんが、まとまった人数の場合は<strong>CSV一括登録</strong>が効率的です。</p>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">設定できるポリシー項目</h3>
-        <div class="level-cards">
-          <div class="level-card">
-            <div class="level-icon">🔢</div>
-            <h4>最小文字数</h4>
-            <p>パスワードに必要な最低文字数を指定。短すぎる脆弱なパスワードを防止</p>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">CSV一括登録の手順</h3>
+        <ol class="proc-list">
+          <li>管理画面の「ユーザー管理」からテンプレートCSVをダウンロード</li>
+          <li>必要情報（ユーザーID、名前、メールアドレス、割当容量）を入力</li>
+          <li>CSVファイルをインポート</li>
+          <li>「パスワード登録用メールを送信」を有効にする — ユーザー自身がパスワードを設定</li>
+        </ol>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">ユーザー管理の効率化</h3>
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h4>SSO連携</h4>
+            <p>Microsoft Entra ID / Google Workspaceと連携し、ログインを一元化</p>
           </div>
-          <div class="level-card">
-            <div class="level-icon">⏰</div>
-            <h4>有効期間</h4>
-            <p>パスワードの有効日数を設定。期限切れ後は変更が必要に</p>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h4>グループ管理</h4>
+            <p>ユーザーをグループに所属させ、アクセス権をグループ単位で管理</p>
           </div>
-          <div class="level-card">
-            <div class="level-icon">🔄</div>
-            <h4>再設定の強制</h4>
-            <p>次回ログイン時にパスワード変更を強制する設定が可能</p>
-          </div>
-          <div class="level-card">
-            <div class="level-icon">🚫</div>
-            <h4>文字種の要件</h4>
-            <p>英大文字・小文字・数字・記号の組み合わせを要求可能</p>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h4>一括設定</h4>
+            <p>グループ・フォルダ・アクセス権の一括登録も可能</p>
           </div>
         </div>
 
         <div class="insight">
-          <h4>パスワード登録用メールと再設定の関係</h4>
+          <h4>パスワード登録用メールのメリット</h4>
           <ul>
-            <li><strong>パスワード登録用メール送信の場合</strong>：ユーザーが自分でパスワードを登録するため、パスワード再設定は強制されない</li>
-            <li><strong>管理者がパスワードを直接設定した場合</strong>：「次回ログイン時にパスワード変更を強制」が有効になる</li>
-            <li>セキュリティの観点では、パスワード登録用メールの利用が推奨される</li>
+            <li>ユーザー自身がパスワードを設定するため、<strong>管理者もパスワードを知らない状態</strong>にできる</li>
+            <li>セキュリティの観点で推奨される方法</li>
+            <li>管理者がパスワードを直接設定する方法もあるが、管理者がパスワードを把握する形になる</li>
           </ul>
         </div>
 
         <div class="tip">
-          <strong>ポイント:</strong> パスワードポリシーは全ユーザーに適用されます。ポリシー変更後、既存ユーザーは次回のパスワード変更時から新しいポリシーが適用されます。
+          <strong>大量追加のコツ:</strong> 30名以上の追加はCSV一括登録を使いましょう。テンプレートCSVにはすべての必須項目が含まれているので、入力漏れを防げます。
         </div>
       </div>
 
@@ -941,49 +1002,65 @@
       </div>
     </div>
 
-    <!-- ========== STEP 4: フォルダ作成 ========== -->
+    <!-- ========== STEP 4: 社内に案内する ========== -->
     <div class="section" id="sec-step4">
       <div class="content-header">
-        <h1>STEP 4 — フォルダ作成</h1>
-        <p>共有フォルダの構造を設計し、管理画面からフォルダを作成します</p>
+        <h1>STEP 4 — 社内に案内する</h1>
+        <p>ユーザーが迷わず使い始められるように、案内メールと初回アクションを準備します</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p>DirectCloudの共有フォルダは<strong>階層構造</strong>で管理されます。<br>
-          <strong>第1階層のフォルダは管理者のみ</strong>が作成でき、その配下にサブフォルダを作成していきます。</p>
+          <p>アカウントを作成したら、次は<strong>社内への案内</strong>です。<br>
+          情報量は必要最小限にして、<strong>「まずやること」を3つに絞る</strong>のがポイントです。</p>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">フォルダ構造の設計例</h3>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">案内メールに含めるべき情報</h3>
         <div class="detail-box">
-          <h4>典型的なフォルダ構成</h4>
+          <h4>必須項目</h4>
           <ul>
-            <li><strong>第1階層（管理者のみ作成可）</strong>：部署名フォルダ（例: 営業部、経理部、総務部）</li>
-            <li><strong>第2階層以降</strong>：プロジェクトや年度ごとのサブフォルダ（例: 2026年度、A社案件）</li>
-            <li>第2階層以降は、アクセス権に応じてユーザーも作成可能</li>
+            <li><strong>ログインURL</strong>：DirectCloudへのアクセス先</li>
+            <li><strong>会社ID</strong>：ログインに必要な会社識別子</li>
+            <li><strong>ユーザーID</strong>：各自のログインID</li>
+            <li><strong>パスワード設定方法</strong>：パスワード登録用メールの案内</li>
+            <li><strong>ドライブアプリのインストール手順</strong>（利用する場合）：デスクトップアプリの導入案内</li>
           </ul>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">フォルダ作成の手順</h3>
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">「まずやること」3ステップ</h3>
         <ol class="proc-list">
-          <li>管理画面の「共有フォルダ管理」を開く</li>
-          <li>「フォルダ作成」をクリック</li>
-          <li>フォルダ名を入力</li>
-          <li>必要に応じて説明を追記</li>
-          <li>「保存」をクリックして完了</li>
+          <li><strong>ログインする</strong> — パスワードを設定して、DirectCloudにログイン</li>
+          <li><strong>自分のフォルダを確認する</strong> — 共有フォルダの中身を見てみる</li>
+          <li><strong>ファイルを1つアップロードする</strong> — 実際の操作を体験する</li>
         </ol>
 
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">案内メールのテンプレート例</h3>
+        <div class="email-template">
+          <div class="email-subject">件名: 【DirectCloud】ファイル共有ツールのご案内</div>
+          <p>各位<br><br>
+          ファイル共有ツール「DirectCloud」のアカウントを発行しました。<br>
+          以下の手順で利用を開始してください。<br><br>
+          <strong>1. パスワードを設定する</strong><br>
+          　登録メールアドレスに届く「パスワード登録用メール」からパスワードを設定<br><br>
+          <strong>2. ログインする</strong><br>
+          　ログインURL: [ログインURL]<br>
+          　会社ID: [会社ID] ／ ユーザーID: [各自のID]<br><br>
+          <strong>3. ファイルをアップロードしてみる</strong><br>
+          　共有フォルダを開き、ファイルを1つアップロードしてみましょう<br><br>
+          ご不明点は [担当者名] までお気軽にお問い合わせください。</p>
+        </div>
+
         <div class="insight">
-          <h4>フォルダ設計のベストプラクティス</h4>
+          <h4>定着率を上げるポイント</h4>
           <ul>
-            <li><strong>第1階層はシンプルに</strong>：部署名やプロジェクト大分類など、変更頻度の低いものを配置</li>
-            <li><strong>命名規則を統一</strong>：「部署名_年度」など、探しやすい規則を先に決めておく</li>
-            <li><strong>アクセス権を意識した構造</strong>：同じ権限グループがアクセスするファイルは同一フォルダにまとめる</li>
+            <li><strong>チャンピオンユーザー</strong>：各部署に推進担当者を1名指名すると、現場の質問にすぐ対応でき定着率が上がる</li>
+            <li><strong>よくある質問の事前準備</strong>：接続できない時の対処、Google日本語入力の問題、ドライブでのExcel自動保存について事前回答を用意</li>
+            <li><strong>情報は最小限に</strong>：最初から全機能を説明すると混乱する。「まずやること」に集中させる</li>
           </ul>
         </div>
 
         <div class="tip">
-          <strong>第1階層の制約:</strong> 第1階層のフォルダは管理者のみが作成・削除できます。一般ユーザーが勝手に最上位フォルダを作ることはできないため、組織のフォルダ構造を管理者がコントロールできます。
+          <strong>チャンピオンユーザーとは:</strong> 各部署で1名、DirectCloudの操作に詳しい推進担当者のことです。ITリテラシーが高い社員に依頼するのが効果的です。管理者が全員をサポートするより、現場に近い人がフォローしたほうが定着が進みます。
         </div>
       </div>
 
@@ -993,122 +1070,57 @@
       </div>
     </div>
 
-    <!-- ========== STEP 5: アクセス権設定 ========== -->
+    <!-- ========== STEP 5: 定着をフォローする ========== -->
     <div class="section" id="sec-step5">
       <div class="content-header">
-        <h1>STEP 5 — アクセス権設定</h1>
-        <p>フォルダに対して「誰が」「何をできるか」を設定します</p>
+        <h1>STEP 5 — 定着をフォローする</h1>
+        <p>ログイン状況を確認し、利用が進まないユーザーへ個別フォローを行います</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p>フォルダを作成したら、最後に<strong>アクセス権</strong>を設定します。<br>
-          アクセス権は<strong>グループ単位</strong>と<strong>ユーザー単位</strong>の両方で設定でき、<strong>7段階のアクセスレベル</strong>から選択します。</p>
+          <p>展開して終わりではありません。<strong>定着フォロー</strong>こそが全社展開の成否を分けます。<br>
+          管理画面の「使用状況」を定期的に確認し、<strong>未ログインユーザーへの個別フォロー</strong>を行いましょう。</p>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">7段階アクセスレベル</h3>
-        <div class="level-cards">
-          <div class="level-card">
-            <div class="level-icon">👑</div>
-            <h4>オーナー</h4>
-            <p>フル権限。移動・削除・リンク作成まですべて可能</p>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; color:#1A2332;">フォロースケジュール</h3>
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h4>1週間後チェック</h4>
+            <p>管理画面の「使用状況」で全員がログインしたか確認。未ログインユーザーへ個別連絡</p>
           </div>
-          <div class="level-card">
-            <div class="level-icon">✏️</div>
-            <h4>編集者</h4>
-            <p>編集・DL・コピー・削除が可能。フォルダ移動は不可</p>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h4>2週間後チェック</h4>
+            <p>共有リンクの利用状況を確認。使っていなければ具体的な活用場面を案内</p>
           </div>
-          <div class="level-card">
-            <div class="level-icon">📝</div>
-            <h4>編集者-</h4>
-            <p>オンライン編集・UL可。DL不可がポイント</p>
-          </div>
-          <div class="level-card">
-            <div class="level-icon">📥</div>
-            <h4>ダウンローダ</h4>
-            <p>プレビュー＋DLのみ。編集・ULは不可</p>
-          </div>
-          <div class="level-card">
-            <div class="level-icon">👁️‍🗨️</div>
-            <h4>閲覧者+</h4>
-            <p>プレビュー＋UL可。DLは不可</p>
-          </div>
-          <div class="level-card">
-            <div class="level-icon">👁️</div>
-            <h4>閲覧者</h4>
-            <p>プレビューのみ。DL・UL・編集すべて不可</p>
-          </div>
-          <div class="level-card">
-            <div class="level-icon">📤</div>
-            <h4>アップローダ</h4>
-            <p>ULのみ。プレビューすら不可の提出専用</p>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h4>月次レビュー</h4>
+            <p>利用状況を定期確認。操作ログで誰が何をしているかを把握</p>
           </div>
         </div>
 
-        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">権限比較表</h3>
-        <div class="compare-table-wrap">
-          <table class="compare-table">
-            <thead>
-              <tr>
-                <th>操作</th>
-                <th>オーナー</th>
-                <th>編集者</th>
-                <th>編集者-</th>
-                <th>DLer</th>
-                <th>閲覧者+</th>
-                <th>閲覧者</th>
-                <th>UPer</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>プレビュー</td>
-                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
-              </tr>
-              <tr>
-                <td>ダウンロード</td>
-                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-              </tr>
-              <tr>
-                <td>アップロード</td>
-                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td>
-              </tr>
-              <tr>
-                <td>オンライン編集</td>
-                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-              </tr>
-              <tr>
-                <td>コピー・削除</td>
-                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-              </tr>
-              <tr>
-                <td>リンク作成</td>
-                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-              </tr>
-              <tr>
-                <td>コメント</td>
-                <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">アクセス権設定の手順</h3>
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">未ログインユーザーへの対応</h3>
         <ol class="proc-list">
-          <li>管理画面の「共有フォルダ管理」から対象フォルダを選択</li>
-          <li>「アクセス権」タブを開く</li>
-          <li>「グループ追加」または「ユーザー追加」をクリック</li>
-          <li>対象のグループまたはユーザーを選択</li>
-          <li>7段階のアクセスレベルから適切なレベルを選択して保存</li>
+          <li>管理画面の「使用状況」から未ログインユーザーを特定</li>
+          <li>電話またはチャットで個別に連絡（メールだけでは届かないことが多い）</li>
+          <li>困っていることがないかヒアリングし、その場で解決をサポート</li>
+          <li>ログインの手順を一緒に確認する（パスワード設定が終わっていないケースが多い）</li>
         </ol>
 
         <div class="insight">
-          <h4>設定のポイント</h4>
+          <h4>注意すべきサイン</h4>
           <ul>
-            <li><strong>グループ単位での設定を基本に</strong>：個別ユーザーへの設定は例外的なケースのみ。管理負荷を減らすためにグループ活用を推奨</li>
-            <li><strong>最小権限の原則</strong>：業務に必要な最低限のアクセスレベルを付与する。権限は後から広げられるが、情報漏洩は取り消せない</li>
-            <li><strong>サブフォルダは上位の権限を継承</strong>：上位フォルダの権限が下位にも適用される。個別設定で上書きも可能</li>
+            <li><strong>問い合わせが少ない ≠ 困っていない</strong>：質問の仕方がわからない、または諦めている可能性がある</li>
+            <li><strong>未ログインが続くユーザー</strong>には、メールだけでなく電話やチャットで直接声をかけるのが効果的</li>
+            <li><strong>共有リンクが使われていない</strong>場合は、「こういう場面で便利です」と具体例を案内する</li>
           </ul>
+        </div>
+
+        <div class="tip">
+          <strong>積極的なフォローが鍵:</strong> 「使われていない ＝ 困っていない」ではありません。特に展開直後は、利用状況を確認してこちらから声をかけることが、全社定着への近道です。
         </div>
       </div>
 
@@ -1122,30 +1134,30 @@
     <div class="section" id="sec-q1">
       <div class="content-header">
         <h1>確認クイズ</h1>
-        <p>初期設定で学んだ内容をチェックしましょう</p>
+        <p>全社展開で学んだ内容をチェックしましょう</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p><strong>Q1.</strong> グループ追加時に設定できる「機能制限の設定」とは、何を制限する設定ですか？</p>
+          <p><strong>Q1.</strong> DirectCloudを社員50人に展開する際、最も効果的な進め方は？</p>
         </div>
 
         <div class="choices" id="choices-q1">
           <div class="choice-card" onclick="selectAnswer('q1', 0)">
-            <h5>A. フォルダへのアクセス権限を制限する設定</h5>
-            <p>フォルダ単位でグループのアクセスレベルを制御する</p>
+            <h5>A. 全員に一斉にアカウントを配布する</h5>
+            <p>スピードを重視して全社員に同時展開する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q1', 1)">
-            <h5>B. グループに追加できるユーザー数を制限する設定</h5>
-            <p>1グループあたりの上限人数を制御する</p>
+            <h5>B. まず1部署で成功事例を作り、段階的に広げる</h5>
+            <p>小さく始めて課題を解消しながら横展開する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q1', 2)">
-            <h5>C. ユーザーページで利用できる機能を制限する設定</h5>
-            <p>共有リンク作成やゲスト招待などの機能をグループごとに制御する</p>
+            <h5>C. ITリテラシーの高い社員だけに配布する</h5>
+            <p>使いこなせる社員のみに限定して展開する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q1', 3)">
-            <h5>D. ストレージの使用量を制限する設定</h5>
-            <p>グループ単位でストレージ上限を制御する</p>
+            <h5>D. 管理者のみが使い、社員にはリンクだけ共有する</h5>
+            <p>管理者がファイルを管理し、社員は共有リンク経由でアクセス</p>
           </div>
         </div>
 
@@ -1161,30 +1173,30 @@
     <div class="section" id="sec-q2">
       <div class="content-header">
         <h1>確認クイズ</h1>
-        <p>初期設定で学んだ内容をチェックしましょう</p>
+        <p>全社展開で学んだ内容をチェックしましょう</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p><strong>Q2.</strong> ユーザー追加時の<strong>必須項目</strong>として正しい組み合わせはどれですか？</p>
+          <p><strong>Q2.</strong> 30名のユーザーを効率的に追加する方法は？</p>
         </div>
 
         <div class="choices" id="choices-q2">
           <div class="choice-card" onclick="selectAnswer('q2', 0)">
-            <h5>A. ユーザーID、名前、メールアドレス</h5>
-            <p>割当容量は任意項目</p>
+            <h5>A. 管理画面から1名ずつ手動で追加する</h5>
+            <p>ユーザー管理画面で一人ひとり登録していく</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q2', 1)">
-            <h5>B. ユーザーID、名前、メールアドレス、割当容量</h5>
-            <p>4項目すべてが必須</p>
+            <h5>B. ユーザーに自分でアカウントを作成してもらう</h5>
+            <p>セルフサービスでユーザー自身がアカウントを作成</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q2', 2)">
-            <h5>C. ユーザーID、名前、パスワード</h5>
-            <p>メールアドレスと割当容量は任意項目</p>
+            <h5>C. CSVファイルで一括インポートする</h5>
+            <p>テンプレートCSVに情報を入力してまとめてインポート</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q2', 3)">
-            <h5>D. ユーザーID、名前、メールアドレス、パスワード</h5>
-            <p>割当容量は後から設定</p>
+            <h5>D. APIで自動登録するスクリプトを作る</h5>
+            <p>プログラムで自動的にユーザーを一括登録する</p>
           </div>
         </div>
 
@@ -1200,30 +1212,30 @@
     <div class="section" id="sec-q3">
       <div class="content-header">
         <h1>確認クイズ</h1>
-        <p>初期設定で学んだ内容をチェックしましょう</p>
+        <p>全社展開で学んだ内容をチェックしましょう</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p><strong>Q3.</strong> 「パスワード登録用メールを送信」してユーザーが自分でパスワードを登録した場合、次回ログイン時にパスワード再設定は<strong>強制されますか</strong>？</p>
+          <p><strong>Q3.</strong> 新しいユーザーのパスワード設定で推奨される方法は？</p>
         </div>
 
         <div class="choices" id="choices-q3">
           <div class="choice-card" onclick="selectAnswer('q3', 0)">
-            <h5>A. 強制される</h5>
-            <p>初回ログインでは必ずパスワード変更が求められる</p>
+            <h5>A. 管理者が全員分のパスワードを設定して口頭で伝える</h5>
+            <p>管理者が決めたパスワードを直接伝達する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q3', 1)">
-            <h5>B. 強制されない</h5>
-            <p>ユーザー自身が登録したパスワードなので、そのまま利用できる</p>
+            <h5>B. パスワード登録用メールを送信し、ユーザー自身に設定してもらう</h5>
+            <p>メール経由でユーザーが自分のパスワードを登録する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q3', 2)">
-            <h5>C. 管理者の設定による</h5>
-            <p>管理者が個別に強制有無を設定できる</p>
+            <h5>C. 全員共通のパスワードを設定して後から変更させる</h5>
+            <p>初期パスワードを統一し、ログイン後に各自変更を促す</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q3', 3)">
-            <h5>D. 30日後に強制される</h5>
-            <p>パスワードポリシーの有効期間にかかわらず30日後に変更必須</p>
+            <h5>D. パスワードなしでログインできるようにする</h5>
+            <p>パスワード認証を無効にして簡単にアクセスできるようにする</p>
           </div>
         </div>
 
@@ -1239,30 +1251,30 @@
     <div class="section" id="sec-q4">
       <div class="content-header">
         <h1>確認クイズ</h1>
-        <p>初期設定で学んだ内容をチェックしましょう</p>
+        <p>全社展開で学んだ内容をチェックしましょう</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p><strong>Q4.</strong> フォルダのアクセス権は<strong>どの単位</strong>で設定できますか？</p>
+          <p><strong>Q4.</strong> 展開時の社内案内メールに含めるべき内容として、最も優先度が高いものは？</p>
         </div>
 
         <div class="choices" id="choices-q4">
           <div class="choice-card" onclick="selectAnswer('q4', 0)">
-            <h5>A. グループ単位のみ</h5>
-            <p>ユーザー個別の設定はできない</p>
+            <h5>A. DirectCloudの料金プランと機能一覧</h5>
+            <p>契約プランの詳細と全機能を網羅的に説明する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q4', 1)">
-            <h5>B. ユーザー単位のみ</h5>
-            <p>グループ単位の設定はできない</p>
+            <h5>B. 管理者向けの設定マニュアル全文</h5>
+            <p>設定手順を最初から最後まで添付する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q4', 2)">
-            <h5>C. グループ単位とユーザー単位</h5>
-            <p>両方の単位で設定可能</p>
+            <h5>C. ログイン方法と「まずやること」3ステップ</h5>
+            <p>ログインURLとパスワード設定、最初の3アクションに絞って案内</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q4', 3)">
-            <h5>D. 部署単位のみ</h5>
-            <p>組織の部署に紐づいた設定のみ</p>
+            <h5>D. 競合製品との比較資料</h5>
+            <p>他社製品との違いを説明してDirectCloudの優位性を伝える</p>
           </div>
         </div>
 
@@ -1278,30 +1290,30 @@
     <div class="section" id="sec-q5">
       <div class="content-header">
         <h1>確認クイズ</h1>
-        <p>初期設定で学んだ内容をチェックしましょう</p>
+        <p>全社展開で学んだ内容をチェックしましょう</p>
       </div>
 
       <div class="card">
         <div class="scenario">
-          <p><strong>Q5.</strong> 「親グループ」にユーザーを追加した場合、その「子グループ」にも<strong>自動的に登録されますか</strong>？</p>
+          <p><strong>Q5.</strong> 展開後、利用が伸びていない部署への対応として最も適切なのは？</p>
         </div>
 
         <div class="choices" id="choices-q5">
           <div class="choice-card" onclick="selectAnswer('q5', 0)">
-            <h5>A. 自動登録される</h5>
-            <p>親グループに追加すれば子グループにも自動的に所属する</p>
+            <h5>A. アカウントを削除して別ツールを検討する</h5>
+            <p>利用が進まないので別のサービスへの乗り換えを検討する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q5', 1)">
-            <h5>B. 自動登録されない</h5>
-            <p>DirectCloudでは親グループと子グループは別グループとしてカウントされる</p>
+            <h5>B. 追加の機能説明資料を全社メールで配布する</h5>
+            <p>詳細な操作マニュアルを全員に再送する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q5', 2)">
-            <h5>C. 管理者権限のユーザーのみ自動登録される</h5>
-            <p>管理者は自動、一般ユーザーは手動で追加が必要</p>
+            <h5>C. 未ログインユーザーを特定し、個別にフォローする</h5>
+            <p>管理画面で未利用者を確認し、電話やチャットで個別対応する</p>
           </div>
           <div class="choice-card" onclick="selectAnswer('q5', 3)">
-            <h5>D. 設定で切り替え可能</h5>
-            <p>管理画面の設定により自動登録の有無を切り替えられる</p>
+            <h5>D. 利用状況が改善するまで何もせず待つ</h5>
+            <p>自然に使い始めるまで様子を見る</p>
           </div>
         </div>
 
@@ -1334,71 +1346,32 @@
         <div class="result-review" id="resultReview"></div>
 
         <div style="margin-top:32px;">
-          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin-bottom:12px;">初期設定フロー（まとめ）</h3>
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin-bottom:12px;">全社展開フロー（まとめ）</h3>
           <div class="flow-row" style="margin:16px 0;">
-            <div class="flow-item">STEP1<br>グループ作成</div>
+            <div class="flow-item">STEP1<br>展開計画</div>
             <span class="flow-arrow">→</span>
-            <div class="flow-item">STEP2<br>ユーザー追加</div>
+            <div class="flow-item">STEP2<br>環境準備</div>
             <span class="flow-arrow">→</span>
-            <div class="flow-item">STEP3<br>パスワード</div>
+            <div class="flow-item">STEP3<br>ユーザー追加</div>
             <span class="flow-arrow">→</span>
-            <div class="flow-item">STEP4<br>フォルダ作成</div>
+            <div class="flow-item">STEP4<br>社内案内</div>
             <span class="flow-arrow">→</span>
-            <div class="flow-item">STEP5<br>アクセス権設定</div>
+            <div class="flow-item">STEP5<br>定着フォロー</div>
           </div>
 
-          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin:28px 0 12px;">アクセスレベル早見表（保存用）</h3>
-          <div class="compare-table-wrap">
-            <table class="compare-table">
-              <thead>
-                <tr>
-                  <th>操作</th>
-                  <th>オーナー</th>
-                  <th>編集者</th>
-                  <th>編集者-</th>
-                  <th>DLer</th>
-                  <th>閲覧者+</th>
-                  <th>閲覧者</th>
-                  <th>UPer</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>プレビュー</td>
-                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
-                </tr>
-                <tr>
-                  <td>ダウンロード</td>
-                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-                </tr>
-                <tr>
-                  <td>アップロード</td>
-                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-ok">○</td>
-                </tr>
-                <tr>
-                  <td>オンライン編集</td>
-                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-                </tr>
-                <tr>
-                  <td>コピー・削除</td>
-                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-                </tr>
-                <tr>
-                  <td>リンク作成</td>
-                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td><td class="cell-no">×</td>
-                </tr>
-                <tr>
-                  <td>コメント</td>
-                  <td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-ok">○</td><td class="cell-no">×</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin:28px 0 12px;">展開チェックリスト</h3>
+          <ul class="checklist">
+            <li>&#9744; 展開対象の部署とスケジュールを決めた</li>
+            <li>&#9744; フォルダ構成とセキュリティ設定を確認した</li>
+            <li>&#9744; ユーザーをCSVで一括追加した</li>
+            <li>&#9744; 案内メールを送付した</li>
+            <li>&#9744; 1週間後にログイン状況を確認する予定を入れた</li>
+          </ul>
         </div>
 
 
         <div id="nextGuides"></div>
-        <div class="saved-notice" id="savedNotice" style="display:none;">✓ 結果を保存しました</div>
+        <div class="saved-notice" id="savedNotice" style="display:none;">&#10003; 結果を保存しました</div>
       </div>
 
       <div class="btn-row">
@@ -1420,7 +1393,7 @@ function getUser() {
 function submitResults(extra) {
   if (!COLLECT_ENDPOINT) return;
   var payload = {
-    page: 'DirectCloud 初期設定ガイド',
+    page: 'DirectCloud 全社展開ガイド',
     timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
     user: getUser(),
     answers: answersLabel
@@ -1438,52 +1411,52 @@ function submitResults(extra) {
 
 /* ===== Quiz Data ===== */
 var correctAnswers = {
-  q1: 2, // C. ユーザーページで利用できる機能を制限する設定
-  q2: 1, // B. ユーザーID、名前、メールアドレス、割当容量
-  q3: 1, // B. 強制されない
-  q4: 2, // C. グループ単位とユーザー単位
-  q5: 1  // B. 自動登録されない
+  q1: 1, // B. まず1部署で成功事例を作り、段階的に広げる
+  q2: 2, // C. CSVファイルで一括インポートする
+  q3: 1, // B. パスワード登録用メールを送信し、ユーザー自身に設定してもらう
+  q4: 2, // C. ログイン方法と「まずやること」3ステップ
+  q5: 2  // C. 未ログインユーザーを特定し、個別にフォローする
 };
 
 var explanations = {
   q1: {
-    correct: '正解！ 「機能制限の設定」は、グループごとにユーザーページで利用できる機能（共有リンクの作成、ゲスト招待など）を制限する設定です。フォルダのアクセス権とは別の概念です。',
+    correct: '正解！ 段階的な展開により、各フェーズでの課題を小規模なうちに解消でき、成功事例が他部署の展開を後押しします。',
     wrong: {
-      0: 'フォルダへのアクセス権限はアクセス権設定（STEP5）で行います。「機能制限の設定」はユーザーページで使える機能を制限するものです。',
-      1: 'グループに追加できるユーザー数の制限ではありません。「機能制限の設定」はユーザーページで利用できる機能を制限する設定です。',
-      3: 'ストレージの使用量はユーザー追加時の「割当容量」で制御します。「機能制限の設定」はユーザーページで利用できる機能を制限する設定です。'
+      0: '全社一斉展開はサポート負荷が集中しやすく、問題が同時多発するリスクがあります。まず1部署で成功事例を作り、段階的に広げるのが効果的です。',
+      2: 'ITリテラシーの高い社員だけに配布しても、全社展開にはなりません。段階的に全部署へ広げていくことで、組織全体の定着を目指しましょう。',
+      3: '管理者だけが使う状態は「全社展開」とは言えません。ユーザーが直接ファイルを操作できる環境を作ることで、業務効率が大きく向上します。'
     }
   },
   q2: {
-    correct: '正解！ ユーザー追加時の必須項目は「ユーザーID」「名前」「メールアドレス」「割当容量」の4項目です。',
+    correct: '正解！ CSVテンプレートをダウンロードし、必要情報を入力してインポートするのが最も確実で効率的です。',
     wrong: {
-      0: '割当容量も必須項目です。ユーザーID、名前、メールアドレスに加えて、割当容量の4項目が必要です。',
-      2: 'パスワードはパスワード登録用メールで設定するか管理者が設定するかを選べます。必須項目はユーザーID、名前、メールアドレス、割当容量の4つです。',
-      3: 'パスワードは必須項目には含まれません（登録用メールで後から設定可能）。代わりに割当容量が必須です。'
+      0: '30名を1名ずつ手動で追加するのは非効率です。CSVファイルで一括インポートすれば、短時間で正確にユーザーを追加できます。',
+      1: 'DirectCloudではユーザーが自分でアカウントを作成する機能は標準では提供されていません。管理者がCSVで一括登録するのが効率的です。',
+      3: 'APIでのスクリプト作成は技術的なハードルが高く、30名程度であればCSV一括インポートで十分対応できます。'
     }
   },
   q3: {
-    correct: '正解！ パスワード登録用メールを送信した場合、ユーザーが自分でパスワードを登録するため、再設定は強制されません。管理者にもそのパスワードは見えないため、セキュリティ上も安全です。',
+    correct: '正解！ パスワード登録用メールを利用すると、管理者もパスワードを知らない状態にできるため、セキュリティ上推奨されます。',
     wrong: {
-      0: '管理者がパスワードを直接設定した場合は強制されますが、パスワード登録用メールの場合はユーザー自身が登録するため強制されません。',
-      2: 'パスワード登録用メールで登録した場合は一律で強制されません。管理者が直接設定した場合にのみ再設定が強制されます。',
-      3: '30日後の自動強制という仕組みではありません。パスワードの有効期間はパスワードポリシーで別途管理されます。'
+      0: '管理者が全員分のパスワードを設定する方法は、管理者がパスワードを把握する形になるため、セキュリティ上推奨されません。パスワード登録用メールを使いましょう。',
+      2: '全員共通のパスワードは非常に危険です。パスワード登録用メールを使えば、最初からユーザーごとに異なるパスワードが設定されます。',
+      3: 'パスワードなしのログインはセキュリティ上あり得ません。パスワード登録用メールを送信し、ユーザー自身に安全なパスワードを設定してもらいましょう。'
     }
   },
   q4: {
-    correct: '正解！ DirectCloudのアクセス権はグループ単位とユーザー単位の両方で設定できます。基本はグループ単位で設定し、例外的にユーザー単位で上書きするのが推奨です。',
+    correct: '正解！ 利用者が最初にすべきことを3つに絞って案内することで、迷わず使い始められます。情報量は必要最小限にするのがポイントです。',
     wrong: {
-      0: 'グループ単位だけでなく、ユーザー単位でもアクセス権を設定できます。両方の単位で柔軟に制御可能です。',
-      1: 'ユーザー単位だけでなく、グループ単位でもアクセス権を設定できます。グループ単位での設定が基本です。',
-      3: '部署単位という概念はありません。グループとユーザーの2つの単位でアクセス権を設定します。'
+      0: '料金プランや機能一覧は利用者にとって不要な情報です。ログイン方法と最初の3アクションに絞って案内しましょう。',
+      1: '管理者向けの設定マニュアルは一般ユーザーには不要です。ログイン方法と「まずやること」3ステップを簡潔に伝えましょう。',
+      3: '競合製品との比較は社内展開の案内には不要です。ユーザーが迷わず使い始められるよう、ログイン方法と最初のアクションに集中しましょう。'
     }
   },
   q5: {
-    correct: '正解！ DirectCloudでは親グループと子グループは別グループとしてカウントされるため、親グループにユーザーを追加しても子グループには自動登録されません。それぞれに個別で追加が必要です。',
+    correct: '正解！ 全体への一斉案内よりも、未ログインユーザーへの個別フォローが効果的です。問い合わせがない場合も「困っていない」とは限りません。',
     wrong: {
-      0: 'DirectCloudでは親グループと子グループは独立した別グループです。親に追加しても子には自動登録されないため、各グループに個別で追加する必要があります。',
-      2: '管理者権限の有無に関係なく、親グループと子グループは別グループとして扱われます。自動登録は行われません。',
-      3: 'そのような切り替え設定はありません。DirectCloudの仕様として親子グループは別カウントされ、常に個別登録が必要です。'
+      0: '利用が進まないからといってすぐにアカウント削除や別ツールへの切り替えを検討するのは早計です。まず未ログインユーザーを特定して個別にフォローしましょう。',
+      1: '全社メールでの資料配布は、すでに情報過多で使い始められていないユーザーには逆効果です。個別フォローで具体的な困りごとを解消しましょう。',
+      3: '何もせず待っていても利用状況は改善しません。利用が進まない場合は、こちらから積極的に声をかけて困りごとをヒアリングすることが重要です。'
     }
   }
 };
@@ -1579,29 +1552,29 @@ function showResult() {
 
   var pct = (score / 5) * 100;
   document.getElementById('scoreCircle').style.background =
-    'conic-gradient(#E67E22 ' + pct + '%, #E0E6ED ' + pct + '%)';
+    'conic-gradient(#0891b2 ' + pct + '%, #E0E6ED ' + pct + '%)';
   document.getElementById('scoreNum').textContent = score;
 
   var msg = '';
-  if (score === 5) msg = '全問正解！初期設定の流れを完璧に理解しています';
-  else if (score >= 4) msg = 'ほぼ完璧！実際の設定作業もスムーズに進められるでしょう';
-  else if (score >= 3) msg = '基本はOK！間違えた部分を復習して、設定に臨みましょう';
+  if (score === 5) msg = '全問正解！全社展開の進め方を完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！この知識があれば展開もスムーズに進められるでしょう';
+  else if (score >= 3) msg = '基本はOK！間違えた部分を復習して、展開に臨みましょう';
   else msg = '各STEPの内容を振り返り、もう一度チャレンジしてみましょう';
   document.getElementById('scoreMsg').textContent = msg;
 
   var questions = {
-    q1: 'グループの「機能制限の設定」とは',
-    q2: 'ユーザー追加の必須項目',
-    q3: 'パスワード登録用メールと再設定の強制',
-    q4: 'アクセス権の設定単位',
-    q5: '親グループと子グループの関係'
+    q1: '展開の進め方',
+    q2: 'ユーザー追加方法',
+    q3: 'パスワード設定',
+    q4: '社内案内メールの内容',
+    q5: '利用が伸びない部署への対応'
   };
   var correctNames = {
-    q1: 'C. ユーザーページで利用できる機能を制限する設定',
-    q2: 'B. ユーザーID、名前、メールアドレス、割当容量',
-    q3: 'B. 強制されない',
-    q4: 'C. グループ単位とユーザー単位',
-    q5: 'B. 自動登録されない'
+    q1: 'B. まず1部署で成功事例を作り、段階的に広げる',
+    q2: 'C. CSVファイルで一括インポートする',
+    q3: 'B. パスワード登録用メールを送信し、ユーザー自身に設定してもらう',
+    q4: 'C. ログイン方法と「まずやること」3ステップ',
+    q5: 'C. 未ログインユーザーを特定し、個別にフォローする'
   };
 
   var html = '';
@@ -1641,15 +1614,15 @@ function showResult() {
   if (_pct >= 80) {
     _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
     _s = '\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
-    _picks = ['file-sharing', 'security-check'];
+    _picks = ['initial-setup', 'security-check'];
   } else if (_pct >= 40) {
     _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
     _s = '\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
-    _picks = ['file-sharing', 'drive-troubleshooting'];
+    _picks = ['initial-setup', 'file-sharing'];
   } else {
     _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
     _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
-    _picks = ['drive-troubleshooting', 'file-sharing'];
+    _picks = ['initial-setup', 'drive-troubleshooting'];
   }
   var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
   for (var _gi = 0; _gi < _picks.length; _gi++) {

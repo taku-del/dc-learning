@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活用ガイド | DirectCloud</title>
+<style>
+  :root {
+    --navy: #0a1e3d;
+    --blue: #2E6DFE;
+    --blue-dark: #1a56db;
+    --blue-pale: #eef4ff;
+    --green: #059669;
+    --green-pale: #ecfdf5;
+    --amber: #b45309;
+    --amber-pale: #fef9ee;
+    --text: #0a2540;
+    --text-sub: #425466;
+    --text-muted: #8898aa;
+    --border: #e3e8ee;
+    --bg: #f6f9fc;
+    --surface: #fff;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+
+    --tag-beginner: #2563eb;    --tag-beginner-bg: #eff6ff;
+    --tag-admin: #059669;       --tag-admin-bg: #ecfdf5;
+    --tag-security: #ea580c;    --tag-security-bg: #fff7ed;
+    --tag-fileshare: #7c3aed;   --tag-fileshare-bg: #f5f3ff;
+    --tag-troubleshoot: #d97706; --tag-troubleshoot-bg: #fffbeb;
+    --tag-ops: #0d9488;         --tag-ops-bg: #f0fdfa;
+    --tag-compliance: #475569;  --tag-compliance-bg: #f1f5f9;
+    --tag-drive: #0891b2;       --tag-drive-bg: #ecfeff;
+    --tag-browser: #4F46E5;     --tag-browser-bg: #EEF2FF;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--surface); color: var(--text); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── Nav ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    height: 56px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 40px;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+  .nav-brand strong { font-weight: 700; color: var(--text); }
+  .nav-sep { color: #c1c9d2; }
+  .nav-label { color: var(--text-sub); font-weight: 400; }
+
+  /* ── Wrap ── */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+  /* ── Hero Band ── */
+  .hero-band {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 44px 0 28px;
+  }
+  .hero-band .wrap {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: center;
+  }
+  .hero-text h1 {
+    font-size: 32px; font-weight: 800; color: var(--text);
+    letter-spacing: -0.03em; line-height: 1.15;
+  }
+  .hero-text p {
+    font-size: 15px; color: var(--text-sub);
+    margin-top: 8px; line-height: 1.7;
+    max-width: 520px;
+  }
+  .hero-counts { display: flex; gap: 32px; }
+  .hero-count { text-align: center; }
+  .hero-count-num {
+    font-size: 32px; font-weight: 800; color: var(--blue); line-height: 1;
+  }
+  .hero-count-label {
+    font-size: 12px; color: var(--text-muted); margin-top: 4px;
+  }
+
+  /* ── Industry Selector ── */
+  .industry-bar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 0 20px;
+  }
+  .industry-bar .wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .industry-bar-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-sub);
+  }
+  .industry-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .industry-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .industry-pill:hover {
+    border-color: var(--pill-color, var(--blue));
+    color: var(--pill-color, var(--blue));
+    background: var(--surface);
+  }
+  .industry-pill.active {
+    border-color: var(--pill-color, var(--blue));
+    background: var(--pill-color, var(--blue));
+    color: #fff;
+  }
+  .pill-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--pill-color, #94A3B8);
+    flex-shrink: 0;
+  }
+  .industry-pill.active .pill-dot { background: #fff; }
+
+  /* ── Industry Message ── */
+  .industry-msg {
+    margin-top: 24px;
+    padding: 16px 24px;
+    border-radius: 10px;
+    background: var(--blue-pale);
+    border-left: 4px solid var(--blue);
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    display: none;
+    animation: fadeSlide 0.3s ease;
+  }
+  .industry-msg.show { display: block; }
+  .industry-msg strong { color: var(--blue-dark); }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Tags / Pills ── */
+  .tag-pill {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+    line-height: 1.6; letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .tag-beginner    { background: var(--tag-beginner-bg);    color: var(--tag-beginner); }
+  .tag-admin       { background: var(--tag-admin-bg);       color: var(--tag-admin); }
+  .tag-security    { background: var(--tag-security-bg);    color: var(--tag-security); }
+  .tag-fileshare   { background: var(--tag-fileshare-bg);   color: var(--tag-fileshare); }
+  .tag-troubleshoot{ background: var(--tag-troubleshoot-bg); color: var(--tag-troubleshoot); }
+  .tag-ops         { background: var(--tag-ops-bg);         color: var(--tag-ops); }
+  .tag-compliance  { background: var(--tag-compliance-bg);  color: var(--tag-compliance); }
+  .tag-drive       { background: var(--tag-drive-bg);       color: var(--tag-drive); }
+  .tag-browser     { background: var(--tag-browser-bg);     color: var(--tag-browser); }
+
+  /* ── Content Area ── */
+  .content-area { padding: 32px 0 0; }
+
+  .section-label {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* ── Content Grid (unified) ── */
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .guide-card {
+    --accent: var(--green);
+    --accent-pale: var(--green-pale);
+    background: linear-gradient(168deg, var(--accent-pale) 0%, var(--surface) 40%);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 24px 26px;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.35s;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .guide-card:hover {
+    border-color: var(--accent);
+    border-left-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .guide-card.dimmed {
+    opacity: 0.25;
+    pointer-events: none;
+    transform: scale(0.98);
+  }
+  .guide-card.highlight {
+    box-shadow: 0 0 0 2px var(--accent), 0 4px 16px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+
+  .gc-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
+    width: fit-content; margin-bottom: 8px;
+    background: var(--accent-pale); color: var(--accent);
+  }
+  .gc-status {
+    display: inline-block;
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    margin-left: 6px; vertical-align: middle;
+  }
+  .gc-status-live { background: #D1FAE5; color: #065F46; }
+  .gc-status-prep { background: #FEF3C7; color: #92400E; }
+  .guide-card.card-prep {
+    border-style: dashed;
+    background: linear-gradient(168deg, var(--bg) 0%, var(--surface) 40%);
+  }
+  .guide-card.card-prep .gc-link { color: var(--text-muted); }
+  .gc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  .gc-title { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
+  .gc-desc { font-size: 13px; color: var(--text-sub); line-height: 1.7; flex: 1; }
+  .gc-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9;
+  }
+  .gc-meta { font-size: 12px; color: var(--text-muted); }
+  .gc-link {
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ── Industry recommend badge ── */
+  .gc-recommend {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #FEF3C7;
+    color: #92400E;
+    display: none;
+  }
+  .guide-card.highlight .gc-recommend { display: block; }
+
+  /* ── Coming Soon Cards ── */
+  .coming-area { margin-top: 40px; }
+  .coming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .coming-card {
+    background: var(--bg);
+    border: 1px dashed #c8d1da;
+    border-radius: 10px;
+    padding: 22px 24px;
+    display: flex; flex-direction: column;
+    transition: opacity 0.35s;
+  }
+  .coming-card.dimmed { opacity: 0.25; }
+  .cc-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px;
+    width: fit-content; margin-bottom: 8px;
+    background: var(--amber-pale); color: var(--amber);
+  }
+  .cc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .cc-title { font-size: 15px; font-weight: 600; color: var(--text-sub); line-height: 1.4; margin-bottom: 6px; }
+  .cc-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; flex: 1; }
+  .cc-status {
+    margin-top: 14px;
+    font-size: 12px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .cc-dot { width: 6px; height: 6px; border-radius: 50%; background: #d1d5db; }
+
+  /* ── About Band ── */
+  .about-band {
+    background: var(--bg);
+    margin-top: 64px;
+    border-top: 1px solid var(--border);
+    padding: 44px 0 56px;
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .about-main h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .about-main p { font-size: 14px; color: var(--text-sub); line-height: 1.85; }
+  .about-features { display: flex; flex-direction: column; gap: 16px; }
+  .about-feature { display: flex; gap: 14px; align-items: flex-start; }
+  .about-feature-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .about-feature-text h4 { font-size: 13px; font-weight: 700; color: var(--text); }
+  .about-feature-text p { font-size: 12px; color: var(--text-muted); margin-top: 1px; line-height: 1.5; }
+
+  .arrow-sm { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .wrap { padding: 0 20px; }
+    .nav { padding: 0 20px; }
+    .hero-band .wrap { grid-template-columns: 1fr; }
+    .hero-counts { justify-content: flex-start; }
+    .hero-text h1 { font-size: 26px; }
+    .content-grid { grid-template-columns: 1fr; }
+    .coming-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; gap: 28px; }
+    .industry-pills { gap: 6px; }
+    .industry-pill { padding: 5px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <strong>DirectCloud</strong>
+    <span class="nav-sep">|</span>
+    <span class="nav-label">活用ガイド</span>
+  </div>
+</nav>
+
+<!-- Hero Band -->
+<section class="hero-band">
+  <div class="wrap">
+    <div class="hero-text">
+      <h1>活用ガイド</h1>
+      <p>DirectCloudの実践的な使い方を、クイズ・診断形式で学べます。業種を選ぶと、あなたに合ったガイドがわかります。</p>
+    </div>
+    <div class="hero-counts">
+      <div class="hero-count">
+        <div class="hero-count-num">8</div>
+        <div class="hero-count-label">公開中</div>
+      </div>
+      <div class="hero-count">
+        <div class="hero-count-num">2</div>
+        <div class="hero-count-label">近日公開</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Industry Selector -->
+<section class="industry-bar">
+  <div class="wrap">
+    <div class="industry-bar-label">あなたの業種に近いものを選んでください</div>
+    <div class="industry-pills">
+      <div class="industry-pill active" data-industry="all" onclick="filterIndustry('all')">
+        すべて
+      </div>
+      <div class="industry-pill" data-industry="retail" onclick="filterIndustry('retail')" style="--pill-color:#E67E22;">
+        <span class="pill-dot"></span> 小売業
+      </div>
+      <div class="industry-pill" data-industry="construction" onclick="filterIndustry('construction')" style="--pill-color:#2563EB;">
+        <span class="pill-dot"></span> 建設業
+      </div>
+      <div class="industry-pill" data-industry="logistics" onclick="filterIndustry('logistics')" style="--pill-color:#DC2626;">
+        <span class="pill-dot"></span> 運送業
+      </div>
+      <div class="industry-pill" data-industry="care" onclick="filterIndustry('care')" style="--pill-color:#C026D3;">
+        <span class="pill-dot"></span> 介護
+      </div>
+      <div class="industry-pill" data-industry="infra" onclick="filterIndustry('infra')" style="--pill-color:#059669;">
+        <span class="pill-dot"></span> 鉄道・インフラ
+      </div>
+      <div class="industry-pill" data-industry="office" onclick="filterIndustry('office')" style="--pill-color:#475569;">
+        <span class="pill-dot"></span> 一般事務
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Industry Message -->
+<div class="wrap">
+  <div class="industry-msg" id="industryMsg"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============================================ -->
+  <!-- ファイル共有・コラボレーション               -->
+  <!-- ============================================ -->
+  <div class="content-area">
+    <div class="section-label">ファイル共有・コラボレーション</div>
+    <div class="content-grid">
+
+      <a id="link-filesharing" href="file-sharing.html" class="guide-card" style="--accent:#2E6DFE; --accent-pale:#eef4ff;" data-industry="retail,construction,logistics,care,infra,office">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">クイズ形式</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-beginner">初心者</span>
+          <span class="tag-pill tag-fileshare">ファイル共有</span>
+        </div>
+        <div class="gc-title">ファイル共有方法の選び方</div>
+        <div class="gc-desc">共有リンク・受取フォルダ・ゲスト招待。3つの共有方法をシナリオクイズで使い分けを学びます。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約5分 ・ 初心者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a id="link-guest" href="guest-permissions.html" class="guide-card" style="--accent:#7B61FF; --accent-pale:#f5f3ff;" data-industry="retail,office,construction">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">比較+クイズ形式</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-fileshare">ファイル共有</span>
+          <span class="tag-pill tag-admin">管理者</span>
+        </div>
+        <div class="gc-title">ゲスト招待 権限設定ガイド</div>
+        <div class="gc-desc">7段階のアクセスレベルを比較して最適な権限設定を学びます。シナリオクイズで理解度をチェック。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約5分 ・ 管理者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <!-- link-to-guest: EC公開後に表示 -->
+      <!-- browser-guide: EC公開後に表示 -->
+
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- セキュリティ・コンプライアンス               -->
+  <!-- ============================================ -->
+  <div class="content-area" style="margin-top:40px;">
+    <div class="section-label">セキュリティ・コンプライアンス</div>
+    <div class="content-grid">
+
+      <a id="link-security" href="security-check.html" class="guide-card" style="--accent:#475569; --accent-pale:#f1f5f9;" data-industry="retail,construction,logistics,care,infra,office">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">診断形式</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-ops">運用管理</span>
+          <span class="tag-pill tag-admin">設定見直し</span>
+        </div>
+        <div class="gc-title">セキュリティ設定チェック</div>
+        <div class="gc-desc">SSO・パスワードポリシー・IP制限・承認ワークフローなど、自社のDirectCloud設定を10項目で総点検。改善の優先度つきで結果を表示します。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">12問 ・ 約4分 ・ 管理者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a id="link-supplychain" href="supply-chain-check.html" class="guide-card" style="--accent:#0D9488; --accent-pale:#f0fdfa;" data-industry="construction,logistics,retail,office">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">診断形式</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-security">セキュリティ</span>
+          <span class="tag-pill tag-compliance">コンプライアンス</span>
+        </div>
+        <div class="gc-title">サプライチェーンセキュリティ 対応度チェック</div>
+        <div class="gc-desc">経済産業省「セキュリティ対策評価制度」の要件に基づき、DirectCloudの設定状況から対応度を診断します。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">12問 ・ 約5分 ・ 管理者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a id="link-shield" href="shield-security.html" class="guide-card" style="--accent:#DC2626; --accent-pale:#FEE2E2;" data-industry="care,office,logistics">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">学習+クイズ形式</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-security">セキュリティ</span>
+          <span class="tag-pill tag-admin">管理者</span>
+        </div>
+        <div class="gc-title">SHIELD セキュリティガイド</div>
+        <div class="gc-desc">IRM・DLPなどSHIELD機能の設定と活用方法を4STEPで学びます。機密情報の保護に。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約6分 ・ 管理者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- 運用・活用                                    -->
+  <!-- ============================================ -->
+  <div class="content-area" style="margin-top:40px;">
+    <div class="section-label">運用・活用</div>
+    <div class="content-grid">
+
+      <a id="link-initialsetup" href="initial-setup.html" class="guide-card" style="--accent:#E67E22; --accent-pale:#FEF3E6;" data-industry="retail,construction,logistics,care,infra,office">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">5STEP学習</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-beginner">初心者</span>
+          <span class="tag-pill tag-admin">管理者</span>
+        </div>
+        <div class="gc-title">初期設定ガイド</div>
+        <div class="gc-desc">グループ・ユーザー・フォルダ・アクセス権の初期設定を5STEPで学びます。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約6分 ・ 管理者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a id="link-tiering" href="storage-tiering.html" class="guide-card" style="--accent:#0891B2; --accent-pale:#ECFEFF;" data-industry="infra,care,construction">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">4STEP学習</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-admin">管理者</span>
+          <span class="tag-pill tag-ops">運用管理</span>
+        </div>
+        <div class="gc-title">ストレージ階層化ガイド</div>
+        <div class="gc-desc">フォルダ設計・容量管理・アーカイブ運用を4STEPで学びます。大量データを扱う業種に。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約6分 ・ 管理者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a id="link-troubleshoot" href="drive-troubleshooting.html" class="guide-card" style="--accent:#D97706; --accent-pale:#FFFBEB;" data-industry="retail,construction,logistics,care,infra,office">
+        <div class="gc-recommend">おすすめ</div>
+        <div class="gc-badge">FAQ+クイズ形式</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-troubleshoot">トラブル解決</span>
+          <span class="tag-pill tag-drive">ドライブ</span>
+        </div>
+        <div class="gc-title">ドライブ トラブル解決ガイド</div>
+        <div class="gc-desc">よくある質問をFAQ形式で解説。同期エラーやアクセスの問題をクイズで学びます。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約5分 ・ 全ユーザー向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- About Band -->
+<section class="about-band">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="about-main">
+        <h3>活用ガイドについて</h3>
+        <p>実務で遭遇する場面を想定したインタラクティブなコンテンツです。はじめてDirectCloudを使う方はもちろん、管理者が新入社員向けの研修素材として活用するケースも増えています。</p>
+      </div>
+      <div class="about-features">
+        <div class="about-feature">
+          <div class="about-feature-icon" style="color:var(--blue);">&#9745;</div>
+          <div class="about-feature-text">
+            <h4>シナリオ形式</h4>
+            <p>実務を想定した問題で実践力を養います</p>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="about-feature-icon" style="color:var(--blue);">&#9201;</div>
+          <div class="about-feature-text">
+            <h4>約5分で完了</h4>
+            <p>スキマ時間に取り組めます</p>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="about-feature-icon" style="color:var(--blue);">&#10003;</div>
+          <div class="about-feature-text">
+            <h4>理解度チェック</h4>
+            <p>クイズ結果で確認できます</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+var industryMessages = {
+  retail: '<strong>小売業</strong> &#8212; 毎月の陳列写真、メールで送って終わりになっていませんか？店舗間でフォルダに蓄積し、月1回の投票で「ベスト陳列」を選ぶ改善サイクルが回せます。仕入先との発注・納品データも、フォルダに自然に積み上がります。',
+  construction: '<strong>建設業</strong> &#8212; 現場写真をメールで事務所に送っていると、どの現場のどの写真か探すのに時間がかかります。スマホからフォルダに直接アップロードすれば、事務所はすぐに書類作成に取りかかれます。協力会社との図面共有も、常に最新版を参照可能。',
+  logistics: '<strong>運送業</strong> &#8212; FAXで届く伝票、まだ紙のままファイリングしていませんか？複合機のスキャン連携でフォルダに自動保存すれば、電子化が日常業務の中で完了します。破損発生時はドライバーがスマホから写真を即共有。',
+  care: '<strong>介護</strong> &#8212; 利用者の写真が個人端末に残ってしまうリスク、気になっていませんか？MDM連携でカメラロールを非表示にし、DirectCloudにのみ保存する運用で、端末からの情報漏洩リスクを根本から排除できます。',
+  infra: '<strong>鉄道・インフラ</strong> &#8212; 夜間工事で大量に撮影した写真、翌朝には事務所で確認できていますか？フォルダに蓄積された工事記録は、そのまま監査・報告に活用可能。写真データが増えるほど、ストレージの活用価値も上がります。',
+  office: '<strong>一般事務</strong> &#8212; 「あのファイル、どのメールに添付してたっけ？」を繰り返していませんか？取引先とのやり取りをフォルダに移行すると、月次報告書も見積書もフォルダを開くだけ。メールを探す手間がゼロになります。'
+};
+
+function filterIndustry(industry) {
+  // Update pills
+  var pills = document.querySelectorAll('.industry-pill');
+  for (var i = 0; i < pills.length; i++) {
+    pills[i].classList.remove('active');
+    if (pills[i].getAttribute('data-industry') === industry) {
+      pills[i].classList.add('active');
+    }
+  }
+
+  // Update message
+  var msgEl = document.getElementById('industryMsg');
+  if (industry === 'all') {
+    msgEl.className = 'industry-msg';
+    msgEl.innerHTML = '';
+  } else {
+    msgEl.innerHTML = industryMessages[industry] || '';
+    msgEl.className = 'industry-msg show';
+  }
+
+  // Filter cards
+  var cards = document.querySelectorAll('.guide-card');
+  for (var j = 0; j < cards.length; j++) {
+    var cardIndustries = (cards[j].getAttribute('data-industry') || '').split(',');
+    cards[j].classList.remove('dimmed', 'highlight');
+
+    if (industry === 'all') {
+      // show all
+    } else if (cardIndustries.indexOf(industry) >= 0) {
+      cards[j].classList.add('highlight');
+    } else {
+      cards[j].classList.add('dimmed');
+    }
+  }
+}
+</script>
+</body>
+</html>

@@ -591,6 +591,67 @@
     .score-pair { flex-direction: column; gap: 20px; }
     .category-grid { grid-template-columns: 1fr 1fr; }
   }
+
+  /* ===== Next Guides (Bowling Alley) ===== */
+  .next-guides {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .next-guides h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .next-guides .next-guides-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .next-guide-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .next-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .next-guide-card:hover {
+    border-color: #94A3B8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .next-guide-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .next-guide-card h5 {
+    font-size: 14px; font-weight: 600; color: #1A2332; margin-bottom: 3px;
+  }
+  .next-guide-card p {
+    font-size: 12px; color: #888; line-height: 1.5;
+  }
+  .next-guide-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
 </style>
 </head>
 <body>
@@ -1165,6 +1226,8 @@
         設定方法や対応についてご不明な点がございましたら、弊社カスタマーサクセスまでお気軽にご相談ください。
       </div>
 
+
+        <div id="nextGuides"></div>
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="resetDiagnosis()">&#8635; もう一度診断する</button>
         <p style="font-size:11px; color:#999;">&#10003; 結果を保存しました</p>
@@ -1563,6 +1626,52 @@
       star3Covered: star3Covered, star3Total: star3Total,
       star4Covered: star4Covered, star4Total: star4Total
     });
+    var _ba_score = star3Covered + star4Covered;
+    var _ba_total = star3Total + star4Total;
+    // --- Bowling Alley: score-based next guide recommendations ---
+    var _EC = 'https://community.directcloud.jp/s/learning/';
+    var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+    var _guides = {
+        'file-sharing': {title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+        'browser-guide': {title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+        'initial-setup': {title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+        'security-check': {title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+        'drive-troubleshooting': {title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+        'guest-permissions': {title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+        'link-to-guest': {title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+        'shield-security': {title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+        'supply-chain-check': {title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+        'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+        'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+        'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+        'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'}
+      };
+    var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
+    var _picks, _h, _s;
+    if (_pct >= 80) {
+      _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+      _s = '\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
+      _picks = ['shield-security', 'security-check'];
+    } else if (_pct >= 40) {
+      _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
+      _s = '\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
+      _picks = ['security-check', 'guest-permissions'];
+    } else {
+      _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+      _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
+      _picks = ['initial-setup', 'security-check'];
+    }
+    var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
+    for (var _gi = 0; _gi < _picks.length; _gi++) {
+      var _g = _guides[_picks[_gi]];
+      _gh += '<a class="next-guide-card" href="' + _EC + _picks[_gi] + _up + '" target="_top">';
+      _gh += '<div class="next-guide-icon" style="background:' + _g.bg + ';">' + _g.icon + '</div>';
+      _gh += '<div><h5>' + _g.title + '</h5><p>' + _g.desc + '</p>';
+      _gh += '<span class="next-guide-tag" style="background:' + _g.bg + ';color:' + _g.color + ';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+    }
+    _gh += '</div></div>';
+    document.getElementById('nextGuides').innerHTML = _gh;
+
   }
 
   // ===== Reset =====

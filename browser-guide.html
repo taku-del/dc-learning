@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 活用ガイド — ドライブ→ブラウザ併用ガイド</title>
+<style>
+  :root {
+    --dc-blue: #4F46E5;
+    --dc-blue-light: #EEF2FF;
+    --dc-blue-dark: #3730A3;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F0F2F8;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-blue);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-blue);
+  }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue); }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-blue); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #F5F3FF; color: var(--dc-blue); }
+  .sidebar-item.active {
+    color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    border-left-color: var(--dc-blue);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 22px; text-align: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+    color: var(--dc-blue-dark);
+  }
+  .card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #374151;
+    font-weight: 700;
+  }
+  .card p {
+    font-size: 15px;
+    color: #4B5563;
+    margin-bottom: 10px;
+  }
+
+  /* ===== Scenario / intro box ===== */
+  .scenario {
+    background: var(--dc-blue-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; margin: 0; }
+  .scenario strong { color: var(--dc-blue-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Insight box ===== */
+  .insight {
+    background: #F5F3FF;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 6px;
+  }
+  .insight p {
+    font-size: 14px;
+    color: #374151;
+    margin: 0;
+    line-height: 1.8;
+  }
+
+  /* ===== Callout box ===== */
+  .callout {
+    background: var(--dc-blue-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-left: 4px solid var(--dc-blue);
+    font-size: 14px;
+    color: var(--dc-blue-dark);
+    line-height: 1.7;
+  }
+  .callout strong { color: #312E81; }
+
+  /* ===== Network Diagram ===== */
+  .net-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 24px 0;
+  }
+  .net-panel {
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 24px 20px;
+    background: #fff;
+  }
+  .net-panel.danger { border-color: #FECACA; background: #FFF5F5; }
+  .net-panel.safe { border-color: #A7F3D0; background: #F0FDF9; }
+  .net-panel h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .net-panel.danger h4 { color: #991B1B; }
+  .net-panel.safe h4 { color: #065F46; }
+  .net-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 16px;
+  }
+  .net-node {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    min-width: 80px;
+    line-height: 1.4;
+  }
+  .net-node.pc { background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+  .net-node.mount { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+  .net-node.server { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+  .net-node.browser { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+  .net-node.cloud { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+  .net-arrow {
+    font-size: 18px;
+    color: #9CA3AF;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+  .net-arrow.danger-arrow { color: #EF4444; }
+  .net-arrow.safe-arrow { color: #10B981; }
+  .net-label {
+    font-size: 12px;
+    color: #6B7280;
+    text-align: center;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .net-panel.danger .net-label { color: #991B1B; }
+  .net-panel.safe .net-label { color: #065F46; }
+
+  /* ===== Defense Cards ===== */
+  .defense-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .defense-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 22px 18px;
+    transition: border-color 0.2s;
+  }
+  .defense-card:hover { border-color: var(--dc-blue); }
+  .defense-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .defense-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .defense-card p {
+    font-size: 13px;
+    color: #555;
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* ===== Tab Switch ===== */
+  .tab-wrap { margin: 24px 0; }
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #E0E6ED;
+  }
+  .tab-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #888;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--dc-blue); }
+  .tab-btn.active {
+    color: var(--dc-blue);
+    border-bottom-color: var(--dc-blue);
+  }
+  .tab-panel {
+    display: none;
+    padding: 24px 0 8px;
+    animation: fadeUp 0.3s ease;
+  }
+  .tab-panel.active { display: block; }
+  .tab-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 12px;
+  }
+  .tab-node {
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    background: #F3F4F6;
+    border: 1px solid #D1D5DB;
+    color: #374151;
+  }
+  .tab-node.highlight {
+    background: var(--dc-blue-light);
+    border-color: var(--dc-blue);
+    color: var(--dc-blue-dark);
+  }
+  .tab-arrow {
+    font-size: 18px;
+    color: #9CA3AF;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  .tab-desc {
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  /* ===== Compare Table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .compare-table th {
+    background: #F5F3FF;
+    padding: 10px 14px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 180px;
+  }
+  .compare-table th.highlight {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue-dark);
+  }
+  .compare-table td {
+    padding: 10px 14px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #FAFAFF; }
+
+  /* ===== Steps ===== */
+  .steps { margin: 20px 0; }
+  .step-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 44px;
+    width: 2px;
+    height: calc(100% - 20px);
+    background: #E0E6ED;
+  }
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-body h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+  }
+  .step-body p {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ===== AI points ===== */
+  .ai-points {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .ai-point {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px 16px;
+  }
+  .ai-point h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 6px;
+  }
+  .ai-point p {
+    font-size: 13px;
+    color: #555;
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* ===== Quiz ===== */
+  .quiz-header-bar {
+    background: var(--dc-blue);
+    color: #fff;
+    padding: 16px 24px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .quiz-header-bar h2 {
+    font-size: 15px; font-weight: 600; margin: 0; color: #fff;
+  }
+  .quiz-counter {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .quiz-body {
+    background: #fff;
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .quiz-question {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-blue);
+    background: var(--dc-blue-light);
+    transform: translateY(-1px);
+  }
+  .choice-label {
+    display: inline-block;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #F0F2F8;
+    text-align: center;
+    line-height: 24px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #999;
+    margin-bottom: 6px;
+    transition: all 0.2s;
+  }
+  .choice-card:hover .choice-label {
+    background: var(--dc-blue);
+    color: #fff;
+  }
+  .choice-card h5 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A2332;
+    margin-bottom: 2px;
+  }
+  .choice-card p {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .choice-card.correct {
+    border-color: var(--dc-green);
+    background: var(--dc-green-light);
+    pointer-events: none;
+  }
+  .choice-card.correct .choice-label { background: var(--dc-green); color: #fff; }
+  .choice-card.wrong {
+    border-color: var(--dc-red);
+    background: var(--dc-red-light);
+    pointer-events: none;
+    animation: shake 0.4s ease;
+  }
+  .choice-card.wrong .choice-label { background: var(--dc-red); color: #fff; }
+  .choice-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px;
+    padding: 18px 22px;
+    border-radius: 10px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb {
+    background: var(--dc-green-light);
+    border-left: 4px solid var(--dc-green);
+  }
+  .feedback.wrong-fb {
+    background: var(--dc-orange-light);
+    border-left: 4px solid var(--dc-orange);
+  }
+  .feedback h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .feedback.correct-fb h4 { color: var(--dc-green); }
+  .feedback.wrong-fb h4 { color: #B45309; }
+  .feedback p {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--dc-blue);
+    color: #fff;
+    border: 1px solid var(--dc-blue);
+  }
+  .btn-primary:hover { background: var(--dc-blue-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: #888;
+    border: 1px solid #DDD;
+  }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ===== Score Circle ===== */
+  .score-area { text-align: center; margin: 32px 0; }
+  .score-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--dc-blue) 0%, #E0E6ED 0%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--dc-blue);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .score-msg {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-top: 8px;
+  }
+
+  /* ===== Result Review ===== */
+  .result-review { margin: 24px 0; }
+  .review-item {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
+
+
+  /* ===== Next Guides (Bowling Alley) ===== */
+  .next-guides {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .next-guides h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .next-guides .next-guides-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .next-guide-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .next-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .next-guide-card:hover {
+    border-color: #94A3B8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .next-guide-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .next-guide-card h5 {
+    font-size: 14px; font-weight: 600; color: #1A2332; margin-bottom: 3px;
+  }
+  .next-guide-card p {
+    font-size: 12px; color: #888; line-height: 1.5;
+  }
+  .next-guide-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  .saved-notice {
+    text-align: center;
+    font-size: 13px;
+    color: var(--dc-green);
+    margin-top: 16px;
+    display: none;
+  }
+
+  /* ===== Animated Network Diagram ===== */
+  .net-flow-animated {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .net-node-v2 {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    min-width: 84px;
+    line-height: 1.4;
+    position: relative;
+    z-index: 2;
+  }
+  .net-node-v2.pc-danger { background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+  .net-node-v2.pc-safe { background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+  .net-node-v2.mount { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+  .net-node-v2.server-danger { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; animation: dangerPulse 2s ease-in-out infinite; }
+  .net-node-v2.https { background: #D1FAE5; color: #065F46; border: 2px solid #6EE7B7; outline: 2px solid #A7F3D0; outline-offset: 2px; }
+  .net-node-v2.cloud-safe { background: #D1FAE5; color: #065F46; border: 3px solid #34D399; padding: 14px 18px; }
+  .net-node-v2 .node-sublabel { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; }
+
+  /* Ransomware blink label */
+  .ransomware-label {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #DC2626;
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    border-radius: 4px;
+    padding: 1px 6px;
+    animation: blinkLabel 1.5s ease-in-out infinite;
+    z-index: 3;
+    white-space: nowrap;
+  }
+  @keyframes blinkLabel {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+  @keyframes dangerPulse {
+    0%, 100% { border-color: #FCD34D; box-shadow: none; }
+    50% { border-color: #EF4444; box-shadow: 0 0 8px rgba(239,68,68,0.3); }
+  }
+
+  /* Animated connectors */
+  .net-connector {
+    width: 60px;
+    height: 3px;
+    position: relative;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .net-connector .connector-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+  }
+  .net-connector.danger .connector-line { background: #FCA5A5; }
+  .net-connector.safe .connector-line { background: #6EE7B7; }
+
+  .net-connector .connector-dot {
+    position: absolute;
+    top: -3px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+  .net-connector.danger .connector-dot { background: #EF4444; animation: dotMoveDanger 1.8s linear infinite; }
+  .net-connector.safe .connector-dot { background: #10B981; animation: dotMoveSafe 1.8s linear infinite; }
+
+  @keyframes dotMoveDanger {
+    0% { left: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: calc(100% - 9px); opacity: 0; }
+  }
+  @keyframes dotMoveSafe {
+    0% { left: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: calc(100% - 9px); opacity: 0; }
+  }
+
+  /* Isolation box for cloud node */
+  .isolation-wrap {
+    border: 3px solid #34D399;
+    border-radius: 12px;
+    padding: 6px;
+    background: rgba(209,250,229,0.3);
+    position: relative;
+  }
+  .isolation-wrap::before {
+    content: 'ISOLATED';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #065F46;
+    background: #F0FDF9;
+    padding: 0 6px;
+  }
+
+  /* ===== Mock Window ===== */
+  .mock-window {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #C8CDD3;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+    background: #fff;
+    margin: 16px 0 12px;
+  }
+  .mock-titlebar {
+    height: 32px;
+    background: #F0F0F0;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    border-bottom: 1px solid #D5D5D5;
+    gap: 8px;
+    user-select: none;
+  }
+  .mock-titlebar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    flex: 1;
+  }
+  .mock-titlebar-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 12px;
+    color: #999;
+  }
+  .mock-titlebar-controls span {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #888;
+  }
+  .mock-addressbar {
+    height: 30px;
+    background: #fff;
+    border-bottom: 1px solid #E5E5E5;
+    font-size: 11px;
+    color: #666;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mock-addressbar-nav {
+    color: #BBB;
+    font-size: 12px;
+    display: flex;
+    gap: 4px;
+  }
+  .mock-addressbar-path {
+    background: #F5F5F5;
+    border: 1px solid #E0E0E0;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: #555;
+    flex: 1;
+  }
+  .mock-body {
+    display: flex;
+    min-height: 180px;
+  }
+  .mock-sidebar {
+    width: 160px;
+    background: #FAFAFA;
+    border-right: 1px solid #EEE;
+    padding: 8px 0;
+    flex-shrink: 0;
+  }
+  .mock-sidebar-item {
+    padding: 4px 12px;
+    font-size: 11px;
+    color: #555;
+    cursor: default;
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+  .mock-sidebar-item.selected {
+    background: #D6E4FF;
+    color: #1E40AF;
+    font-weight: 600;
+  }
+  .mock-content {
+    flex: 1;
+    padding: 10px 14px;
+  }
+  .mock-file-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    font-size: 11px;
+    color: #444;
+    border-radius: 3px;
+    line-height: 1.5;
+  }
+  .mock-file-row:hover {
+    background: #F0F4FF;
+  }
+  .mock-file-icon {
+    color: #999;
+    font-size: 11px;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* Browser-type mock window (for DirectCloud) */
+  .mock-tabbar {
+    height: 28px;
+    background: #F0F0F0;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 8px;
+    gap: 0;
+    border-bottom: 1px solid #D5D5D5;
+  }
+  .mock-tab {
+    background: #fff;
+    border: 1px solid #D5D5D5;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+    position: relative;
+    top: 1px;
+  }
+  .mock-favbar {
+    height: 26px;
+    background: #fff;
+    border-bottom: 1px solid #E5E5E5;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 12px;
+    font-size: 11px;
+  }
+  .mock-fav-item {
+    color: #666;
+    cursor: default;
+    white-space: nowrap;
+  }
+  .mock-fav-highlight {
+    background: #FEF9C3;
+    border: 1px solid #FCD34D;
+    border-radius: 3px;
+    padding: 1px 8px;
+    color: #92400E;
+    font-weight: 600;
+  }
+  /* DirectCloud Web App mock UI */
+  .mock-dc-header {
+    height: 38px;
+    background: linear-gradient(135deg, #1976D2, #1E88E5);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 12px;
+    color: #fff;
+  }
+  .mock-dc-logo {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .mock-dc-header-btn {
+    font-size: 10px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    padding: 2px 10px;
+    color: #fff;
+    cursor: default;
+  }
+  .mock-dc-search {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 4px;
+    padding: 2px 10px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    flex: 1;
+    max-width: 160px;
+  }
+  .mock-dc-header-icons {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.8);
+  }
+  .mock-dc-userbar {
+    height: 28px;
+    background: #fff;
+    border-bottom: 1px solid #E0E0E0;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+    font-size: 10px;
+    color: #555;
+  }
+  .mock-dc-user-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #90CAF9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #1565C0;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .mock-dc-user-name {
+    font-weight: 600;
+    color: #333;
+  }
+  .mock-dc-capacity {
+    color: #888;
+    font-size: 10px;
+  }
+  .mock-dc-main {
+    display: flex;
+    min-height: 180px;
+  }
+  .mock-dc-left {
+    width: 150px;
+    background: #FAFAFA;
+    border-right: 1px solid #EEE;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .mock-dc-tab-shared {
+    font-size: 10px;
+    font-weight: 700;
+    color: #1976D2;
+    padding: 6px 12px 4px;
+    border-bottom: 2px solid #1976D2;
+    display: inline-block;
+    margin: 0 8px;
+  }
+  .mock-dc-tree {
+    padding: 4px 0;
+    flex: 1;
+  }
+  .mock-dc-tree-item {
+    padding: 2px 10px;
+    font-size: 10px;
+    color: #555;
+    line-height: 1.8;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .mock-dc-tree-item.selected {
+    background: #D6E4FF;
+    color: #1565C0;
+    font-weight: 600;
+  }
+  .mock-dc-tree-indent {
+    display: inline-block;
+    width: 14px;
+    flex-shrink: 0;
+  }
+  .mock-dc-folder-icon {
+    color: #F9A825;
+    font-size: 10px;
+    flex-shrink: 0;
+    width: 12px;
+    text-align: center;
+  }
+  .mock-dc-home-link {
+    font-size: 10px;
+    color: #1976D2;
+    padding: 6px 12px;
+    border-top: 1px solid #EEE;
+    margin-top: auto;
+  }
+  .mock-dc-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .mock-dc-breadcrumb {
+    font-size: 10px;
+    color: #888;
+    padding: 6px 14px;
+    border-bottom: 1px solid #F0F0F0;
+  }
+  .mock-dc-breadcrumb strong {
+    color: #333;
+    font-weight: 600;
+  }
+  .mock-dc-filelist {
+    flex: 1;
+    padding: 4px 0;
+  }
+  .mock-dc-file-row {
+    display: flex;
+    align-items: center;
+    padding: 3px 14px;
+    font-size: 10px;
+    color: #444;
+    border-bottom: 1px solid #F5F5F5;
+    gap: 6px;
+  }
+  .mock-dc-file-row:hover {
+    background: #F0F4FF;
+  }
+  .mock-dc-file-check {
+    width: 12px;
+    height: 12px;
+    border: 1px solid #CCC;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .mock-dc-file-icon {
+    color: #999;
+    font-size: 10px;
+    width: 14px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .mock-dc-file-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mock-dc-file-size {
+    color: #999;
+    font-size: 10px;
+    width: 50px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .mock-dc-file-date {
+    color: #999;
+    font-size: 10px;
+    width: 72px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Step label above mock window */
+  .mock-step-label {
+    font-size: 11px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+
+  /* ===== Defense Cards v2 (hover expand) ===== */
+  .defense-card-v2 {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 22px 18px;
+    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    cursor: default;
+    overflow: hidden;
+  }
+  .defense-card-v2:hover {
+    border-color: var(--dc-blue);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(79,70,229,0.1);
+  }
+  .defense-card-v2 .defense-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .defense-card-v2 h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .defense-card-v2 .defense-desc {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    opacity: 0;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+  }
+  .defense-card-v2:hover .defense-desc,
+  .defense-card-v2.expanded .defense-desc {
+    max-height: 200px;
+    opacity: 1;
+  }
+  .defense-card-v2 .defense-hint {
+    font-size: 11px;
+    color: #BBB;
+    margin-top: 4px;
+    transition: opacity 0.2s;
+  }
+  .defense-card-v2:hover .defense-hint,
+  .defense-card-v2.expanded .defense-hint {
+    opacity: 0;
+  }
+
+  /* ===== Summary Checklist ===== */
+  .checklist-step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 22px;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checklist-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 44px;
+    width: 2px;
+    height: calc(100% - 20px);
+    background: #E0E6ED;
+    transition: background 0.3s;
+  }
+  .checklist-step.checked:not(:last-child)::after {
+    background: var(--dc-green);
+  }
+  .check-circle {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--dc-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .checklist-step:hover .check-circle {
+    transform: scale(1.08);
+  }
+  .checklist-step.checked .check-circle {
+    background: var(--dc-green);
+  }
+  .check-body { flex: 1; padding-top: 4px; }
+  .check-body h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 4px;
+    transition: color 0.3s;
+  }
+  .checklist-step.checked .check-body h4 {
+    color: var(--dc-green);
+  }
+  .check-body p {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+    margin: 0;
+  }
+  .checklist-complete-msg {
+    text-align: center;
+    padding: 16px 20px;
+    background: var(--dc-green-light);
+    border-radius: 10px;
+    border: 1px solid #A7F3D0;
+    margin-top: 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #065F46;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+  }
+  .checklist-complete-msg.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .net-compare { grid-template-columns: 1fr; }
+    .defense-cards { grid-template-columns: 1fr; }
+    .choices { grid-template-columns: 1fr; }
+    .ai-points { grid-template-columns: 1fr; }
+    .mock-body { flex-direction: column; }
+    .mock-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #EEE; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud 活用ガイド</span>
+    <span class="topbar-sep">|</span>
+    <a href="../index.html" class="topbar-back">← 一覧に戻る</a>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 11</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">00</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="security" onclick="goTo('security')">
+      <span class="icon">01</span> セキュリティ
+    </div>
+    <div class="sidebar-item" data-sec="usability" onclick="goTo('usability')">
+      <span class="icon">02</span> 操作感
+    </div>
+    <div class="sidebar-item" data-sec="future" onclick="goTo('future')">
+      <span class="icon">03</span> 将来性
+    </div>
+    <div class="sidebar-item" data-sec="summary" onclick="goTo('summary')">
+      <span class="icon">04</span> まとめ
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> ランサムウェア
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> ショートカット
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> ブラウザの特徴
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> マクロExcel
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> AI機能
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="showResult()">
+      <span class="icon">--</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Section 0: Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>ドライブだけで使っていませんか？ ブラウザ併用のすすめ</h1>
+        <p>DirectCloudの「もう半分」を知ると、できることが変わります</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>DirectCloudには<strong>ドライブ（エクスプローラー）</strong>と<strong>ブラウザ版（Webアプリ）</strong>の2つのアクセス方法があります。<br>
+          多くのお客様がドライブだけを使っていますが、ブラウザ版を併用すると<strong>セキュリティ・利便性・将来性</strong>で大きなメリットがあります。</p>
+        </div>
+
+        <p style="font-size:15px; line-height:1.8; color:#374151;">
+          このガイドでは「ブラウザ版を使うと何が変わるのか」を<strong>3つの視点</strong>で整理します。<br>
+          全面移行ではなく「併用」がテーマです。ドライブの強みを活かしつつ、ブラウザ版を組み合わせることで、より安全で柔軟な運用が実現できます。
+        </p>
+
+        <!-- 3視点の図解 -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:24px;">
+          <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:18px 16px; text-align:center;">
+            <div style="width:48px;height:48px;border-radius:50%;background:#FEE2E2;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#DC2626;margin-bottom:8px;">&#9737;</div>
+            <div style="font-size:14px;font-weight:700;color:#991B1B;">セキュリティ</div>
+            <div style="font-size:12px;color:#7F1D1D;margin-top:4px;">ランサムウェアに<br>構造的に強い</div>
+          </div>
+          <div style="background:#EEF2FF; border:1px solid #C7D2FE; border-radius:10px; padding:18px 16px; text-align:center;">
+            <div style="width:48px;height:48px;border-radius:50%;background:#E0E7FF;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#4F46E5;margin-bottom:8px;">&#9776;</div>
+            <div style="font-size:14px;font-weight:700;color:#3730A3;">操作感</div>
+            <div style="font-size:12px;color:#312E81;margin-top:4px;">「お気に入り」で<br>すぐアクセス</div>
+          </div>
+          <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:10px; padding:18px 16px; text-align:center;">
+            <div style="width:48px;height:48px;border-radius:50%;background:#DCFCE7;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#16A34A;margin-bottom:8px;">&#10148;</div>
+            <div style="font-size:14px;font-weight:700;color:#166534;">将来性</div>
+            <div style="font-size:12px;color:#14532D;margin-top:4px;">AI機能は<br>ブラウザ版限定</div>
+          </div>
+        </div>
+
+        <div style="background:#F5F3FF; border-radius:8px; padding:14px 20px; margin-top:18px; font-size:13px; color:#555;">
+          <strong style="color:var(--dc-blue-dark);">所要時間:</strong> 約7分（学習4セクション + 理解度チェック5問）
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo('security')">セキュリティから見る →</button>
+      </div>
+      <p style="font-size:11px; color:#999; text-align:center; margin-top:8px;">この回答内容は、今後のサービス改善のために収集・分析されます</p>
+    </div>
+
+    <!-- ========== Section 1: Security ========== -->
+    <div class="section" id="sec-security">
+      <div class="content-header">
+        <h1>セキュリティの視点で比較する</h1>
+        <p>どちらも対策されていますが、接続方式の違いで防御アプローチが異なります</p>
+      </div>
+
+      <div class="card">
+        <h2>接続方式の比較</h2>
+
+        <div class="net-compare">
+          <!-- ドライブ側 -->
+          <div class="net-panel danger">
+            <h4>ドライブ（エクスプローラー）の場合</h4>
+            <div class="net-flow-animated">
+              <div class="net-node-v2 pc-danger" style="position:relative;">
+                PC
+                <span class="ransomware-label">ransomware</span>
+              </div>
+              <div class="net-connector danger">
+                <div class="connector-line"></div>
+                <div class="connector-dot"></div>
+              </div>
+              <div class="net-node-v2 mount">
+                ネットワーク<br>マウント
+              </div>
+              <div class="net-connector danger" style="animation-delay:0.4s;">
+                <div class="connector-line"></div>
+                <div class="connector-dot" style="animation-delay:0.4s;"></div>
+              </div>
+              <div class="net-node-v2 server-danger">
+                ファイル<br>サーバー
+              </div>
+            </div>
+            <div class="net-label">PCからネットワークドライブとして接続。<br><strong>ランサムウェア検知機能が標準搭載</strong>され、異常な書き換えを自動遮断</div>
+          </div>
+
+          <!-- ブラウザ側 -->
+          <div class="net-panel safe">
+            <h4>ブラウザ版の場合</h4>
+            <div class="net-flow-animated">
+              <div class="net-node-v2 pc-safe">
+                PC
+              </div>
+              <div class="net-connector safe">
+                <div class="connector-line"></div>
+                <div class="connector-dot"></div>
+              </div>
+              <div class="net-node-v2 https">
+                HTTPS<br>通信
+                <span class="node-sublabel">暗号化</span>
+              </div>
+              <div class="net-connector safe" style="animation-delay:0.4s;">
+                <div class="connector-line"></div>
+                <div class="connector-dot" style="animation-delay:0.4s;"></div>
+              </div>
+              <div class="isolation-wrap">
+                <div class="net-node-v2 cloud-safe">
+                  クラウド<br>(AWS)
+                </div>
+              </div>
+            </div>
+            <div class="net-label">ファイルはクラウド上のみ。<br>PC側にマウントポイントがなく、構造的にリスクが低い</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:28px;">それぞれの防御の仕組み</h3>
+        <div class="defense-cards">
+          <div class="defense-card-v2" onclick="this.classList.toggle('expanded')">
+            <div class="defense-num">1</div>
+            <h4>ブラウザ版: マウントポイントがない</h4>
+            <div class="defense-hint">-- 詳細を見る --</div>
+            <div class="defense-desc">ブラウザ版ではファイルがPC上のネットワークドライブとしてマウントされません。ランサムウェアがPC内のドライブを暗号化しようとしても、ブラウザ経由のファイルには構造的に到達しにくくなっています。</div>
+          </div>
+          <div class="defense-card-v2" onclick="this.classList.toggle('expanded')">
+            <div class="defense-num">2</div>
+            <h4>ドライブ版: ランサムウェア検知機能</h4>
+            <div class="defense-hint">-- 詳細を見る --</div>
+            <div class="defense-desc">DirectCloudドライブには、短時間に複数のファイルを書き換えるプログラムを自動遮断する機能が全プランに標準搭載されています。ドライブ版を使う場合でもこの機能が守ります。</div>
+          </div>
+          <div class="defense-card-v2" onclick="this.classList.toggle('expanded')">
+            <div class="defense-num">3</div>
+            <h4>共通: バージョン管理で復元</h4>
+            <div class="defense-hint">-- 詳細を見る --</div>
+            <div class="defense-desc">ブラウザ版・ドライブ版のどちらでも、バージョン管理機能で過去の状態に復元できます（スタンダード: 40世代、アドバンスド以上: 60世代〜）。</div>
+          </div>
+        </div>
+
+        <div style="background:#EEF2FF; border-radius:8px; padding:14px 20px; margin-top:18px; font-size:13px; color:#3730A3; line-height:1.7;">
+          <strong>まとめ:</strong> <strong>ドライブ版・ブラウザ版のどちらもセキュリティ対策が施されています。</strong>ドライブ版はランサムウェア検知機能で異常な書き換えを自動遮断し、ブラウザ版はそもそもPC上にマウントポイントがない構造。アプローチは異なりますが、どちらも安心して利用できます。より構造的にリスクを減らしたい場合は、ブラウザ版の併用が有効です。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('usability')">操作感を見る →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 2: Usability ========== -->
+    <div class="section" id="sec-usability">
+      <div class="content-header">
+        <h1>いつものショートカット、ブラウザでもできます</h1>
+        <p>使い慣れた操作感はそのまま。アクセス方法が変わるだけです</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>デスクトップにショートカットをたくさん作って、そこからフォルダにアクセスしている方は多いと思います。<strong>ブラウザ版に変えたらそれができなくなるのでは？</strong>と心配されるかもしれません。<br>
+          実はDirectCloudの<strong>「お気に入り」機能</strong>で同じことができます。しかもデスクトップがすっきりするおまけ付きです。</p>
+        </div>
+
+        <h2>アクセス方法の比較</h2>
+        <div class="tab-wrap">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('drive')">ドライブの場合</button>
+            <button class="tab-btn" onclick="switchTab('browser')">ブラウザの場合</button>
+          </div>
+
+          <div class="tab-panel active" id="tab-drive">
+            <div class="mock-step-label">デスクトップの「Z: 営業部共有」ショートカットをダブルクリック</div>
+            <!-- Windows Explorer mock -->
+            <div class="mock-window">
+              <div class="mock-titlebar" style="background:#EAE9E8;">
+                <div class="mock-titlebar-title">共有 - DirectCloud (Z:)</div>
+                <div class="mock-titlebar-controls"><span>-</span><span style="font-size:9px;">&#9723;</span><span style="color:#c00;">x</span></div>
+              </div>
+              <!-- リボン風ツールバー -->
+              <div style="background:#F5F5F5;border-bottom:1px solid #D5D5D5;padding:4px 12px;display:flex;gap:14px;font-size:10px;color:#666;">
+                <span style="color:#1976D2;font-weight:600;">ファイル</span><span>ホーム</span><span>共有</span><span>表示</span>
+              </div>
+              <div class="mock-addressbar">
+                <div class="mock-addressbar-nav" style="font-size:13px;color:#999;">&larr; &rarr; &uarr;</div>
+                <div class="mock-addressbar-path">PC &gt; DirectCloud (Z:) &gt; 共有フォルダ &gt; 営業部 &gt; <strong>共有</strong></div>
+                <div style="margin-left:auto;font-size:10px;color:#bbb;white-space:nowrap;">&#x1F50D; 共有の検索</div>
+              </div>
+              <div class="mock-body" style="min-height:200px;">
+                <div class="mock-sidebar" style="width:180px;">
+                  <div style="padding:6px 10px;font-size:10px;color:#999;font-weight:600;border-bottom:1px solid #eee;">クイックアクセス</div>
+                  <div class="mock-sidebar-item" style="color:#1976D2;font-weight:600;">&nbsp;&#9660; DirectCloud (Z:)</div>
+                  <div class="mock-sidebar-item">&nbsp;&nbsp;&nbsp;&#9654; 経理</div>
+                  <div class="mock-sidebar-item" style="font-weight:600;">&nbsp;&nbsp;&nbsp;&#9660; 営業部</div>
+                  <div class="mock-sidebar-item selected">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9632; 共有</div>
+                  <div class="mock-sidebar-item">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9632; 提案資料</div>
+                  <div class="mock-sidebar-item">&nbsp;&nbsp;&nbsp;&#9654; 総務</div>
+                  <div style="padding:6px 10px;font-size:10px;color:#999;font-weight:600;border-top:1px solid #eee;margin-top:6px;">PC</div>
+                  <div class="mock-sidebar-item">&nbsp;&#9654; ローカルディスク (C:)</div>
+                </div>
+                <div class="mock-content">
+                  <!-- ファイル一覧ヘッダー -->
+                  <div style="display:flex;gap:0;border-bottom:1px solid #ddd;padding:3px 6px;font-size:10px;color:#888;font-weight:600;">
+                    <span style="flex:2;">名前</span><span style="flex:1;text-align:right;">サイズ</span><span style="flex:1;text-align:right;">更新日時</span>
+                  </div>
+                  <div class="mock-file-row"><span class="mock-file-icon" style="color:#2E7D32;">&#9632;</span><span style="flex:2;">見積書_v3.xlsx</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">4 KB</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">2026/05/20</span></div>
+                  <div class="mock-file-row"><span class="mock-file-icon" style="color:#1565C0;">&#9632;</span><span style="flex:2;">議事録_0520.docx</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">128 KB</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">2026/05/20</span></div>
+                  <div class="mock-file-row"><span class="mock-file-icon" style="color:#D84315;">&#9632;</span><span style="flex:2;">提案書_final.pptx</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">2.1 MB</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">2026/05/15</span></div>
+                  <div class="mock-file-row"><span class="mock-file-icon" style="color:#2E7D32;">&#9632;</span><span style="flex:2;">進捗管理表.xlsx</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">890 KB</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">2026/05/10</span></div>
+                  <div class="mock-file-row"><span class="mock-file-icon" style="color:#1565C0;">&#9632;</span><span style="flex:2;">契約書ひな形.docx</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">56 KB</span><span style="flex:1;text-align:right;color:#999;font-size:10px;">2026/04/28</span></div>
+                </div>
+              </div>
+              <!-- ステータスバー -->
+              <div style="background:#F0F0F0;border-top:1px solid #D5D5D5;padding:2px 12px;font-size:10px;color:#888;display:flex;justify-content:space-between;">
+                <span>5 個の項目</span><span style="display:flex;gap:6px;"><span>&#9776;</span><span>&#9638;</span></span>
+              </div>
+            </div>
+            <div class="tab-desc">DirectCloudドライブをインストールし、ドライブレター（Z:等）を割り当てて使用</div>
+          </div>
+
+          <div class="tab-panel" id="tab-browser">
+            <div class="mock-step-label">左メニュー「お気に入り」をクリック → 登録済みのフォルダにすぐアクセス</div>
+            <!-- DirectCloud Web App only (no browser chrome) -->
+            <div class="mock-window">
+              <div class="mock-dc-header">
+                <span class="mock-dc-logo">DirectCloud</span>
+                <span class="mock-dc-header-btn">アップロード</span>
+                <span class="mock-dc-search">&#9906; 検索...</span>
+                <span class="mock-dc-header-icons" style="margin-left:auto;">&#9881; &#9990;</span>
+              </div>
+              <div class="mock-dc-userbar">
+                <span class="mock-dc-user-icon">鈴</span>
+                <span class="mock-dc-user-name">鈴木 一郎</span>
+                <span class="mock-dc-capacity">500 MB (5.2% / 10 GB)</span>
+              </div>
+              <div class="mock-dc-main">
+                <div class="mock-dc-left">
+                  <!-- お気に入りメニューが黄色ハイライト -->
+                  <div style="background:#FEF9C3;border:1px solid #FCD34D;border-radius:4px;padding:5px 10px;margin:4px 8px;font-size:11px;font-weight:700;color:#92400E;cursor:default;display:flex;align-items:center;gap:4px;">
+                    <span style="color:#F59E0B;">&#9733;</span> お気に入り
+                  </div>
+                  <div style="border-top:1px solid #eee;margin:6px 0;"></div>
+                  <div class="mock-dc-tree-item" style="color:#999;">&#9632; 共有</div>
+                  <div class="mock-dc-tree-item" style="color:#999;">&#9632; マイボックス</div>
+                  <div class="mock-dc-tree-item" style="color:#999;">&#9632; Connect</div>
+                  <div class="mock-dc-home-link">&#8962; ホーム</div>
+                </div>
+                <div class="mock-dc-right">
+                  <div class="mock-dc-breadcrumb"><span style="color:#F59E0B;">&#9733;</span> <strong>お気に入り</strong></div>
+                  <!-- お気に入り登録済みアイテム一覧 -->
+                  <div style="display:flex;gap:0;border-bottom:1px solid #E0E6ED;padding:4px 0;font-size:10px;color:#888;font-weight:600;">
+                    <span style="width:24px;"></span><span style="width:16px;"></span><span style="flex:2;">名前</span><span style="flex:1;text-align:right;">場所</span><span style="flex:1;text-align:right;">更新日時</span>
+                  </div>
+                  <div class="mock-dc-filelist">
+                    <div class="mock-dc-file-row">
+                      <div class="mock-dc-file-check"></div>
+                      <span style="color:#F59E0B;font-size:11px;width:16px;flex-shrink:0;">&#9733;</span>
+                      <span class="mock-dc-file-icon" style="color:#F9A825;">&#9632;</span>
+                      <span class="mock-dc-file-name" style="flex:2;font-weight:600;">営業部</span>
+                      <span class="mock-dc-file-size" style="flex:1;font-size:10px;color:#999;">共有 / 共有フォルダ</span>
+                      <span class="mock-dc-file-date" style="flex:1;">2026/05/20</span>
+                    </div>
+                    <div class="mock-dc-file-row">
+                      <div class="mock-dc-file-check"></div>
+                      <span style="color:#F59E0B;font-size:11px;width:16px;flex-shrink:0;">&#9733;</span>
+                      <span class="mock-dc-file-icon" style="color:#F9A825;">&#9632;</span>
+                      <span class="mock-dc-file-name" style="flex:2;font-weight:600;">経理月次</span>
+                      <span class="mock-dc-file-size" style="flex:1;font-size:10px;color:#999;">共有 / 経理</span>
+                      <span class="mock-dc-file-date" style="flex:1;">2026/05/18</span>
+                    </div>
+                    <div class="mock-dc-file-row">
+                      <div class="mock-dc-file-check"></div>
+                      <span style="color:#F59E0B;font-size:11px;width:16px;flex-shrink:0;">&#9733;</span>
+                      <span class="mock-dc-file-icon" style="color:#2E7D32;">&#9632;</span>
+                      <span class="mock-dc-file-name" style="flex:2;">進捗管理表.xlsx</span>
+                      <span class="mock-dc-file-size" style="flex:1;font-size:10px;color:#999;">共有 / 営業部</span>
+                      <span class="mock-dc-file-date" style="flex:1;">2026/05/15</span>
+                    </div>
+                    <div class="mock-dc-file-row">
+                      <div class="mock-dc-file-check"></div>
+                      <span style="color:#F59E0B;font-size:11px;width:16px;flex-shrink:0;">&#9733;</span>
+                      <span class="mock-dc-file-icon" style="color:#1565C0;">&#9632;</span>
+                      <span class="mock-dc-file-name" style="flex:2;">契約書ひな形.docx</span>
+                      <span class="mock-dc-file-size" style="flex:1;font-size:10px;color:#999;">共有 / 総務</span>
+                      <span class="mock-dc-file-date" style="flex:1;">2026/04/28</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-desc">よく使うフォルダやファイルを「お気に入り」に登録 → 左メニューからワンクリックでアクセス（Webアプリ / モバイル対応、ドライブ版は非対応）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>機能比較表</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>ドライブ</th>
+                <th class="highlight">ブラウザ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>よく使うフォルダへのアクセス</td>
+                <td>デスクトップのショートカット</td>
+                <td>アプリ内「お気に入り」機能</td>
+              </tr>
+              <tr>
+                <td>フォルダツリー表示</td>
+                <td>あり</td>
+                <td>あり</td>
+              </tr>
+              <tr>
+                <td>ドラッグ&ドロップ</td>
+                <td>あり</td>
+                <td>あり</td>
+              </tr>
+              <tr>
+                <td>マクロ・関数入りExcel</td>
+                <td>ローカルで実行</td>
+                <td>ダウンロードして実行</td>
+              </tr>
+              <tr>
+                <td>インストール</td>
+                <td>必要（DirectCloudドライブ）</td>
+                <td>不要</td>
+              </tr>
+              <tr>
+                <td>アップデート</td>
+                <td>必要</td>
+                <td>自動（常に最新）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>使い分けのポイント</h4>
+          <p>マクロ入りExcelを頻繁に使う方はドライブも引き続き活用しつつ、それ以外の業務ではブラウザ版を併用するのが現実的です。ブラウザ版ならアプリ内の「お気に入り」機能でよく使うフォルダにすぐアクセスでき、ショートカットと同じ感覚で使えます。全面移行である必要はなく、<strong>使い分け</strong>が大切です。</p>
+        </div>
+
+        <div class="callout" style="margin-top:16px;">
+          <strong>外部との共同作業にはブラウザ版が有利。</strong> 取引先や協力会社はDirectCloudドライブをインストールしていないケースがほとんどです。ゲスト招待でフォルダを共有し、ブラウザ同士で編集・アップロードするのが現実的な運用になります。リンクでダウンロード→再送付していた手間が、双方向のフォルダ共有で不要になります。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('security')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('future')">将来性を見る →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 3: Future ========== -->
+    <div class="section" id="sec-future">
+      <div class="content-header">
+        <h1>AI機能はブラウザ版が前提</h1>
+        <p>今後のDirectCloudを最大限活用するための準備</p>
+      </div>
+
+      <!-- 対応マトリクス -->
+      <div class="card">
+        <h2>ブラウザ版でしかできないこと</h2>
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:0;border:1px solid #E0E6ED;border-radius:10px;overflow:hidden;font-size:13px;margin:16px 0;">
+          <div style="background:#F5F3FF;padding:10px 16px;font-weight:700;color:#3730A3;border-bottom:2px solid #E0E6ED;">機能</div>
+          <div style="background:#F5F3FF;padding:10px 16px;font-weight:700;color:#3730A3;text-align:center;border-bottom:2px solid #E0E6ED;border-left:1px solid #E0E6ED;">ブラウザ版</div>
+          <div style="background:#F5F3FF;padding:10px 16px;font-weight:700;color:#666;text-align:center;border-bottom:2px solid #E0E6ED;border-left:1px solid #E0E6ED;">ドライブ版</div>
+
+          <div style="padding:8px 16px;border-bottom:1px solid #F0F0F5;font-weight:600;">DirectCloud AI</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;background:#F0FDF4;">&#9679; 対応</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#D1D5DB;">&#10005; 非対応</div>
+
+          <div style="padding:8px 16px;border-bottom:1px solid #F0F0F5;">ファイルプレビュー</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;">&#9679; 対応</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;">&#9679; 対応</div>
+
+          <div style="padding:8px 16px;border-bottom:1px solid #F0F0F5;">インストール</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;background:#F0FDF4;">不要</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#92400E;">必要</div>
+
+          <div style="padding:8px 16px;border-bottom:1px solid #F0F0F5;">アップデート</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;background:#F0FDF4;">自動</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#92400E;">手動</div>
+
+          <div style="padding:8px 16px;border-bottom:1px solid #F0F0F5;">「お気に入り」機能</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;background:#F0FDF4;">&#9679; 対応</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#D1D5DB;">&#10005; 非対応</div>
+
+          <div style="padding:8px 16px;">マクロ Excel 直接実行</div>
+          <div style="padding:8px 16px;text-align:center;border-left:1px solid #F0F0F5;color:#D1D5DB;">&#10005; DL後に実行</div>
+          <div style="padding:8px 16px;text-align:center;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;background:#F0FDF4;">&#9679; 対応</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        DirectCloud AIはブラウザ版限定の機能です。<strong>ブラウザ版に慣れておくことが、AI活用の土台</strong>になります。
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('usability')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('summary')">まとめへ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Section 4: Summary ========== -->
+    <div class="section" id="sec-summary">
+      <div class="content-header">
+        <h1>今日からできること</h1>
+        <p>3つのステップで、ブラウザ版を始められます</p>
+      </div>
+
+      <div class="card">
+        <div class="steps" id="summaryChecklist">
+          <div class="checklist-step" onclick="toggleCheck(this)">
+            <div class="check-circle">1</div>
+            <div class="check-body">
+              <h4>ブラウザでDirectCloudにログインしてみる</h4>
+              <p>いつものブラウザから DirectCloud にアクセスして、ログインするだけ。特別な設定は不要です。</p>
+            </div>
+          </div>
+          <div class="checklist-step" onclick="toggleCheck(this)">
+            <div class="check-circle">2</div>
+            <div class="check-body">
+              <h4>よく使うフォルダを「お気に入り」に登録する</h4>
+              <p>DirectCloud上でフォルダを右クリック →「お気に入り」で登録。左メニューの「お気に入り」からワンクリックでアクセスできます。</p>
+            </div>
+          </div>
+          <div class="checklist-step" onclick="toggleCheck(this)">
+            <div class="check-circle">3</div>
+            <div class="check-body">
+              <h4>1週間、ブラウザ版も併用してみる</h4>
+              <p>まずはファイルの閲覧やダウンロードからブラウザ版で試してみてください。マクロExcelなど必要な場面だけドライブを使い、それ以外はブラウザ -- というバランスは、お客様ご自身のペースで決めていただけます。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="checklist-complete-msg" id="checklistComplete">
+          準備完了！ クイズに進みましょう
+        </div>
+
+        <div class="tip">
+          <strong>お客様の業務やご状況に合わせた活用方法をご提案しています。</strong><br>
+          お気軽にカスタマーサクセスチームまでご相談ください。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('future')">← 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">理解度チェックへ →</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="quiz-header-bar">
+        <h2>理解度チェック</h2>
+        <span class="quiz-counter">Q1 / 5</span>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-question">ランサムウェア対策として、ブラウザ版が有利な理由で正しいのは？</div>
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <div class="choice-label">A</div>
+            <h5>ブラウザにはウイルス対策が内蔵されている</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <div class="choice-label">B</div>
+            <h5>ファイルがローカルネットワーク上にマウントされないため、感染が伝播しにくい</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <div class="choice-label">C</div>
+            <h5>ブラウザ版は暗号化に対応していない</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <div class="choice-label">D</div>
+            <h5>ドライブ版は世代管理ができない</h5>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('summary')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q1" disabled onclick="goTo('q2')">次の問題 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="quiz-header-bar">
+        <h2>理解度チェック</h2>
+        <span class="quiz-counter">Q2 / 5</span>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-question">ドライブ版のデスクトップショートカットと同じように、よく使うフォルダにすぐアクセスするためのブラウザ版の機能は？</div>
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <div class="choice-label">A</div>
+            <h5>DirectCloudアプリ内の「お気に入り」機能</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <div class="choice-label">B</div>
+            <h5>デスクトップ通知</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <div class="choice-label">C</div>
+            <h5>タスクバーピン留め</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <div class="choice-label">D</div>
+            <h5>ダウンロードフォルダ</h5>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q2" disabled onclick="goTo('q3')">次の問題 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="quiz-header-bar">
+        <h2>理解度チェック</h2>
+        <span class="quiz-counter">Q3 / 5</span>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-question">ブラウザ版にあって、ドライブ版にない特徴は？</div>
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <div class="choice-label">A</div>
+            <h5>フォルダツリー表示</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <div class="choice-label">B</div>
+            <h5>ドラッグ&ドロップ</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <div class="choice-label">C</div>
+            <h5>インストール不要・常に最新版</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <div class="choice-label">D</div>
+            <h5>ファイルの削除</h5>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q3" disabled onclick="goTo('q4')">次の問題 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="quiz-header-bar">
+        <h2>理解度チェック</h2>
+        <span class="quiz-counter">Q4 / 5</span>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-question">マクロ入りExcelを使う場合、推奨される運用は？</div>
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <div class="choice-label">A</div>
+            <h5>ブラウザ版だけで完結させる</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <div class="choice-label">B</div>
+            <h5>ドライブ版とブラウザ版を業務に応じて使い分ける</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <div class="choice-label">C</div>
+            <h5>ドライブ版のみを使い続ける</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <div class="choice-label">D</div>
+            <h5>Excelの使用をやめる</h5>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q4" disabled onclick="goTo('q5')">次の問題 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="quiz-header-bar">
+        <h2>理解度チェック</h2>
+        <span class="quiz-counter">Q5 / 5</span>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-question">DirectCloudのAI機能が利用可能なのは？</div>
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <div class="choice-label">A</div>
+            <h5>ドライブ版のみ</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <div class="choice-label">B</div>
+            <h5>ブラウザ版のみ</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <div class="choice-label">C</div>
+            <h5>どちらでも同じ</h5>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <div class="choice-label">D</div>
+            <h5>モバイルアプリのみ</h5>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">← 戻る</button>
+          <button class="btn btn-primary" id="next-q5" disabled onclick="showResult()">結果を見る →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>結果</h1>
+        <p>ブラウザ版活用の理解度チェック</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div class="callout" style="margin-top:24px;">
+          お客様の業務に合わせたブラウザ版活用のご相談は、弊社カスタマーサクセスチームまでお気軽にどうぞ。
+        </div>
+
+
+        <div id="nextGuides"></div>
+        <div class="saved-notice" id="savedNotice">回答を送信しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">← 最初に戻る</button>
+        <div></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== 回答データ ===== */
+var correctAnswers = {
+  q1: 1,
+  q2: 0,
+  q3: 2,
+  q4: 1,
+  q5: 1
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ ブラウザ版ではファイルがPC上のネットワークドライブとしてマウントされないため、ランサムウェアが構造的にファイルに到達しにくくなっています。なお、ドライブ版にもランサムウェア検知機能（書き換え自動遮断）が全プラン標準搭載されています。',
+    wrong: {
+      0: 'ブラウザ自体にウイルス対策が内蔵されているわけではありません。有利な理由は「ファイルがPC上にネットワークドライブとしてマウントされない」という構造上の違いです。',
+      2: 'ブラウザ版もHTTPS通信で暗号化されています。ブラウザ版が有利な理由は、PC上にマウントポイントがないため構造的にリスクが低い点です。',
+      3: 'ドライブ版でもバージョン管理は利用可能です（スタンダード: 40世代〜）。ブラウザ版の優位点は、PC上にマウントポイントがないことです。'
+    }
+  },
+  q2: {
+    correct: '正解！ DirectCloudの「お気に入り」機能で、よく使うフォルダやファイルを登録しておけば、左メニューからワンクリックでアクセスできます。デスクトップのショートカットと同じ感覚です。',
+    wrong: {
+      1: 'デスクトップ通知は新着通知の機能で、フォルダへのアクセス手段ではありません。DirectCloudアプリ内の「お気に入り」機能が、ショートカットに相当します。',
+      2: 'タスクバーへのピン留めはアプリ自体の固定であり、特定フォルダへのアクセスにはDirectCloudの「お気に入り」機能が適切です。',
+      3: 'ダウンロードフォルダはPC側の一時保存先です。DirectCloudの「お気に入り」機能で、よく使うフォルダを登録してアクセスするのが正解です。'
+    }
+  },
+  q3: {
+    correct: '正解！ ブラウザ版はインストール不要で、常に最新版が自動適用されます。フォルダツリーやドラッグ&ドロップ、ファイル削除はどちらでもできます。',
+    wrong: {
+      0: 'フォルダツリー表示はドライブ版・ブラウザ版の両方で利用できます。ブラウザ版だけの特徴は「インストール不要・常に最新版」であることです。',
+      1: 'ドラッグ&ドロップは両方で対応しています。ブラウザ版固有の強みは「インストール不要で、常に最新版が使える」点です。',
+      3: 'ファイル削除はどちらの版でも可能です。ブラウザ版の固有メリットは「インストール不要・自動アップデート」です。'
+    }
+  },
+  q4: {
+    correct: '正解！ マクロ入りExcelはドライブ版で実行しつつ、それ以外のファイル操作はブラウザ版で行うのが、セキュリティと利便性を両立する現実的な方法です。',
+    wrong: {
+      0: 'ブラウザ版ではマクロの直接実行ができないため、完結させるのは現実的ではありません。業務内容に応じた使い分けが推奨されます。',
+      2: 'ドライブ版のみだと、ブラウザ版のセキュリティメリットやAI機能を活用できません。マクロが必要な場面だけドライブを使い、併用するのがベストです。',
+      3: '多くの業務でExcelのマクロは必要不可欠です。使用をやめるのではなく、ドライブ版とブラウザ版を適材適所で使い分けるのが現実的です。'
+    }
+  },
+  q5: {
+    correct: '正解！ DirectCloud AI（要約・比較・チャット・検索）はWebアプリケーション（ブラウザ版）でのみ利用可能です。全プランに月2,000クレジットの無料枠があります。',
+    wrong: {
+      0: 'DirectCloud AIはWebアプリケーション（ブラウザ版）でのみ利用可能で、ドライブ版では利用できません。',
+      2: 'DirectCloud AIはブラウザ版限定です。ドライブ版やモバイルアプリでは利用できません。',
+      3: 'DirectCloud AIの対応はWebアプリケーション（ブラウザ版）のみです。モバイルアプリには現時点で非対応です。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+var submitted = false;
+
+/* ===== セクション・ナビゲーション ===== */
+var sectionOrder = ['intro', 'security', 'usability', 'future', 'summary', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== タブ切替 ===== */
+function switchTab(id) {
+  var btns = document.querySelectorAll('.tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  for (var i = 0; i < btns.length; i++) { btns[i].classList.remove('active'); }
+  for (var i = 0; i < panels.length; i++) { panels[i].classList.remove('active'); }
+
+  if (id === 'drive') {
+    btns[0].classList.add('active');
+    document.getElementById('tab-drive').classList.add('active');
+  } else {
+    btns[1].classList.add('active');
+    document.getElementById('tab-browser').classList.add('active');
+  }
+}
+
+/* ===== クイズ ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct-fb';
+    fb.innerHTML = '<h4>正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    var wrongExp = explanations[q].wrong[idx] || '';
+    fb.className = 'feedback show wrong-fb';
+    fb.innerHTML = '<h4>不正解 \u2014 正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== 結果表示 ===== */
+function showResult() {
+  /* 全問回答済みチェック */
+  var allQ = ['q1','q2','q3','q4','q5'];
+  for (var i = 0; i < allQ.length; i++) {
+    if (answered[allQ[i]] === undefined) {
+      goTo(allQ[i]);
+      return;
+    }
+  }
+  goTo('result');
+
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(var(--dc-blue) ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '全問正解！ドライブとブラウザの違いをしっかり理解しています';
+  else if (score === 4) msg = 'ほぼ完璧！実務でも適切に使い分けられるレベルです';
+  else if (score === 3) msg = '基本は押さえています。間違えた問題を振り返ってみましょう';
+  else msg = 'セキュリティと操作感のセクションをもう一度確認してみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: 'ランサムウェア対策としてブラウザ版が有利な理由',
+    q2: 'よく使うフォルダにすぐアクセスする機能',
+    q3: 'ブラウザ版にあってドライブ版にない特徴',
+    q4: 'マクロ入りExcel使用時の推奨運用',
+    q5: 'AI機能が利用可能なのはどちらか'
+  };
+  var correctNames = {
+    q1: 'ネットワーク上にマウントされない',
+    q2: 'DirectCloudの「お気に入り」機能',
+    q3: 'インストール不要・常に最新版',
+    q4: '業務に応じて使い分ける',
+    q5: 'ブラウザ版のみ'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' / あなたの回答: ' + (answersLabel[q] || '').replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  if (!submitted) {
+    submitResults({ score: score, total: 5 });
+    submitted = true;
+  }
+  var _ba_score = score;
+  var _ba_total = 5;
+  // --- Bowling Alley: score-based next guide recommendations ---
+  var _EC = 'https://community.directcloud.jp/s/learning/';
+  var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+  var _guides = {
+      'file-sharing': {title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+      'browser-guide': {title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+      'initial-setup': {title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+      'security-check': {title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+      'drive-troubleshooting': {title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+      'guest-permissions': {title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+      'link-to-guest': {title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+      'shield-security': {title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+      'supply-chain-check': {title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+      'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+      'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+      'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'}
+    };
+  var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
+  var _picks, _h, _s;
+  if (_pct >= 80) {
+    _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+    _s = '\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
+    _picks = ['link-to-guest', 'file-sharing'];
+  } else if (_pct >= 40) {
+    _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
+    _s = '\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
+    _picks = ['file-sharing', 'drive-troubleshooting'];
+  } else {
+    _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+    _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
+    _picks = ['initial-setup', 'drive-troubleshooting'];
+  }
+  var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
+  for (var _gi = 0; _gi < _picks.length; _gi++) {
+    var _g = _guides[_picks[_gi]];
+    _gh += '<a class="next-guide-card" href="' + _EC + _picks[_gi] + _up + '" target="_top">';
+    _gh += '<div class="next-guide-icon" style="background:' + _g.bg + ';">' + _g.icon + '</div>';
+    _gh += '<div><h5>' + _g.title + '</h5><p>' + _g.desc + '</p>';
+    _gh += '<span class="next-guide-tag" style="background:' + _g.bg + ';color:' + _g.color + ';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+  }
+  _gh += '</div></div>';
+  document.getElementById('nextGuides').innerHTML = _gh;
+
+}
+
+/* ===== チェックリスト ===== */
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  var circle = el.querySelector('.check-circle');
+  if (el.classList.contains('checked')) {
+    circle.textContent = '\u2713';
+  } else {
+    var steps = document.querySelectorAll('#summaryChecklist .checklist-step');
+    for (var i = 0; i < steps.length; i++) {
+      if (steps[i] === el) { circle.textContent = (i + 1); break; }
+    }
+  }
+  var allChecked = document.querySelectorAll('#summaryChecklist .checklist-step.checked');
+  var msg = document.getElementById('checklistComplete');
+  if (allChecked.length === 3) {
+    msg.classList.add('visible');
+  } else {
+    msg.classList.remove('visible');
+  }
+}
+</script>
+
+<!-- 回答収集 -->
+<script>
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: 'ドライブ→ブラウザ併用ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
+}
+</script>
+</body>
+</html>

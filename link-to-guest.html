@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DirectCloud 運用きほんのき — リンク→ゲスト移行ガイド</title>
+<title>DirectCloud 活用ガイド — リンク→ゲスト移行ガイド</title>
 <style>
   :root {
     --dc-blue: #65A30D;
@@ -49,6 +49,12 @@
   .topbar-logo {
     font-size: 14px; font-weight: 700; color: var(--dc-blue);
   }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue); }
   .topbar-sep { color: #D0D7DE; }
   .topbar-title { font-size: 14px; color: #666; }
   .topbar-right { display: flex; align-items: center; gap: 20px; }
@@ -101,7 +107,7 @@
     font-weight: 600;
   }
   .sidebar-item.done { color: var(--dc-green); }
-  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+  .sidebar-item .icon { width: 22px; text-align: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
 
   /* ===== Main ===== */
   .main { padding: 40px 56px 80px; }
@@ -126,6 +132,17 @@
     padding: 32px;
     margin-bottom: 24px;
   }
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+    color: var(--dc-blue-dark);
+  }
+  .card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #374151;
+    font-weight: 700;
+  }
 
   /* ===== Scenario box ===== */
   .scenario {
@@ -149,6 +166,347 @@
     line-height: 1.7;
   }
   .tip strong { color: #B45309; }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #F7FAF2, #F0F9E8);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-blue);
+  }
+  .insight h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 8px;
+  }
+  .insight ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight li {
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 0 4px 22px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\25B6';
+    position: absolute;
+    left: 4px;
+    font-size: 9px;
+    color: var(--dc-blue);
+    top: 8px;
+  }
+  .insight p {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  /* ===== Callout ===== */
+  .callout {
+    background: #F0F6FF;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-left: 4px solid #3B82F6;
+    font-size: 13px;
+    color: #1E40AF;
+    line-height: 1.7;
+  }
+  .callout strong { color: #1E3A8A; }
+
+  /* ===== Before / After comparison ===== */
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr 48px 1fr;
+    gap: 0;
+    margin: 24px 0;
+    align-items: stretch;
+  }
+  .ba-side {
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    overflow: hidden;
+    background: #fff;
+  }
+  .ba-side.ba-before { border-top: 3px solid #94A3B8; }
+  .ba-side.ba-after { border-top: 3px solid var(--dc-blue); }
+  .ba-label {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .ba-before .ba-label { background: #F8FAFC; color: #64748B; }
+  .ba-after .ba-label { background: var(--dc-blue-light); color: var(--dc-blue-dark); }
+  .ba-vs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: #CBD5E1;
+  }
+  .ba-body { padding: 16px; }
+
+  /* ===== Mock email inbox ===== */
+  .mock-email {
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 12px;
+  }
+  .mock-email-toolbar {
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 6px 12px;
+    display: flex;
+    gap: 12px;
+    color: #94A3B8;
+    font-size: 11px;
+  }
+  .mock-email-row {
+    display: flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-bottom: 1px solid #F1F5F9;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .mock-email-row:last-child { border-bottom: none; }
+  .mock-email-row:hover { background: #F8FAFC; }
+  .mock-email-from {
+    width: 70px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #64748B;
+  }
+  .mock-email-subject {
+    flex: 1;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #475569;
+  }
+  .mock-email-attach {
+    color: #94A3B8;
+    font-size: 12px;
+    width: 14px;
+    flex-shrink: 0;
+  }
+  .mock-email-date {
+    width: 40px;
+    text-align: right;
+    font-size: 10px;
+    color: #94A3B8;
+    flex-shrink: 0;
+  }
+  .mock-email-confused {
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
+    color: #94A3B8;
+    background: #FAFBFC;
+    border-top: 1px dashed #E2E8F0;
+  }
+
+  /* ===== Mock DC guest folder view ===== */
+  .mock-guest {
+    border: 1px solid #E0E6ED;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 12px;
+  }
+  .mock-guest-header {
+    background: #1976D2;
+    color: #fff;
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .mock-guest-header-search {
+    margin-left: auto;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+  }
+  .mock-guest-breadcrumb {
+    background: #FAFCF6;
+    padding: 5px 14px;
+    font-size: 11px;
+    color: #666;
+    border-bottom: 1px solid #E0E6ED;
+  }
+  .mock-guest-breadcrumb strong { color: var(--dc-blue-dark); }
+  .mock-guest-file-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-bottom: 1px solid #F0F0F5;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .mock-guest-file-row:hover { background: #FBFDF7; }
+  .mock-guest-file-icon {
+    color: #F9A825;
+    font-size: 13px;
+    flex-shrink: 0;
+    width: 16px;
+    text-align: center;
+  }
+  .mock-guest-file-name {
+    flex: 2;
+    font-size: 11px;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mock-guest-file-date {
+    flex: 0 0 56px;
+    font-size: 10px;
+    color: #999;
+    text-align: right;
+  }
+  .mock-guest-file-user {
+    flex: 0 0 50px;
+    font-size: 10px;
+    color: #999;
+    text-align: right;
+  }
+  .mock-guest-log {
+    background: #F7FAF2;
+    padding: 8px 14px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .mock-guest-log-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--dc-blue-dark);
+    margin-bottom: 4px;
+  }
+  .mock-guest-log-row {
+    display: flex;
+    gap: 6px;
+    font-size: 10px;
+    color: #555;
+    padding: 2px 0;
+  }
+  .mock-guest-log-time {
+    width: 36px;
+    color: #999;
+    flex-shrink: 0;
+  }
+  .mock-guest-log-badge {
+    display: inline-block;
+    padding: 0 4px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .mock-guest-log-badge.dl { background: #DBEAFE; color: #1D4ED8; }
+  .mock-guest-log-badge.ul { background: #D1FAE5; color: #065F46; }
+  .mock-guest-accumulate {
+    text-align: center;
+    padding: 8px;
+    font-size: 11px;
+    color: var(--dc-blue-dark);
+    background: var(--dc-blue-light);
+    font-weight: 600;
+  }
+
+  /* ===== Flow diagram (リンク vs ゲスト) ===== */
+  .flow-compare {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 0;
+    margin: 24px 0;
+    align-items: stretch;
+  }
+  .flow-side {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+    padding: 20px 16px;
+  }
+  .flow-side.flow-link { border-top: 3px solid #94A3B8; }
+  .flow-side.flow-guest { border-top: 3px solid var(--dc-blue); }
+  .flow-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .flow-link .flow-title { color: #64748B; }
+  .flow-guest .flow-title { color: var(--dc-blue-dark); }
+  .flow-vs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #CBD5E1;
+  }
+  .flow-nodes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .flow-node {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    text-align: center;
+    position: relative;
+  }
+  .flow-link .flow-node { background: #F8FAFC; color: #64748B; }
+  .flow-guest .flow-node { background: var(--dc-blue-light); color: var(--dc-blue-dark); }
+  .flow-node.node-end-bad {
+    background: #FEF2F2;
+    color: #991B1B;
+    border: 1px dashed #FCA5A5;
+  }
+  .flow-node.node-end-good {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue-dark);
+    border: 1px solid #A3E635;
+    font-weight: 600;
+  }
+  .flow-arrow {
+    text-align: center;
+    font-size: 14px;
+    padding: 3px 0;
+    line-height: 1;
+  }
+  .flow-link .flow-arrow { color: #CBD5E1; }
+  .flow-guest .flow-arrow { color: var(--dc-blue); }
+  .flow-arrow-fade { color: #E5E7EB !important; }
+  .flow-result {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px;
+    border-radius: 6px;
+  }
+  .flow-link .flow-result { color: #94A3B8; background: #F8FAFC; }
+  .flow-guest .flow-result { color: var(--dc-blue-dark); background: var(--dc-blue-light); }
 
   /* ===== Comparison Table ===== */
   .compare-table-wrap {
@@ -274,6 +632,26 @@
     border-radius: 50%;
     background: var(--dc-blue);
   }
+  /* Industry-specific accent border */
+  .industry-card .industry-flow {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #94A3B8;
+    flex-wrap: wrap;
+  }
+  .industry-flow-step {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue-dark);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .industry-flow-arrow { color: #CBD5E1; font-size: 12px; }
 
   /* ===== Method Compare (link vs guest) ===== */
   .method-row {
@@ -323,6 +701,66 @@
     background: var(--dc-blue);
   }
 
+  /* ===== Guideline callout (経産省) ===== */
+  .guideline-box {
+    background: linear-gradient(135deg, #ECFDF5, #F0FDF4);
+    border: 1px solid #A7F3D0;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .guideline-badge {
+    flex-shrink: 0;
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    background: #D1FAE5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #065F46;
+    font-weight: 800;
+  }
+  .guideline-body h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #065F46;
+    margin-bottom: 4px;
+  }
+  .guideline-body p {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ===== Quote highlight ===== */
+  .quote-box {
+    background: #FFFBEB;
+    border-left: 4px solid #F59E0B;
+    border-radius: 0 10px 10px 0;
+    padding: 16px 24px;
+    margin: 20px 0;
+  }
+  .quote-box p {
+    font-size: 15px;
+    font-weight: 600;
+    color: #92400E;
+    line-height: 1.7;
+    margin: 0;
+    font-style: italic;
+  }
+  .quote-box .quote-source {
+    font-size: 12px;
+    color: #B45309;
+    font-weight: 400;
+    margin-top: 6px;
+    font-style: normal;
+  }
+
   /* ===== Steps ===== */
   .steps {
     margin: 20px 0;
@@ -369,53 +807,6 @@
     color: #555;
     line-height: 1.7;
   }
-
-  /* ===== Insight Box ===== */
-  .insight {
-    background: linear-gradient(135deg, #F7FAF2, #F0F9E8);
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin: 20px 0;
-    border-left: 4px solid var(--dc-blue);
-  }
-  .insight h4 {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--dc-blue-dark);
-    margin-bottom: 8px;
-  }
-  .insight ul {
-    list-style: none;
-    padding: 0;
-  }
-  .insight li {
-    font-size: 13px;
-    color: #374151;
-    padding: 4px 0 4px 22px;
-    position: relative;
-    line-height: 1.7;
-  }
-  .insight li::before {
-    content: '\25B6';
-    position: absolute;
-    left: 4px;
-    font-size: 9px;
-    color: var(--dc-blue);
-    top: 8px;
-  }
-
-  /* ===== Callout ===== */
-  .callout {
-    background: #F0F6FF;
-    border-radius: 10px;
-    padding: 16px 20px;
-    margin: 16px 0;
-    border-left: 4px solid #3B82F6;
-    font-size: 13px;
-    color: #1E40AF;
-    line-height: 1.7;
-  }
-  .callout strong { color: #1E3A8A; }
 
   /* ===== Choice cards (quiz) ===== */
   .choices {
@@ -607,6 +998,67 @@
   .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
   .review-body p { font-size: 13px; color: #666; margin-top: 2px; }
 
+
+  /* ===== Next Guides (Bowling Alley) ===== */
+  .next-guides {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .next-guides h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .next-guides .next-guides-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .next-guide-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .next-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .next-guide-card:hover {
+    border-color: #94A3B8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .next-guide-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .next-guide-card h5 {
+    font-size: 14px; font-weight: 600; color: #1A2332; margin-bottom: 3px;
+  }
+  .next-guide-card p {
+    font-size: 12px; color: #888; line-height: 1.5;
+  }
+  .next-guide-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
   /* ===== Saved notice ===== */
   .saved-notice {
     text-align: center;
@@ -614,6 +1066,13 @@
     color: var(--dc-green);
     margin-top: 16px;
   }
+
+  /* ===== Animation: pulse accumulate ===== */
+  @keyframes pulseGrow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .pulse-grow { animation: pulseGrow 2s ease-in-out infinite; }
 
   /* ===== Responsive ===== */
   @media (max-width: 768px) {
@@ -624,6 +1083,11 @@
     .choices { grid-template-columns: 1fr; }
     .method-row { grid-template-columns: 1fr; }
     .industry-cards { grid-template-columns: 1fr; }
+    .before-after { grid-template-columns: 1fr; gap: 12px; }
+    .ba-vs { display: none; }
+    .flow-compare { grid-template-columns: 1fr; gap: 12px; }
+    .flow-vs { display: none; }
+    .guideline-box { flex-direction: column; }
   }
 </style>
 </head>
@@ -677,7 +1141,7 @@
     <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
       <span class="icon">Q5</span> 現場からの共有
     </div>
-    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+    <div class="sidebar-item" data-sec="result" onclick="goToResult()">
       <span class="icon">--</span> 結果
     </div>
   </aside>
@@ -698,9 +1162,111 @@
           このガイドでは、リンク共有とゲスト招待の違いを理解し、あなたの業務にどちらがフィットするかを確認できます。</p>
         </div>
 
-        <p style="font-size:15px; line-height:1.8; color:#374151;">
+        <!-- Before / After: メール添付 vs ゲストフォルダ -->
+        <h3 style="font-size:16px; font-weight:700; margin:20px 0 8px; color:#1A2332;">メールでのやり取り、こうなっていませんか？</h3>
+
+        <div class="before-after">
+          <!-- Before: メール散逸 -->
+          <div class="ba-side ba-before">
+            <div class="ba-label">Before: メール添付でやり取り</div>
+            <div class="ba-body">
+              <div class="mock-email">
+                <div class="mock-email-toolbar">
+                  <span>&#9993; 受信トレイ</span>
+                  <span style="margin-left:auto;">47件</span>
+                </div>
+                <div class="mock-email-row">
+                  <span class="mock-email-from">佐藤(A社)</span>
+                  <span class="mock-email-subject">Re: Re: Re: 月次報告書の件</span>
+                  <span class="mock-email-attach">&#128206;</span>
+                  <span class="mock-email-date">5/20</span>
+                </div>
+                <div class="mock-email-row">
+                  <span class="mock-email-from">田中(B社)</span>
+                  <span class="mock-email-subject">Fwd: 納品書（修正版v3）</span>
+                  <span class="mock-email-attach">&#128206;</span>
+                  <span class="mock-email-date">5/18</span>
+                </div>
+                <div class="mock-email-row">
+                  <span class="mock-email-from">佐藤(A社)</span>
+                  <span class="mock-email-subject">【再送】先月の報告書</span>
+                  <span class="mock-email-attach">&#128206;</span>
+                  <span class="mock-email-date">5/15</span>
+                </div>
+                <div class="mock-email-row">
+                  <span class="mock-email-from">山田(C社)</span>
+                  <span class="mock-email-subject">見積書送付します</span>
+                  <span class="mock-email-attach">&#128206;</span>
+                  <span class="mock-email-date">5/12</span>
+                </div>
+                <div class="mock-email-confused">
+                  「あの添付、どのメールだっけ...」
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ba-vs">vs</div>
+
+          <!-- After: ゲストフォルダで蓄積 -->
+          <div class="ba-side ba-after">
+            <div class="ba-label">After: ゲスト招待フォルダでやり取り</div>
+            <div class="ba-body">
+              <div class="mock-guest">
+                <div class="mock-guest-header">
+                  <span>DirectCloud</span>
+                  <span class="mock-guest-header-search">&#9906; 検索...</span>
+                </div>
+                <div class="mock-guest-breadcrumb">
+                  共有 &gt; ゲスト &gt; <strong>A社_佐藤様</strong>
+                </div>
+                <div class="mock-guest-file-row">
+                  <span class="mock-guest-file-icon">&#9632;</span>
+                  <span class="mock-guest-file-name" style="font-weight:600;">月次報告書_202605.pdf</span>
+                  <span class="mock-guest-file-date">5/20</span>
+                  <span class="mock-guest-file-user">佐藤</span>
+                </div>
+                <div class="mock-guest-file-row">
+                  <span class="mock-guest-file-icon">&#9632;</span>
+                  <span class="mock-guest-file-name" style="font-weight:600;">月次報告書_202604.pdf</span>
+                  <span class="mock-guest-file-date">4/20</span>
+                  <span class="mock-guest-file-user">佐藤</span>
+                </div>
+                <div class="mock-guest-file-row">
+                  <span class="mock-guest-file-icon" style="color:#2E7D32;">&#9632;</span>
+                  <span class="mock-guest-file-name">見積書_v3_最終.xlsx</span>
+                  <span class="mock-guest-file-date">5/18</span>
+                  <span class="mock-guest-file-user">田中</span>
+                </div>
+                <div class="mock-guest-log">
+                  <div class="mock-guest-log-title">&#9654; 操作ログ</div>
+                  <div class="mock-guest-log-row">
+                    <span class="mock-guest-log-time">10:32</span>
+                    <span class="mock-guest-log-badge dl">DL</span>
+                    <span>佐藤(A社) 月次報告書_202605.pdf</span>
+                  </div>
+                  <div class="mock-guest-log-row">
+                    <span class="mock-guest-log-time">10:15</span>
+                    <span class="mock-guest-log-badge ul">UL</span>
+                    <span>田中(自社) 見積書_v3_最終.xlsx</span>
+                  </div>
+                </div>
+                <div class="mock-guest-accumulate">
+                  &#9733; フォルダを見れば全部わかる
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote-box">
+          <p>「メール調べなくてもそこ見れば全部わかる」</p>
+          <div class="quote-source">-- ゲスト招待に切り替えた企業の声</div>
+        </div>
+
+        <p style="font-size:15px; line-height:1.8; color:#374151; margin-top:16px;">
           共有リンクは「一方向に送るだけ」の用途に向いていますが、<strong>やり取りの履歴が残らない</strong>、<strong>誰がダウンロードしたか追えない</strong>など、業務が複雑になるほど課題が出てきます。<br>
-          ゲスト招待に切り替えると、<strong>データが蓄積</strong>され、<strong>操作ログで追跡</strong>でき、<strong>双方向のコラボレーション</strong>が可能になります。
+          ゲスト招待に切り替えると、<strong>データが蓄積</strong>され、<strong>操作ログで追跡</strong>でき、<strong>双方向のコラボレーション</strong>が可能になります。やり取りのデータが積み上がることで、フォルダが<strong>業務の基盤</strong>として機能しはじめます。
         </p>
 
         <div class="tip">
@@ -728,26 +1294,76 @@
       </div>
 
       <div class="card">
+        <!-- 経産省ガイドライン -->
+        <div class="guideline-box">
+          <div class="guideline-badge">GL</div>
+          <div class="guideline-body">
+            <h4>経済産業省 サプライチェーンセキュリティガイドライン</h4>
+            <p>サプライチェーンにおける<strong>「やり取りの見える化」</strong>が求められています。共有リンクでは「誰がいつダウンロードしたか」の追跡が困難ですが、ゲスト招待なら操作ログですべてのアクセスを記録・追跡できます。<br>取引先との文書のやり取りを<strong>証跡として残す</strong>ことが、コンプライアンス対応の第一歩です。</p>
+          </div>
+        </div>
+
         <div class="method-row">
           <div class="method-card">
-            <h4>共有リンク</h4>
+            <h4>&#9741; 共有リンク</h4>
             <ul>
               <li>URLを発行して相手に送るだけの手軽さ</li>
-              <li>一方向の配布に向いている</li>
+              <li>一方向の配布に向いている（チラシのように広く渡す用途）</li>
               <li>相手にアカウント不要</li>
               <li>ファイル単位の共有（フォルダ共有は不可）</li>
-              <li>やり取りの履歴が残らない</li>
+              <li>やり取りの履歴が残らず、ファイルが散逸しがち</li>
             </ul>
           </div>
           <div class="method-card method-highlight">
-            <h4>ゲスト招待</h4>
+            <h4>&#9733; ゲスト招待</h4>
             <ul>
               <li>相手にゲストアカウントを発行して共有</li>
-              <li>フォルダ単位の継続的な共有が可能</li>
+              <li>フォルダ単位の継続的な共有が可能（業務の基盤になる）</li>
               <li>双方向のアップロード・編集に対応</li>
               <li>操作ログで「誰が・いつ・何を」追跡可能</li>
               <li>データが蓄積され、過去のやり取りを遡れる</li>
             </ul>
+          </div>
+        </div>
+
+        <!-- フロー図: データの流れの違い -->
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 8px; color:#1A2332;">データの流れはこう変わる</h3>
+
+        <div class="flow-compare">
+          <!-- リンク共有フロー -->
+          <div class="flow-side flow-link">
+            <div class="flow-title">&#9741; リンク共有の場合</div>
+            <div class="flow-nodes">
+              <div class="flow-node">ファイルを用意</div>
+              <div class="flow-arrow">&#8595;</div>
+              <div class="flow-node">リンクを発行</div>
+              <div class="flow-arrow">&#8595;</div>
+              <div class="flow-node">メールで送信</div>
+              <div class="flow-arrow">&#8595;</div>
+              <div class="flow-node">相手がDL</div>
+              <div class="flow-arrow flow-arrow-fade">&#8595;</div>
+              <div class="flow-node node-end-bad">ファイル散逸... 履歴なし</div>
+            </div>
+            <div class="flow-result">送って終わり。追えない。</div>
+          </div>
+
+          <div class="flow-vs">vs</div>
+
+          <!-- ゲスト招待フロー -->
+          <div class="flow-side flow-guest">
+            <div class="flow-title">&#9733; ゲスト招待の場合</div>
+            <div class="flow-nodes">
+              <div class="flow-node">フォルダにアップロード</div>
+              <div class="flow-arrow">&#8595;</div>
+              <div class="flow-node">相手に自動通知</div>
+              <div class="flow-arrow">&#8595;</div>
+              <div class="flow-node">双方向でやり取り</div>
+              <div class="flow-arrow">&#8595;</div>
+              <div class="flow-node">操作ログで全記録</div>
+              <div class="flow-arrow">&#8595;</div>
+              <div class="flow-node node-end-good">データ蓄積 &#8594; 遡り可能</div>
+            </div>
+            <div class="flow-result">蓄積される。追える。基盤になる。</div>
           </div>
         </div>
 
@@ -774,8 +1390,8 @@
               </tr>
               <tr>
                 <td>双方向のやり取り</td>
-                <td class="cell-no">×</td>
-                <td class="cell-ok">○（UL/編集可）</td>
+                <td class="cell-no">&#215;</td>
+                <td class="cell-ok">&#9675;（UL/編集可）</td>
               </tr>
               <tr>
                 <td>操作ログ（誰が・いつ・何を）</td>
@@ -789,8 +1405,8 @@
               </tr>
               <tr>
                 <td>コメント機能</td>
-                <td class="cell-no">×</td>
-                <td class="cell-ok">○</td>
+                <td class="cell-no">&#215;</td>
+                <td class="cell-ok">&#9675;</td>
               </tr>
               <tr>
                 <td>相手のアカウント</td>
@@ -799,8 +1415,13 @@
               </tr>
               <tr>
                 <td>過去ファイルの遡り</td>
-                <td class="cell-no">×</td>
-                <td class="cell-ok">○</td>
+                <td class="cell-no">&#215;</td>
+                <td class="cell-ok">&#9675;</td>
+              </tr>
+              <tr>
+                <td>ガイドライン対応（やり取りの見える化）</td>
+                <td class="cell-no">困難</td>
+                <td class="cell-ok">ログで対応可能</td>
               </tr>
             </tbody>
           </table>
@@ -809,7 +1430,7 @@
         <div class="insight">
           <h4>使い分けの目安</h4>
           <ul>
-            <li><strong>共有リンクが向いている場面:</strong> 不特定多数への一方向の配布、単発のファイル受け渡し</li>
+            <li><strong>共有リンクが向いている場面:</strong> 不特定多数への一方向の配布、単発のファイル受け渡し（チラシ的に広く渡す用途）</li>
             <li><strong>ゲスト招待が向いている場面:</strong> 特定の相手との継続的なやり取り、監査対応が必要なケース、共同作業</li>
             <li>最初はリンクで始めて、やり取りが定期化したタイミングでゲスト招待に切り替えるのがスムーズです</li>
           </ul>
@@ -817,7 +1438,7 @@
       </div>
 
       <div class="btn-row">
-        <button class="btn btn-outline" onclick="goTo('intro')">← 戻る</button>
+        <button class="btn btn-outline" onclick="goTo('intro')">&#8592; 戻る</button>
         <button class="btn btn-primary" onclick="goTo('scenarios')">業種別シナリオ →</button>
       </div>
     </div>
@@ -831,91 +1452,173 @@
 
       <div class="card">
         <div class="industry-cards">
+
+          <!-- 小売業 -->
           <div class="industry-card">
             <div class="industry-card-header">
               <div class="industry-icon" style="background:#FEF3C7;">
-                <span>🏪</span>
+                <span>&#127978;</span>
               </div>
               <h4>小売業</h4>
             </div>
-            <span class="industry-tag">店舗間の写真共有 + 仕入先フォルダ</span>
+            <span class="industry-tag">陳列写真の投票 + 仕入先フォルダ</span>
             <ul>
               <li>各店舗の陳列写真を共有フォルダにアップロード</li>
-              <li>本部が一覧で確認し、優れた陳列をフィードバック</li>
-              <li>仕入先とのフォルダを作成し、発注書・納品書を一元管理</li>
-              <li>過去の納品実績をフォルダ内で遡って確認できる</li>
+              <li><strong>月1回、ベスト陳列を投票</strong>で選定 → 改善サイクルが回る</li>
+              <li>仕入先とのフォルダで発注書・納品書を一元管理。データが自然に蓄積</li>
+              <li>本社 &#8596; 店舗のデータやり取りが、フォルダを起点にした業務基盤に</li>
             </ul>
-            <div class="callout" style="margin-top:12px;">
-              リンクだと写真を送って終わり。ゲスト招待なら<strong>蓄積した写真を比較して改善サイクル</strong>が回せます。
+            <div class="industry-flow">
+              <span class="industry-flow-step">店舗で撮影</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">フォルダUL</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">月1投票</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">改善実行</span>
             </div>
           </div>
 
+          <!-- 建設業 -->
           <div class="industry-card">
             <div class="industry-card-header">
               <div class="industry-icon" style="background:#DBEAFE;">
-                <span>🏗️</span>
+                <span>&#127959;</span>
               </div>
               <h4>建設業</h4>
             </div>
             <span class="industry-tag">現場写真のモバイルUL + 役所提出</span>
             <ul>
               <li>現場からスマートフォンで写真を直接アップロード</li>
-              <li>日付・現場別にフォルダを分けて整理</li>
-              <li>工事写真の役所提出にそのままフォルダを活用</li>
+              <li>「スマホでバシッと撮って、事務所の人に書類作っといてよ」で完了</li>
+              <li>日付・現場別にフォルダを分け、役所提出にそのまま活用</li>
               <li>協力会社とフォルダを共有し、図面の最新版を常に参照</li>
             </ul>
-            <div class="callout" style="margin-top:12px;">
-              メールで写真をやり取りすると散逸しがち。<strong>現場単位のフォルダで写真を一元管理</strong>できます。
+            <div class="industry-flow">
+              <span class="industry-flow-step">現場で撮影</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">フォルダUL</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">事務所で書類作成</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">役所提出</span>
             </div>
           </div>
 
+          <!-- 運送業 -->
           <div class="industry-card">
             <div class="industry-card-header">
               <div class="industry-icon" style="background:#FEE2E2;">
-                <span>🚚</span>
+                <span>&#128666;</span>
               </div>
               <h4>運送業</h4>
             </div>
-            <span class="industry-tag">伝票電子化 + 破損写真共有</span>
+            <span class="industry-tag">複合機連携で電子化 + 破損写真共有</span>
             <ul>
-              <li>紙伝票やFAXをスキャンしてフォルダにアップロード</li>
-              <li>ドライバーが破損発生時にスマートフォンで写真を共有</li>
-              <li>荷主との共有フォルダで受領書・配送証明を管理</li>
-              <li>操作ログで「いつ誰がアップロードしたか」を記録</li>
+              <li>FAX受信 → <strong>複合機のスキャン連携でそのままフォルダに保存</strong></li>
+              <li>紙伝票をスキャンして電子化。「FAXをフォルダにぶち込む」だけで完了</li>
+              <li>ドライバーが破損発生時にスマートフォンで写真を即共有</li>
+              <li>荷主との共有フォルダで受領書・配送証明を管理。操作ログで証跡も残る</li>
             </ul>
-            <div class="callout" style="margin-top:12px;">
-              破損対応ではスピードと証跡が重要。<strong>写真とログが残るゲスト招待</strong>なら、事後確認もスムーズです。
+            <div class="industry-flow">
+              <span class="industry-flow-step">FAX受信</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">複合機スキャン</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">フォルダ自動保存</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">電子伝票蓄積</span>
             </div>
           </div>
 
+          <!-- 介護 -->
+          <div class="industry-card">
+            <div class="industry-card-header">
+              <div class="industry-icon" style="background:#FCE7F3;">
+                <span>&#127973;</span>
+              </div>
+              <h4>介護</h4>
+            </div>
+            <span class="industry-tag">写真セキュリティ + MDM端末管理</span>
+            <ul>
+              <li>利用者の写真を撮影 → <strong>DirectCloudにのみ保存される運用</strong></li>
+              <li>MDM（端末管理）でカメラロールを非表示に設定。端末に写真を残さない</li>
+              <li>個人情報を含む写真が端末外に流出するリスクを根本から排除</li>
+              <li>施設間の情報共有もフォルダ経由で完結。紙の申し送りが不要に</li>
+            </ul>
+            <div class="industry-flow">
+              <span class="industry-flow-step">撮影</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">DCに直接保存</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">端末に残らない</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">情報漏洩防止</span>
+            </div>
+          </div>
+
+          <!-- 鉄道 -->
+          <div class="industry-card">
+            <div class="industry-card-header">
+              <div class="industry-icon" style="background:#F0FDF4;">
+                <span>&#128644;</span>
+              </div>
+              <h4>鉄道・インフラ</h4>
+            </div>
+            <span class="industry-tag">夜間工事写真の大量アップロード</span>
+            <ul>
+              <li>夜間の線路工事や保守作業で大量の写真を撮影</li>
+              <li>現場から直接フォルダにアップロード。翌朝には事務所で確認可能</li>
+              <li>写真データは蓄積されるため、ストレージ容量を活用するきっかけにも</li>
+              <li>工事記録としてフォルダに残り、監査・報告にそのまま使える</li>
+            </ul>
+            <div class="industry-flow">
+              <span class="industry-flow-step">夜間工事</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">大量撮影</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">フォルダUL</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">工事記録蓄積</span>
+            </div>
+          </div>
+
+          <!-- 一般事務 -->
           <div class="industry-card">
             <div class="industry-card-header">
               <div class="industry-icon" style="background:#E0E7FF;">
-                <span>🏢</span>
+                <span>&#127970;</span>
               </div>
               <h4>一般事務</h4>
             </div>
-            <span class="industry-tag">メール添付→フォルダ一元管理</span>
+            <span class="industry-tag">メール添付脱却 → フォルダ一元管理</span>
             <ul>
               <li>取引先とのやり取りをメール添付からフォルダ共有に移行</li>
-              <li>「最新版はどれ？」を探す手間がなくなる</li>
-              <li>ファイルの更新履歴をバージョン管理で追跡</li>
-              <li>月次報告書など定期ファイルが自然に蓄積される</li>
+              <li>「あのファイル、どのメールだっけ」を探す手間がゼロに</li>
+              <li>月次報告書・見積書など定期ファイルが自然に蓄積される</li>
+              <li>バージョン管理で「最新版はどれ？」の混乱を解消</li>
             </ul>
-            <div class="callout" style="margin-top:12px;">
-              メール添付の煩雑さから解放。<strong>フォルダにアクセスすれば常に最新版</strong>がある状態を作れます。
+            <div class="industry-flow">
+              <span class="industry-flow-step">メール添付</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">フォルダ共有</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">自動蓄積</span>
+              <span class="industry-flow-arrow">→</span>
+              <span class="industry-flow-step">一元管理</span>
             </div>
           </div>
+
         </div>
 
-        <div class="tip">
-          <strong>経済産業省のセキュリティガイドラインでも:</strong>
-          サプライチェーンにおける「やり取りの見える化」が求められています。共有リンクでは追跡が難しいファイルの授受も、ゲスト招待なら操作ログで記録が残ります。
+        <div class="insight">
+          <h4>共通するポイント: 業務にフィットさせると「基盤」になる</h4>
+          <p>どの業種でも、ゲスト招待のフォルダは使い続けるほどデータが蓄積されていきます。過去の納品書、写真記録、報告書 -- これらが遡れる状態で残ることで、フォルダが<strong>「業務の基盤」</strong>として定着します。一度この運用が回り始めると、他のツールでは代替しにくい状態になるため、長期的な業務効率の向上につながります。</p>
         </div>
       </div>
 
       <div class="btn-row">
-        <button class="btn btn-outline" onclick="goTo('compare')">← 戻る</button>
+        <button class="btn btn-outline" onclick="goTo('compare')">&#8592; 戻る</button>
         <button class="btn btn-primary" onclick="goTo('steps')">移行ステップ →</button>
       </div>
     </div>
@@ -952,6 +1655,82 @@
           </div>
         </div>
 
+        <!-- ゲスト招待フォルダのモックUI -->
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 8px; color:#1A2332;">移行後のイメージ: ゲスト招待フォルダ</h3>
+
+        <div class="mock-guest" style="margin:16px 0;">
+          <div class="mock-guest-header">
+            <span>DirectCloud</span>
+            <span style="margin-left:auto; font-size:11px; opacity:0.8;">&#9881;</span>
+          </div>
+          <div class="mock-guest-breadcrumb">
+            共有 &gt; ゲスト &gt; <strong>B社_田中様</strong>（仕入先）
+          </div>
+          <div class="mock-guest-file-row">
+            <span class="mock-guest-file-icon">&#9632;</span>
+            <span class="mock-guest-file-name" style="font-weight:600; color:#F9A825;">&#9632; 2026年5月</span>
+            <span class="mock-guest-file-date"></span>
+            <span class="mock-guest-file-user"></span>
+          </div>
+          <div class="mock-guest-file-row" style="padding-left:28px;">
+            <span class="mock-guest-file-icon" style="color:#E53935;">&#9632;</span>
+            <span class="mock-guest-file-name">発注書_20260520.pdf</span>
+            <span class="mock-guest-file-date">5/20</span>
+            <span class="mock-guest-file-user">自社</span>
+          </div>
+          <div class="mock-guest-file-row" style="padding-left:28px;">
+            <span class="mock-guest-file-icon" style="color:#2E7D32;">&#9632;</span>
+            <span class="mock-guest-file-name">納品書_20260522.xlsx</span>
+            <span class="mock-guest-file-date">5/22</span>
+            <span class="mock-guest-file-user">田中</span>
+          </div>
+          <div class="mock-guest-file-row" style="padding-left:28px;">
+            <span class="mock-guest-file-icon" style="color:#E53935;">&#9632;</span>
+            <span class="mock-guest-file-name">検収書_20260525.pdf</span>
+            <span class="mock-guest-file-date">5/25</span>
+            <span class="mock-guest-file-user">自社</span>
+          </div>
+          <div class="mock-guest-file-row">
+            <span class="mock-guest-file-icon">&#9632;</span>
+            <span class="mock-guest-file-name" style="font-weight:600; color:#F9A825;">&#9632; 2026年4月</span>
+            <span class="mock-guest-file-date"></span>
+            <span class="mock-guest-file-user"></span>
+          </div>
+          <div class="mock-guest-file-row" style="padding-left:28px;">
+            <span class="mock-guest-file-icon" style="color:#E53935;">&#9632;</span>
+            <span class="mock-guest-file-name">発注書_20260418.pdf</span>
+            <span class="mock-guest-file-date">4/18</span>
+            <span class="mock-guest-file-user">自社</span>
+          </div>
+          <div class="mock-guest-file-row" style="padding-left:28px;">
+            <span class="mock-guest-file-icon" style="color:#2E7D32;">&#9632;</span>
+            <span class="mock-guest-file-name">納品書_20260420.xlsx</span>
+            <span class="mock-guest-file-date">4/20</span>
+            <span class="mock-guest-file-user">田中</span>
+          </div>
+          <div class="mock-guest-log">
+            <div class="mock-guest-log-title">&#9654; 最近の操作</div>
+            <div class="mock-guest-log-row">
+              <span class="mock-guest-log-time">14:05</span>
+              <span class="mock-guest-log-badge dl">DL</span>
+              <span>田中(B社) 発注書_20260520.pdf</span>
+            </div>
+            <div class="mock-guest-log-row">
+              <span class="mock-guest-log-time">11:22</span>
+              <span class="mock-guest-log-badge ul">UL</span>
+              <span>田中(B社) 納品書_20260522.xlsx</span>
+            </div>
+            <div class="mock-guest-log-row">
+              <span class="mock-guest-log-time">09:30</span>
+              <span class="mock-guest-log-badge ul">UL</span>
+              <span>自社 発注書_20260520.pdf</span>
+            </div>
+          </div>
+          <div class="mock-guest-accumulate">
+            &#9733; 月ごとのやり取りが自動で蓄積。いつでも遡れる状態に。
+          </div>
+        </div>
+
         <div class="insight">
           <h4>移行のコツ</h4>
           <ul>
@@ -960,10 +1739,15 @@
             <li>ゲスト招待に切り替えると、フォルダにデータが蓄積されるため容量が増えていきます。ストレージの活用状況をときどき確認しておくと安心です</li>
           </ul>
         </div>
+
+        <div class="quote-box" style="margin-top:20px;">
+          <p>「業務にフィットした使い方が定着すると、そのフォルダが業務の土台になる」</p>
+          <div class="quote-source">-- ゲスト招待で運用を回し始めると、データが蓄積されて離れられなくなる好循環</div>
+        </div>
       </div>
 
       <div class="btn-row">
-        <button class="btn btn-outline" onclick="goTo('scenarios')">← 戻る</button>
+        <button class="btn btn-outline" onclick="goTo('scenarios')">&#8592; 戻る</button>
         <button class="btn btn-primary" onclick="goTo('q1')">クイズに挑戦 →</button>
       </div>
     </div>
@@ -993,7 +1777,7 @@
 
         <div class="feedback" id="fb-q1"></div>
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="goTo('steps')">← 戻る</button>
+          <button class="btn btn-outline" onclick="goTo('steps')">&#8592; 戻る</button>
           <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ →</button>
         </div>
       </div>
@@ -1024,7 +1808,7 @@
 
         <div class="feedback" id="fb-q2"></div>
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="goTo('q1')">← 戻る</button>
+          <button class="btn btn-outline" onclick="goTo('q1')">&#8592; 戻る</button>
           <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ →</button>
         </div>
       </div>
@@ -1055,7 +1839,7 @@
 
         <div class="feedback" id="fb-q3"></div>
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="goTo('q2')">← 戻る</button>
+          <button class="btn btn-outline" onclick="goTo('q2')">&#8592; 戻る</button>
           <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ →</button>
         </div>
       </div>
@@ -1086,7 +1870,7 @@
 
         <div class="feedback" id="fb-q4"></div>
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="goTo('q3')">← 戻る</button>
+          <button class="btn btn-outline" onclick="goTo('q3')">&#8592; 戻る</button>
           <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ →</button>
         </div>
       </div>
@@ -1117,7 +1901,7 @@
 
         <div class="feedback" id="fb-q5"></div>
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="goTo('q4')">← 戻る</button>
+          <button class="btn btn-outline" onclick="goTo('q4')">&#8592; 戻る</button>
           <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る →</button>
         </div>
       </div>
@@ -1167,8 +1951,8 @@
                 </tr>
                 <tr>
                   <td>双方向のやり取り</td>
-                  <td class="cell-no">×</td>
-                  <td class="cell-ok">○</td>
+                  <td class="cell-no">&#215;</td>
+                  <td class="cell-ok">&#9675;</td>
                 </tr>
                 <tr>
                   <td>操作ログ</td>
@@ -1177,19 +1961,35 @@
                 </tr>
                 <tr>
                   <td>コメント機能</td>
-                  <td class="cell-no">×</td>
-                  <td class="cell-ok">○</td>
+                  <td class="cell-no">&#215;</td>
+                  <td class="cell-ok">&#9675;</td>
                 </tr>
                 <tr>
                   <td>過去ファイルの遡り</td>
-                  <td class="cell-no">×</td>
-                  <td class="cell-ok">○</td>
+                  <td class="cell-no">&#215;</td>
+                  <td class="cell-ok">&#9675;</td>
+                </tr>
+                <tr>
+                  <td>やり取りの見える化</td>
+                  <td class="cell-no">困難</td>
+                  <td class="cell-ok">ログで対応</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
+        <div class="insight" style="margin-top:24px;">
+          <h4>次のステップ</h4>
+          <ul>
+            <li><strong>まず1社:</strong> 一番やり取りが多い取引先でゲスト招待を試してみる</li>
+            <li><strong>権限設定:</strong> ゲスト招待の権限レベルを確認する → <a href="guest-permissions.html" style="color:var(--dc-blue);">ゲスト招待 権限設定ガイド</a></li>
+            <li><strong>セキュリティ:</strong> 組織全体のセキュリティ設定を見直す → <a href="security-check.html" style="color:var(--dc-blue);">セキュリティ設定チェック</a></li>
+          </ul>
+        </div>
+
+
+        <div id="nextGuides"></div>
         <div class="saved-notice" id="savedNotice" style="display:none;">回答を記録しました</div>
       </div>
 
@@ -1230,11 +2030,11 @@ function submitResults(extra) {
 
 /* ===== Quiz Data ===== */
 var correctAnswers = {
-  q1: 1, // ゲスト招待
-  q2: 0, // 共有リンク
-  q3: 1, // ゲスト招待
-  q4: 1, // ゲスト招待
-  q5: 1  // ゲスト招待
+  q1: 1,
+  q2: 0,
+  q3: 1,
+  q4: 1,
+  q5: 1
 };
 
 var explanations = {
@@ -1245,7 +2045,7 @@ var explanations = {
     }
   },
   q2: {
-    correct: '正解！ 不特定多数への一方向の配布には共有リンクが適しています。相手にアカウントを発行する手間がなく、URLを送るだけで完了します。',
+    correct: '正解！ 不特定多数への一方向の配布には共有リンクが適しています。相手にアカウントを発行する手間がなく、URLを送るだけで完了します。チラシのように広く渡す用途にはリンクがベストです。',
     wrong: {
       1: 'ゲスト招待は相手ごとにアカウントが必要です。不特定多数への配布では管理の手間が大きくなるため、「共有リンク」で一括配布するのが効率的です。'
     }
@@ -1257,7 +2057,7 @@ var explanations = {
     }
   },
   q4: {
-    correct: '正解！ 監査対応には操作ログが不可欠です。ゲスト招待なら「誰が・いつ・何を」ダウンロード/閲覧/編集したかの記録が残り、監査時にエビデンスとして提示できます。',
+    correct: '正解！ 監査対応には操作ログが不可欠です。ゲスト招待なら「誰が・いつ・何を」ダウンロード/閲覧/編集したかの記録が残り、監査時にエビデンスとして提示できます。経産省ガイドラインが求める「やり取りの見える化」にも対応できます。',
     wrong: {
       0: '共有リンクではダウンロード回数程度しか記録が残りません。「誰が」アクセスしたかの特定が難しく、監査対応には「ゲスト招待」の操作ログが必要です。'
     }
@@ -1356,7 +2156,25 @@ function selectAnswer(q, idx) {
   document.getElementById('next-' + q).removeAttribute('disabled');
 }
 
-/* ===== Result ===== */
+/* ===== Result (sidebar guard) ===== */
+function goToResult() {
+  var allAnswered = Object.keys(correctAnswers).every(function(q) {
+    return answered[q] !== undefined;
+  });
+  if (allAnswered) {
+    showResult();
+  } else {
+    // 未回答がある場合は最初の未回答クイズへ案内
+    for (var i = 0; i < sectionOrder.length; i++) {
+      var s = sectionOrder[i];
+      if (s.charAt(0) === 'q' && answered[s] === undefined) {
+        goTo(s);
+        return;
+      }
+    }
+  }
+}
+
 function showResult() {
   goTo('result');
 
@@ -1403,6 +2221,52 @@ function showResult() {
     submitted = true;
     submitResults({ score: score, total: 5 });
   }
+  var _ba_score = score;
+  var _ba_total = 5;
+  // --- Bowling Alley: score-based next guide recommendations ---
+  var _EC = 'https://community.directcloud.jp/s/learning/';
+  var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+  var _guides = {
+      'file-sharing': {title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+      'browser-guide': {title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+      'initial-setup': {title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+      'security-check': {title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+      'drive-troubleshooting': {title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+      'guest-permissions': {title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+      'link-to-guest': {title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+      'shield-security': {title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+      'supply-chain-check': {title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+      'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+      'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+      'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'}
+    };
+  var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
+  var _picks, _h, _s;
+  if (_pct >= 80) {
+    _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+    _s = '\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
+    _picks = ['guest-permissions', 'browser-guide'];
+  } else if (_pct >= 40) {
+    _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
+    _s = '\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
+    _picks = ['guest-permissions', 'security-check'];
+  } else {
+    _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+    _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
+    _picks = ['initial-setup', 'guest-permissions'];
+  }
+  var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
+  for (var _gi = 0; _gi < _picks.length; _gi++) {
+    var _g = _guides[_picks[_gi]];
+    _gh += '<a class="next-guide-card" href="' + _EC + _picks[_gi] + _up + '" target="_top">';
+    _gh += '<div class="next-guide-icon" style="background:' + _g.bg + ';">' + _g.icon + '</div>';
+    _gh += '<div><h5>' + _g.title + '</h5><p>' + _g.desc + '</p>';
+    _gh += '<span class="next-guide-tag" style="background:' + _g.bg + ';color:' + _g.color + ';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+  }
+  _gh += '</div></div>';
+  document.getElementById('nextGuides').innerHTML = _gh;
+
 }
 </script>
 </body>

@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 活用ガイド — 業種別活用ガイド</title>
+<style>
+  :root {
+    --dc-teal: #0F766E;
+    --dc-teal-light: #F0FDFB;
+    --dc-teal-dark: #0D5C56;
+    --dc-teal-mid: #14b8a6;
+    --dc-green: #059669;
+    --dc-green-light: #D1FAE5;
+    --dc-orange: #D97706;
+    --dc-orange-light: #FEF3C7;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #DC2626;
+    --dc-red-light: #FEE2E2;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.09);
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F4F8F7;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #D1E8E5;
+    border-top: 3px solid var(--dc-teal);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-logo { font-size: 14px; font-weight: 700; color: var(--dc-teal); }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-teal); }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-teal); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #D1E8E5; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-teal); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #D1E8E5;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #F0FDFB; color: var(--dc-teal); }
+  .sidebar-item.active {
+    color: var(--dc-teal);
+    background: var(--dc-teal-light);
+    border-left-color: var(--dc-teal);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 22px; text-align: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+    color: var(--dc-teal-dark);
+  }
+  .card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #374151;
+    font-weight: 700;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-teal-light);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-teal);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-teal-dark); }
+
+  /* ===== Insight Box ===== */
+  .insight {
+    background: linear-gradient(135deg, #F0FDFB, #ECFDF8);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 4px solid var(--dc-teal);
+  }
+  .insight h4 {
+    font-size: 14px; font-weight: 700;
+    color: var(--dc-teal-dark); margin-bottom: 8px;
+  }
+  .insight ul { list-style: none; padding: 0; }
+  .insight li {
+    font-size: 13px; color: #374151;
+    padding: 4px 0 4px 22px;
+    position: relative; line-height: 1.7;
+  }
+  .insight li::before {
+    content: '\25B6';
+    position: absolute; left: 4px; font-size: 9px;
+    color: var(--dc-teal); top: 8px;
+  }
+  .insight p { font-size: 14px; color: #374151; line-height: 1.8; margin: 0; }
+
+  /* ===== Quote box ===== */
+  .quote-box {
+    background: #FFFBEB;
+    border-left: 4px solid #F59E0B;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 24px;
+    margin: 20px 0;
+  }
+  .quote-box p {
+    font-size: 15px; font-weight: 600; color: #92400E;
+    line-height: 1.7; margin: 0; font-style: italic;
+  }
+  .quote-box .quote-source {
+    font-size: 12px; color: #B45309;
+    font-weight: 400; margin-top: 6px; font-style: normal;
+  }
+
+  /* ===== Before / After ===== */
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr 44px 1fr;
+    gap: 0;
+    margin: 24px 0;
+    align-items: stretch;
+  }
+  .ba-side {
+    border-radius: var(--radius);
+    border: 1px solid #E0E6ED;
+    overflow: hidden;
+    background: #fff;
+  }
+  .ba-side.ba-before { border-top: 3px solid #94A3B8; }
+  .ba-side.ba-after  { border-top: 3px solid var(--dc-teal); }
+  .ba-label { padding: 10px 16px; font-size: 13px; font-weight: 700; text-align: center; }
+  .ba-before .ba-label { background: #F8FAFC; color: #64748B; }
+  .ba-after  .ba-label { background: var(--dc-teal-light); color: var(--dc-teal-dark); }
+  .ba-vs { display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #CBD5E1; }
+  .ba-body { padding: 16px; }
+
+  /* ===== Flow steps (horizontal) ===== */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    background: var(--dc-teal-light);
+    border: 1px solid #99D6CF;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dc-teal-dark);
+    text-align: center;
+    flex: 1;
+    min-width: 100px;
+  }
+  .flow-step.step-before {
+    background: #F8FAFC;
+    border-color: #D1D5DB;
+    color: #64748B;
+  }
+  .flow-step.step-highlight {
+    background: var(--dc-teal);
+    border-color: var(--dc-teal-dark);
+    color: #fff;
+  }
+  .flow-arr {
+    font-size: 16px;
+    color: #CBD5E1;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  .flow-arr.arr-teal { color: var(--dc-teal-mid); }
+
+  /* ===== Feature table ===== */
+  .feature-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: var(--radius);
+    border: 1px solid #D1E8E5;
+  }
+  .feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .feature-table th {
+    background: #F0FDFB;
+    padding: 10px 14px;
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 2px solid #D1E8E5;
+    color: var(--dc-teal-dark);
+    white-space: nowrap;
+  }
+  .feature-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #EDF6F5;
+    color: #374151;
+    font-size: 13px;
+    vertical-align: top;
+  }
+  .feature-table tr:last-child td { border-bottom: none; }
+  .feature-table tr:hover td { background: #F7FFFE; }
+  .feature-table .cell-use {
+    color: var(--dc-teal);
+    font-weight: 700;
+  }
+  .feature-table .badge-use {
+    display: inline-block;
+    background: var(--dc-teal-light);
+    color: var(--dc-teal-dark);
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid #99D6CF;
+  }
+
+  /* ===== Mock DC UI ===== */
+  .mock-dc {
+    border: 1px solid #E0E6ED;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 12px;
+    box-shadow: var(--shadow);
+  }
+  .mock-dc-header {
+    background: #1976D2;
+    color: #fff;
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .mock-dc-logo { font-weight: 700; letter-spacing: 0.3px; }
+  .mock-dc-upload {
+    margin-left: 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 2px 10px;
+    font-size: 11px;
+    cursor: default;
+  }
+  .mock-dc-search {
+    margin-left: auto;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.8);
+  }
+  .mock-dc-breadcrumb {
+    background: #F4F8F7;
+    padding: 5px 14px;
+    font-size: 11px;
+    color: #666;
+    border-bottom: 1px solid #E0E6ED;
+  }
+  .mock-dc-breadcrumb strong { color: var(--dc-teal-dark); }
+  .mock-dc-toolbar {
+    background: #FAFCFB;
+    padding: 5px 14px;
+    border-bottom: 1px solid #EDF6F5;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 11px;
+    color: #94A3B8;
+  }
+  .mock-dc-file-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-bottom: 1px solid #F0F4F3;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .mock-dc-file-row:hover { background: #FBFFFE; }
+  .mock-dc-file-row:last-child { border-bottom: none; }
+  .mock-dc-icon-folder {
+    color: #F9A825;
+    font-size: 13px;
+    flex-shrink: 0;
+    width: 16px;
+    text-align: center;
+  }
+  .mock-dc-icon-pdf  { color: #DC2626; font-size: 11px; font-weight: 700; width: 16px; text-align: center; flex-shrink: 0; }
+  .mock-dc-icon-img  { color: #0D9488; font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+  .mock-dc-icon-xls  { color: #15803d; font-size: 11px; font-weight: 700; width: 16px; text-align: center; flex-shrink: 0; }
+  .mock-dc-icon-doc  { color: #1976D2; font-size: 11px; font-weight: 700; width: 16px; text-align: center; flex-shrink: 0; }
+  .mock-dc-icon-zip  { color: #7C3AED; font-size: 11px; font-weight: 700; width: 16px; text-align: center; flex-shrink: 0; }
+  .mock-dc-file-name {
+    flex: 2;
+    font-size: 11px;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mock-dc-file-size { flex: 0 0 44px; font-size: 10px; color: #9CA3AF; text-align: right; }
+  .mock-dc-file-date { flex: 0 0 50px; font-size: 10px; color: #9CA3AF; text-align: right; }
+  .mock-dc-file-user { flex: 0 0 52px; font-size: 10px; color: #9CA3AF; text-align: right; }
+  .mock-dc-footer {
+    background: #F0FDFB;
+    padding: 7px 14px;
+    border-top: 1px solid #D1E8E5;
+    font-size: 11px;
+    color: var(--dc-teal-dark);
+    font-weight: 600;
+    text-align: center;
+  }
+  .mock-dc-log {
+    background: #FAFAFA;
+    padding: 8px 14px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .mock-dc-log-title {
+    font-size: 10px; font-weight: 700;
+    color: var(--dc-teal-dark); margin-bottom: 4px;
+  }
+  .mock-dc-log-row {
+    display: flex; gap: 6px;
+    font-size: 10px; color: #555;
+    padding: 2px 0;
+  }
+  .mock-dc-log-time { width: 36px; color: #9CA3AF; flex-shrink: 0; }
+  .mock-dc-log-badge {
+    display: inline-block;
+    padding: 0 5px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .mock-dc-log-badge.ul { background: #D1FAE5; color: #065F46; }
+  .mock-dc-log-badge.dl { background: #DBEAFE; color: #1D4ED8; }
+  .mock-dc-log-badge.view { background: #EDE9FE; color: #5B21B6; }
+  .mock-dc-mdm-bar {
+    background: #1A1A2E;
+    color: #fff;
+    padding: 5px 14px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .mock-dc-mdm-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #22D3EE;
+    flex-shrink: 0;
+  }
+
+  /* ===== Section intro card ===== */
+  .industry-header-card {
+    background: linear-gradient(135deg, var(--dc-teal-light), #E8FAF7);
+    border: 1px solid #99D6CF;
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .industry-badge {
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    background: var(--dc-teal);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .industry-header-body h2 {
+    font-size: 19px; font-weight: 700; color: var(--dc-teal-dark); margin-bottom: 4px;
+  }
+  .industry-header-body p {
+    font-size: 14px; color: #4B5563; line-height: 1.7; margin: 0;
+  }
+
+  /* ===== Intro overview grid ===== */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .overview-card {
+    background: #fff;
+    border: 1px solid #D1E8E5;
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .overview-card:hover {
+    border-color: var(--dc-teal);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .overview-card-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .overview-card h4 {
+    font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 4px;
+  }
+  .overview-card p {
+    font-size: 12px; color: #6B7280; line-height: 1.6;
+  }
+  .overview-card .tag {
+    display: inline-block;
+    background: var(--dc-teal-light);
+    color: var(--dc-teal-dark);
+    font-size: 10px; font-weight: 600;
+    padding: 1px 7px; border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  /* ===== Steps ===== */
+  .steps { margin: 20px 0; }
+  .step-item {
+    display: flex; gap: 16px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute; left: 19px; top: 44px;
+    width: 2px; height: calc(100% - 24px);
+    background: #D1E8E5;
+  }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--dc-teal); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; flex-shrink: 0;
+  }
+  .step-body { flex: 1; padding-top: 2px; }
+  .step-body h4 { font-size: 15px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+  .step-body p { font-size: 13px; color: #555; line-height: 1.7; }
+
+  /* ===== Choices ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: var(--radius);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .choice-card:hover {
+    border-color: var(--dc-teal);
+    background: var(--dc-teal-light);
+    transform: translateY(-2px);
+  }
+  .choice-card h5 { font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+  .choice-card p  { font-size: 12px; color: #666; line-height: 1.6; }
+  .choice-card.selected { border-color: var(--dc-teal); background: var(--dc-teal-light); pointer-events: none; }
+  .choice-card.correct  { border-color: var(--dc-green); background: var(--dc-green-light); pointer-events: none; }
+  .choice-card.wrong    { border-color: var(--dc-red); background: var(--dc-red-light); opacity: 0.7; pointer-events: none; }
+  .choice-card.disabled { pointer-events: none; opacity: 0.5; }
+
+  /* ===== Feedback ===== */
+  .feedback {
+    margin-top: 20px; padding: 20px 24px;
+    border-radius: var(--radius);
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct   { background: var(--dc-green-light); border-left: 4px solid var(--dc-green); }
+  .feedback.incorrect { background: var(--dc-orange-light); border-left: 4px solid var(--dc-orange); }
+  .feedback h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .feedback.correct   h4 { color: var(--dc-green); }
+  .feedback.incorrect h4 { color: #B45309; }
+  .feedback p { font-size: 14px; color: #374151; line-height: 1.8; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 28px; border-radius: 8px;
+    font-size: 14px; font-weight: 600;
+    border: none; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--dc-teal); color: #fff; border: 1px solid var(--dc-teal); }
+  .btn-primary:hover { background: var(--dc-teal-dark); transform: translateY(-1px); }
+  .btn-outline { background: none; color: #888; border: 1px solid #DDD; }
+  .btn-outline:hover { background: var(--dc-gray-light); }
+  .btn-row { display: flex; justify-content: space-between; margin-top: 24px; gap: 12px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ===== Score Circle ===== */
+  .score-area { text-align: center; margin: 32px 0; }
+  .score-circle {
+    width: 160px; height: 160px; border-radius: 50%;
+    background: conic-gradient(var(--dc-teal) 0%, #D1E8E5 0%);
+    display: inline-flex; align-items: center; justify-content: center;
+    position: relative; margin-bottom: 12px;
+  }
+  .score-inner {
+    width: 128px; height: 128px; border-radius: 50%;
+    background: #fff;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .score-num  { font-size: 40px; font-weight: 800; color: var(--dc-teal); line-height: 1; }
+  .score-label { font-size: 13px; color: #888; margin-top: 2px; }
+  .score-msg  { font-size: 18px; font-weight: 700; color: #1A2332; margin-top: 8px; }
+
+  /* ===== Result Review ===== */
+  .result-review { margin: 24px 0; }
+  .review-item {
+    background: #fff; border-radius: var(--radius);
+    border: 1px solid #E0E6ED;
+    padding: 14px 18px; margin-bottom: 10px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .review-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 14px; font-weight: 600; color: #1A2332; }
+  .review-body p  { font-size: 13px; color: #666; margin-top: 2px; }
+
+  /* ===== Quick Reference Table (result page) ===== */
+  .ref-table-wrap {
+    overflow-x: auto; margin: 24px 0;
+    border-radius: var(--radius);
+    border: 1px solid #D1E8E5;
+  }
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .ref-table th {
+    background: #F0FDFB;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #D1E8E5;
+    color: var(--dc-teal-dark);
+  }
+  .ref-table th:first-child { text-align: left; padding-left: 16px; min-width: 120px; }
+  .ref-table td {
+    padding: 9px 12px;
+    text-align: center;
+    border-bottom: 1px solid #EDF6F5;
+    font-size: 12px;
+    color: #374151;
+  }
+  .ref-table td:first-child { text-align: left; padding-left: 16px; font-weight: 600; }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table tr:hover td { background: #F7FFFE; }
+  .ref-table .cell-ok { color: var(--dc-teal); font-weight: 700; }
+
+
+  /* ===== Next Guides (Bowling Alley) ===== */
+  .next-guides {
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .next-guides h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A2332;
+    margin-bottom: 6px;
+  }
+  .next-guides .next-guides-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .next-guide-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .next-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .next-guide-card:hover {
+    border-color: #94A3B8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .next-guide-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .next-guide-card h5 {
+    font-size: 14px; font-weight: 600; color: #1A2332; margin-bottom: 3px;
+  }
+  .next-guide-card p {
+    font-size: 12px; color: #888; line-height: 1.5;
+  }
+  .next-guide-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  /* ===== Saved notice ===== */
+  .saved-notice {
+    text-align: center; font-size: 13px;
+    color: var(--dc-green); margin-top: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 860px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 16px 60px; }
+    .overview-grid { grid-template-columns: 1fr 1fr; }
+    .choices { grid-template-columns: 1fr; }
+    .before-after { grid-template-columns: 1fr; gap: 12px; }
+    .ba-vs { display: none; }
+    .flow-row { flex-wrap: wrap; gap: 6px; }
+    .flow-arr { display: none; }
+  }
+  @media (max-width: 540px) {
+    .overview-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">業種別活用ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 9</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-title">もくじ</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">01</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="retail" onclick="goTo('retail')">
+      <span class="icon">02</span> 小売業
+    </div>
+    <div class="sidebar-item" data-sec="construction" onclick="goTo('construction')">
+      <span class="icon">03</span> 建設業
+    </div>
+    <div class="sidebar-item" data-sec="logistics" onclick="goTo('logistics')">
+      <span class="icon">04</span> 運送業
+    </div>
+    <div class="sidebar-item" data-sec="care" onclick="goTo('care')">
+      <span class="icon">05</span> 介護
+    </div>
+    <div class="sidebar-item" data-sec="infra" onclick="goTo('infra')">
+      <span class="icon">06</span> 鉄道・インフラ
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q1</span> 陳列写真の共有
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q2</span> 現場写真の送付
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q3</span> FAX電子化
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q4</span> 介護施設の写真
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q5</span> 工事写真の管理
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goToResult()">
+      <span class="icon">--</span> 結果
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== Intro ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>業種によって、使い方は全く違う</h1>
+        <p>あなたの業務にフィットした活用をすると、DirectCloudは「基盤」になる</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>「クラウドストレージ＝ファイルを置く場所」と思っていませんか？<br>
+          業務フローに合わせて活用すると、データが自然に蓄積し、<strong>現場・事務所・取引先をつなぐ情報基盤</strong>になります。<br>
+          このガイドでは、代表的な5つの業種ごとに具体的なシナリオを紹介します。</p>
+        </div>
+
+        <h3 style="margin-bottom: 16px;">取り上げる業種</h3>
+        <div class="overview-grid">
+          <div class="overview-card" onclick="goTo('retail')">
+            <div class="overview-card-icon">&#9632;</div>
+            <h4>小売業</h4>
+            <p>陳列写真を店舗間で共有。仕入先フォルダで書類を蓄積。</p>
+            <span class="tag">ゲスト共有 / 改善サイクル</span>
+          </div>
+          <div class="overview-card" onclick="goTo('construction')">
+            <div class="overview-card-icon">&#9650;</div>
+            <h4>建設業</h4>
+            <p>現場写真をスマホでUL。協力会社と図面の最新版を共有。</p>
+            <span class="tag">モバイル / 協力会社連携</span>
+          </div>
+          <div class="overview-card" onclick="goTo('logistics')">
+            <div class="overview-card-icon">&#9654;</div>
+            <h4>運送業</h4>
+            <p>FAXを複合機連携で電子化。破損写真をドライバーが即共有。</p>
+            <span class="tag">複合機連携 / 電子化</span>
+          </div>
+          <div class="overview-card" onclick="goTo('care')">
+            <div class="overview-card-icon">&#9670;</div>
+            <h4>介護</h4>
+            <p>写真はDirectCloudのみ保存。MDMで端末にデータを残さない。</p>
+            <span class="tag">MDM連携 / 個人情報保護</span>
+          </div>
+          <div class="overview-card" onclick="goTo('infra')">
+            <div class="overview-card-icon">&#9679;</div>
+            <h4>鉄道・インフラ</h4>
+            <p>夜間工事の大量写真を蓄積。翌朝に確認、監査・報告に活用。</p>
+            <span class="tag">大容量 / 操作ログ</span>
+          </div>
+          <div class="overview-card" onclick="goTo('q1')">
+            <div class="overview-card-icon">&#9670;</div>
+            <h4>理解度クイズ</h4>
+            <p>5問のシナリオクイズで理解を確認。どの機能が最適か選ぼう。</p>
+            <span class="tag">5問</span>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>業務の「基盤」になるとは</h4>
+          <ul>
+            <li>毎日の業務フローの中に自然にデータが蓄積される</li>
+            <li>過去の実績・写真・書類をいつでも遡れる</li>
+            <li>現場・事務所・取引先が同じ情報を見ながら動ける</li>
+            <li>監査・報告時に「探す」手間がなくなる</li>
+          </ul>
+        </div>
+
+        <div class="btn-row" style="justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="goTo('retail')">小売業のシナリオを見る &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 小売業 ========== -->
+    <div class="section" id="sec-retail">
+      <div class="content-header">
+        <h1>小売業での活用シナリオ</h1>
+        <p>店舗間の情報共有と仕入先連携を基盤化する</p>
+      </div>
+
+      <div class="card">
+        <div class="industry-header-card">
+          <div class="industry-badge">&#9632;</div>
+          <div class="industry-header-body">
+            <h2>小売業</h2>
+            <p>複数店舗間で陳列写真を共有し、ベスト陳列を月1回フィードバック。仕入先フォルダで発注書・納品書を蓄積。本社と店舗をつなぐデータ基盤を作る。</p>
+          </div>
+        </div>
+
+        <h3>Before / After</h3>
+        <div class="before-after">
+          <div class="ba-side ba-before">
+            <div class="ba-label">Before: バラバラな情報共有</div>
+            <div class="ba-body">
+              <div class="mock-dc">
+                <div class="mock-dc-header">
+                  <span class="mock-dc-logo">DirectCloud</span>
+                </div>
+                <div class="mock-dc-breadcrumb">&#128236; チャット（LINE・メール）</div>
+                <div class="mock-dc-file-row" style="background:#FEF2F2;">
+                  <span class="mock-dc-icon-img">&#9632;</span>
+                  <span class="mock-dc-file-name" style="color:#991B1B;">陳列写真0521.jpg（LINEで送付）</span>
+                  <span class="mock-dc-file-date">5/21</span>
+                </div>
+                <div class="mock-dc-file-row" style="background:#FEF2F2;">
+                  <span class="mock-dc-icon-img">&#9632;</span>
+                  <span class="mock-dc-file-name" style="color:#991B1B;">IMG_4521.jpg（メール添付）</span>
+                  <span class="mock-dc-file-date">5/18</span>
+                </div>
+                <div class="mock-dc-file-row" style="background:#FEF2F2;">
+                  <span class="mock-dc-icon-xls">XLS</span>
+                  <span class="mock-dc-file-name" style="color:#991B1B;">発注書（どこかに保存）</span>
+                  <span class="mock-dc-file-date">5/10</span>
+                </div>
+                <div class="mock-dc-footer" style="background:#FEF2F2; color:#991B1B;">過去の写真・書類が追えない</div>
+              </div>
+            </div>
+          </div>
+          <div class="ba-vs">&#8594;</div>
+          <div class="ba-side ba-after">
+            <div class="ba-label">After: DirectCloudでフォルダ蓄積</div>
+            <div class="ba-body">
+              <div class="mock-dc">
+                <div class="mock-dc-header">
+                  <span class="mock-dc-logo">DirectCloud</span>
+                  <span class="mock-dc-upload">&#8679; アップロード</span>
+                  <span class="mock-dc-search">&#9906; 検索...</span>
+                </div>
+                <div class="mock-dc-breadcrumb">&#9632; 共有 &gt; <strong>陳列写真_2026年</strong></div>
+                <div class="mock-dc-file-row">
+                  <span class="mock-dc-icon-folder">&#9632;</span>
+                  <span class="mock-dc-file-name" style="font-weight:600;">新宿店_202605</span>
+                  <span class="mock-dc-file-date">5/21</span>
+                  <span class="mock-dc-file-user">山田</span>
+                </div>
+                <div class="mock-dc-file-row">
+                  <span class="mock-dc-icon-folder">&#9632;</span>
+                  <span class="mock-dc-file-name" style="font-weight:600;">渋谷店_202605</span>
+                  <span class="mock-dc-file-date">5/20</span>
+                  <span class="mock-dc-file-user">佐藤</span>
+                </div>
+                <div class="mock-dc-file-row">
+                  <span class="mock-dc-icon-folder">&#9632;</span>
+                  <span class="mock-dc-file-name">仕入先_株式会社A商事</span>
+                  <span class="mock-dc-file-date">5/15</span>
+                  <span class="mock-dc-file-user">田中</span>
+                </div>
+                <div class="mock-dc-footer">&#9733; 全店の写真が一か所に蓄積</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:28px;">業務フロー</h3>
+        <div class="flow-row">
+          <div class="flow-step">各店舗が陳列写真をスマホでUL</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step">本社が全店フォルダを一覧確認</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step step-highlight">月1回ベスト陳列を投票・フィードバック</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step">翌月の改善に反映</div>
+        </div>
+
+        <h3 style="margin-top:24px;">仕入先フォルダ構成（モックUI）</h3>
+        <div class="mock-dc">
+          <div class="mock-dc-header">
+            <span class="mock-dc-logo">DirectCloud</span>
+            <span class="mock-dc-upload">&#8679; アップロード</span>
+            <span class="mock-dc-search">&#9906; 検索...</span>
+          </div>
+          <div class="mock-dc-breadcrumb">&#9632; 共有 &gt; ゲスト &gt; <strong>A商事_仕入先フォルダ</strong></div>
+          <div class="mock-dc-toolbar">
+            <span>&#9632; 一覧</span>
+            <span style="margin-left:auto;">47件</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">発注書_202606_No0047.pdf</span>
+            <span class="mock-dc-file-size">248KB</span>
+            <span class="mock-dc-file-date">6/1</span>
+            <span class="mock-dc-file-user">田中</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name">納品書_202605_No0046.pdf</span>
+            <span class="mock-dc-file-size">194KB</span>
+            <span class="mock-dc-file-date">5/28</span>
+            <span class="mock-dc-file-user">A商事</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-xls">XLS</span>
+            <span class="mock-dc-file-name">発注実績_2026Q1.xlsx</span>
+            <span class="mock-dc-file-size">87KB</span>
+            <span class="mock-dc-file-date">4/30</span>
+            <span class="mock-dc-file-user">田中</span>
+          </div>
+          <div class="mock-dc-log">
+            <div class="mock-dc-log-title">&#9654; 操作ログ</div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">10:15</span>
+              <span class="mock-dc-log-badge dl">DL</span>
+              <span>A商事_担当者 納品書_202605_No0046.pdf</span>
+            </div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">09:42</span>
+              <span class="mock-dc-log-badge ul">UL</span>
+              <span>田中(自社) 発注書_202606_No0047.pdf</span>
+            </div>
+          </div>
+          <div class="mock-dc-footer">発注書・納品書が時系列で蓄積 — いつでも遡れる</div>
+        </div>
+
+        <div class="feature-table-wrap" style="margin-top:24px;">
+          <table class="feature-table">
+            <thead><tr><th>機能</th><th>小売業での活用</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge-use">ゲスト招待</span></td><td>仕入先に専用フォルダを発行。発注書・納品書を双方向でやり取り</td></tr>
+              <tr><td><span class="badge-use">モバイルアプリ</span></td><td>各店舗スタッフがスマホで陳列写真を即アップロード</td></tr>
+              <tr><td><span class="badge-use">操作ログ</span></td><td>「誰が・いつ」納品書を確認したか追跡。支払いトラブル防止</td></tr>
+              <tr><td><span class="badge-use">フォルダ管理</span></td><td>店舗別・仕入先別フォルダで自動整理。探す手間ゼロ</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight" style="margin-top:20px;">
+          <h4>「業務の基盤」になるポイント</h4>
+          <p>毎月の陳列写真が蓄積することで、「去年の同時期の売り場はどうだったか」を写真で振り返れるようになる。仕入先フォルダには発注・納品の履歴が自然に積み上がり、交渉・監査の根拠になる。</p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('intro')">&#8592; 戻る</button>
+          <button class="btn btn-primary" onclick="goTo('construction')">建設業へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 建設業 ========== -->
+    <div class="section" id="sec-construction">
+      <div class="content-header">
+        <h1>建設業での活用シナリオ</h1>
+        <p>現場&#8596;事務所&#8596;協力会社をリアルタイムでつなぐ</p>
+      </div>
+
+      <div class="card">
+        <div class="industry-header-card">
+          <div class="industry-badge">&#9650;</div>
+          <div class="industry-header-body">
+            <h2>建設業</h2>
+            <p>現場からスマホで写真をULし、事務所で書類を作成して役所へ提出。協力会社とフォルダを共有して図面の最新版を管理。「古い図面で施工」のリスクをゼロにする。</p>
+          </div>
+        </div>
+
+        <div class="quote-box">
+          <p>「スマホでバシッと撮って、事務所の人に書類作っといてよ」</p>
+          <div class="quote-source">— 現場監督のリアルな声</div>
+        </div>
+
+        <h3>業務フロー（Before&#8594;After）</h3>
+        <div class="steps">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>現場作業員がスマホで写真を撮影</h4>
+              <p>工事の進捗・完了確認など、その場でDirectCloudにアップロード。LTE/Wi-Fiどちらでも対応。</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>事務所で確認・書類作成</h4>
+              <p>事務所スタッフがリアルタイムで写真を確認。写真を引用しながら完了報告書・請求書を作成。</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>役所・元請けへ電子提出</h4>
+              <p>完成した書類をDirectCloudから共有リンクやゲスト招待で提出先へ送付。電子化で郵送コスト削減。</p>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:8px;">協力会社との図面共有（モックUI）</h3>
+        <div class="mock-dc">
+          <div class="mock-dc-header">
+            <span class="mock-dc-logo">DirectCloud</span>
+            <span class="mock-dc-upload">&#8679; アップロード</span>
+            <span class="mock-dc-search">&#9906; 検索...</span>
+          </div>
+          <div class="mock-dc-breadcrumb">&#9632; 工事プロジェクト &gt; &#9632; 渋谷駅前ビル新築工事 &gt; <strong>図面_最新版</strong></div>
+          <div class="mock-dc-toolbar">
+            <span style="color:var(--dc-teal); font-weight:600;">&#9654; 最新版フォルダ（常にここを参照）</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">平面図_2F_v4_確定.pdf</span>
+            <span class="mock-dc-file-size">3.2MB</span>
+            <span class="mock-dc-file-date">5/26</span>
+            <span class="mock-dc-file-user">設計部</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">配線図_全フロア_v2.pdf</span>
+            <span class="mock-dc-file-size">2.8MB</span>
+            <span class="mock-dc-file-date">5/24</span>
+            <span class="mock-dc-file-user">設計部</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-img">&#9632;</span>
+            <span class="mock-dc-file-name">現場写真_5F_0526_完了確認.jpg</span>
+            <span class="mock-dc-file-size">5.1MB</span>
+            <span class="mock-dc-file-date">5/26</span>
+            <span class="mock-dc-file-user">現場A</span>
+          </div>
+          <div class="mock-dc-log">
+            <div class="mock-dc-log-title">&#9654; 操作ログ（協力会社アクセス）</div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">07:52</span>
+              <span class="mock-dc-log-badge dl">DL</span>
+              <span>協力会社B_田村 平面図_2F_v4_確定.pdf</span>
+            </div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">07:40</span>
+              <span class="mock-dc-log-badge view">閲覧</span>
+              <span>協力会社C_鈴木 配線図_全フロア_v2.pdf</span>
+            </div>
+          </div>
+          <div class="mock-dc-footer">「古い図面で施工」ゼロ &#8212; 常に最新版だけを参照</div>
+        </div>
+
+        <div class="feature-table-wrap" style="margin-top:24px;">
+          <table class="feature-table">
+            <thead><tr><th>機能</th><th>建設業での活用</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge-use">モバイルアプリ</span></td><td>現場でのリアルタイム写真アップロード。LTE環境でも動作</td></tr>
+              <tr><td><span class="badge-use">ゲスト招待</span></td><td>協力会社に図面フォルダを共有。更新があれば全員が最新版を参照</td></tr>
+              <tr><td><span class="badge-use">操作ログ</span></td><td>「協力会社Bが昨朝の図面を確認済み」をログで把握</td></tr>
+              <tr><td><span class="badge-use">共有リンク</span></td><td>役所・元請けへの書類提出に使用。有効期限付きで安全に送付</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>「業務の基盤」になるポイント</h4>
+          <p>工事ごとにフォルダが作られ、写真・図面・書類が蓄積される。竣工後も「あの現場どうだったか」を写真でさかのぼれる。複数の協力会社が同じ図面を参照することで、情報の齟齬による手戻りが激減する。</p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('retail')">&#8592; 戻る</button>
+          <button class="btn btn-primary" onclick="goTo('logistics')">運送業へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 運送業 ========== -->
+    <div class="section" id="sec-logistics">
+      <div class="content-header">
+        <h1>運送業での活用シナリオ</h1>
+        <p>FAXの電子化から破損対応まで、配送業務をデジタル化する</p>
+      </div>
+
+      <div class="card">
+        <div class="industry-header-card">
+          <div class="industry-badge">&#9654;</div>
+          <div class="industry-header-body">
+            <h2>運送業</h2>
+            <p>FAXで届いた伝票を複合機連携でフォルダへ自動保存。ドライバーが破損写真をスマホで即共有。荷主フォルダに受領書・配送証明を蓄積し、トラブル対応の根拠を確保。</p>
+          </div>
+        </div>
+
+        <h3>FAX電子化フロー</h3>
+        <div class="flow-row">
+          <div class="flow-step step-before">荷主からFAX受信</div>
+          <div class="flow-arr">&#8594;</div>
+          <div class="flow-step step-before">複合機でスキャン</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step step-highlight">DirectCloudへ自動保存</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step">担当者がフォルダで確認</div>
+        </div>
+
+        <h3 style="margin-top:24px;">荷主フォルダ（モックUI）</h3>
+        <div class="mock-dc">
+          <div class="mock-dc-header">
+            <span class="mock-dc-logo">DirectCloud</span>
+            <span class="mock-dc-upload">&#8679; アップロード</span>
+            <span class="mock-dc-search">&#9906; 検索...</span>
+          </div>
+          <div class="mock-dc-breadcrumb">&#9632; 荷主管理 &gt; ゲスト &gt; <strong>東京物産_配送フォルダ</strong></div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">受領書_20260526_No1142.pdf</span>
+            <span class="mock-dc-file-size">312KB</span>
+            <span class="mock-dc-file-date">5/26</span>
+            <span class="mock-dc-file-user">鈴木DRV</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-img">&#9632;</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">破損写真_20260524_荷番0089.jpg</span>
+            <span class="mock-dc-file-size">2.4MB</span>
+            <span class="mock-dc-file-date">5/24</span>
+            <span class="mock-dc-file-user">山田DRV</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name">配送証明書_20260520.pdf</span>
+            <span class="mock-dc-file-size">198KB</span>
+            <span class="mock-dc-file-date">5/20</span>
+            <span class="mock-dc-file-user">FAX自動</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name">指示書_FAX_20260519.pdf</span>
+            <span class="mock-dc-file-size">156KB</span>
+            <span class="mock-dc-file-date">5/19</span>
+            <span class="mock-dc-file-user">複合機</span>
+          </div>
+          <div class="mock-dc-log">
+            <div class="mock-dc-log-title">&#9654; 操作ログ</div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">14:32</span>
+              <span class="mock-dc-log-badge dl">DL</span>
+              <span>東京物産_担当 破損写真_20260524_荷番0089.jpg</span>
+            </div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">07:03</span>
+              <span class="mock-dc-log-badge ul">UL</span>
+              <span>複合機 指示書_FAX_20260519.pdf（自動）</span>
+            </div>
+          </div>
+          <div class="mock-dc-footer">FAX到着から配送完了まで、一本のフォルダに時系列で記録</div>
+        </div>
+
+        <div class="feature-table-wrap" style="margin-top:24px;">
+          <table class="feature-table">
+            <thead><tr><th>機能</th><th>運送業での活用</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge-use">複合機連携</span></td><td>FAXをスキャンし、指定フォルダへ自動保存。紙の仕分け作業が不要に</td></tr>
+              <tr><td><span class="badge-use">モバイルアプリ</span></td><td>配送先でドライバーが受領書・破損写真をその場でアップロード</td></tr>
+              <tr><td><span class="badge-use">ゲスト招待</span></td><td>荷主専用フォルダで受領書・配送証明を共有。問い合わせ対応が即座に</td></tr>
+              <tr><td><span class="badge-use">操作ログ</span></td><td>「荷主がいつ書類を確認したか」記録。トラブル時のエビデンスに</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>「業務の基盤」になるポイント</h4>
+          <p>荷主フォルダには指示書&#8594;配送証明&#8594;受領書の一連が蓄積される。「あの荷物、本当に届いたか」のトラブル発生時に、ログ付きで即座にエビデンスを提示できる。FAXの電子化で事務所の検索工数も大幅削減。</p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('construction')">&#8592; 戻る</button>
+          <button class="btn btn-primary" onclick="goTo('care')">介護へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 介護 ========== -->
+    <div class="section" id="sec-care">
+      <div class="content-header">
+        <h1>介護での活用シナリオ</h1>
+        <p>端末に個人情報を残さない、写真管理の安全運用</p>
+      </div>
+
+      <div class="card">
+        <div class="industry-header-card">
+          <div class="industry-badge">&#9670;</div>
+          <div class="industry-header-body">
+            <h2>介護</h2>
+            <p>撮影した写真はDirectCloudのみに保存。MDMでカメラロールを非表示にし、端末に個人情報を残さない運用を実現。施設間の情報共有もフォルダ経由で安全に管理。</p>
+          </div>
+        </div>
+
+        <h3>端末に写真を残さない運用フロー</h3>
+        <div class="flow-row">
+          <div class="flow-step">スタッフが業務端末で撮影</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step step-highlight">DirectCloudへ直接保存</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step">カメラロールには写真なし（MDM制御）</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step">施設間でフォルダ共有</div>
+        </div>
+
+        <h3 style="margin-top:24px;">MDM管理端末のイメージ（モックUI）</h3>
+        <div class="mock-dc">
+          <div class="mock-dc-mdm-bar">
+            <div class="mock-dc-mdm-dot"></div>
+            <span>MDM管理端末 — カメラロールへのアクセスは制限中</span>
+          </div>
+          <div class="mock-dc-header">
+            <span class="mock-dc-logo">DirectCloud</span>
+            <span class="mock-dc-upload">&#8679; アップロード</span>
+          </div>
+          <div class="mock-dc-breadcrumb">&#9632; 施設A &gt; <strong>利用者ケア記録_2026年</strong></div>
+          <div class="mock-dc-toolbar">
+            <span style="color:var(--dc-teal); font-weight:600;">&#9654; 写真はここにのみ保存。端末には残りません</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-folder">&#9632;</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">山田様_202605</span>
+            <span class="mock-dc-file-date">5/26</span>
+            <span class="mock-dc-file-user">田村ST</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-folder">&#9632;</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">佐藤様_202605</span>
+            <span class="mock-dc-file-date">5/25</span>
+            <span class="mock-dc-file-user">鈴木ST</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-folder">&#9632;</span>
+            <span class="mock-dc-file-name">施設間引き継ぎ_202605</span>
+            <span class="mock-dc-file-date">5/20</span>
+            <span class="mock-dc-file-user">主任</span>
+          </div>
+          <div class="mock-dc-log">
+            <div class="mock-dc-log-title">&#9654; 操作ログ</div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">10:12</span>
+              <span class="mock-dc-log-badge ul">UL</span>
+              <span>田村ST 山田様_ケア写真_0526_朝.jpg（端末保存なし）</span>
+            </div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">09:45</span>
+              <span class="mock-dc-log-badge view">閲覧</span>
+              <span>主任 施設間引き継ぎ_202605フォルダ</span>
+            </div>
+          </div>
+          <div class="mock-dc-footer">個人情報は端末に残らず、クラウドのみで管理</div>
+        </div>
+
+        <div class="feature-table-wrap" style="margin-top:24px;">
+          <table class="feature-table">
+            <thead><tr><th>機能</th><th>介護での活用</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge-use">MDM連携</span></td><td>業務端末のカメラロールを非表示に設定。撮影後はDirectCloudのみに保存</td></tr>
+              <tr><td><span class="badge-use">モバイルアプリ</span></td><td>ケア現場でスマホから直接アップロード。Wi-Fi不要でもLTE対応</td></tr>
+              <tr><td><span class="badge-use">フォルダ管理</span></td><td>利用者別・月別フォルダで整理。施設間引き継ぎもフォルダ共有</td></tr>
+              <tr><td><span class="badge-use">操作ログ</span></td><td>誰がいつ写真を閲覧・更新したか記録。監査対応に活用</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>「業務の基盤」になるポイント</h4>
+          <p>介護現場では利用者の写真は個人情報として厳格に管理が必要。「端末に残らない」運用を徹底することで、端末紛失・盗難時のリスクをゼロにする。記録はDirectCloudに蓄積され、引き継ぎや家族報告にも活用できる。</p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('logistics')">&#8592; 戻る</button>
+          <button class="btn btn-primary" onclick="goTo('infra')">鉄道・インフラへ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 鉄道・インフラ ========== -->
+    <div class="section" id="sec-infra">
+      <div class="content-header">
+        <h1>鉄道・インフラでの活用シナリオ</h1>
+        <p>夜間工事の記録を翌朝確認し、監査・報告に活用する</p>
+      </div>
+
+      <div class="card">
+        <div class="industry-header-card">
+          <div class="industry-badge">&#9679;</div>
+          <div class="industry-header-body">
+            <h2>鉄道・インフラ</h2>
+            <p>夜間工事で大量の写真をその場でアップロード。翌朝に事務所が確認・報告書を作成。工事記録として蓄積し、定期監査・行政報告のエビデンスとして活用。</p>
+          </div>
+        </div>
+
+        <h3>夜間工事&#8594;翌朝確認のフロー</h3>
+        <div class="flow-row">
+          <div class="flow-step">深夜: 工事班がスマホで写真UL</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step step-highlight">早朝: 事務所が全枚数を確認</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step">報告書・施工記録を作成</div>
+          <div class="flow-arr arr-teal">&#8594;</div>
+          <div class="flow-step">監査・行政提出</div>
+        </div>
+
+        <h3 style="margin-top:24px;">工事記録フォルダ（モックUI）</h3>
+        <div class="mock-dc">
+          <div class="mock-dc-header">
+            <span class="mock-dc-logo">DirectCloud</span>
+            <span class="mock-dc-upload">&#8679; アップロード</span>
+            <span class="mock-dc-search">&#9906; 検索...</span>
+          </div>
+          <div class="mock-dc-breadcrumb">&#9632; 工事記録 &gt; &#9632; A線改修工事_2026年 &gt; <strong>0526_深夜工事</strong></div>
+          <div class="mock-dc-toolbar">
+            <span>&#9632; 一覧</span>
+            <span style="margin-left:auto; color:var(--dc-teal); font-weight:600;">234枚 | 1.8GB</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-img">&#9632;</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">軌道_A区間_施工前_001.jpg</span>
+            <span class="mock-dc-file-size">8.2MB</span>
+            <span class="mock-dc-file-date">0:14</span>
+            <span class="mock-dc-file-user">第1班</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-img">&#9632;</span>
+            <span class="mock-dc-file-name" style="font-weight:600;">軌道_A区間_施工後_完了確認.jpg</span>
+            <span class="mock-dc-file-size">7.9MB</span>
+            <span class="mock-dc-file-date">3:42</span>
+            <span class="mock-dc-file-user">第1班</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-img">&#9632;</span>
+            <span class="mock-dc-file-name">電気設備_B区間_交換後.jpg</span>
+            <span class="mock-dc-file-size">6.1MB</span>
+            <span class="mock-dc-file-date">4:15</span>
+            <span class="mock-dc-file-user">第2班</span>
+          </div>
+          <div class="mock-dc-file-row">
+            <span class="mock-dc-icon-pdf">PDF</span>
+            <span class="mock-dc-file-name">施工記録_0526_確定版.pdf</span>
+            <span class="mock-dc-file-size">42MB</span>
+            <span class="mock-dc-file-date">9:30</span>
+            <span class="mock-dc-file-user">事務所</span>
+          </div>
+          <div class="mock-dc-log">
+            <div class="mock-dc-log-title">&#9654; 操作ログ（翌朝確認）</div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">06:15</span>
+              <span class="mock-dc-log-badge view">閲覧</span>
+              <span>管理者_田中 フォルダ全体（234枚 確認済み）</span>
+            </div>
+            <div class="mock-dc-log-row">
+              <span class="mock-dc-log-time">04:23</span>
+              <span class="mock-dc-log-badge ul">UL</span>
+              <span>第2班_鈴木 電気設備_B区間_交換後.jpg（一括84枚）</span>
+            </div>
+          </div>
+          <div class="mock-dc-footer">工事記録が年度ごとに蓄積 &#8212; 過去の施工状況をいつでも確認できる</div>
+        </div>
+
+        <div class="feature-table-wrap" style="margin-top:24px;">
+          <table class="feature-table">
+            <thead><tr><th>機能</th><th>鉄道・インフラでの活用</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge-use">大容量ストレージ</span></td><td>一夜で数百枚・数GBの写真もアップロード可能。容量制限を気にせず記録</td></tr>
+              <tr><td><span class="badge-use">モバイルアプリ</span></td><td>深夜の工事現場でスマホから即アップロード。アプリで一括送信対応</td></tr>
+              <tr><td><span class="badge-use">操作ログ</span></td><td>「誰が・いつ・何枚」確認したかの記録が残る。監査時のエビデンスに</td></tr>
+              <tr><td><span class="badge-use">フォルダ管理</span></td><td>工事別・日付別に自動整理。数年分の施工記録を横断検索</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>「業務の基盤」になるポイント</h4>
+          <p>工事記録が年度ごとに蓄積されることで、「3年前の同じ区間の施工写真はどうだったか」を即座に確認できる。定期監査や行政報告では「フォルダを見せる」だけでエビデンスが完結する。</p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('care')">&#8592; 戻る</button>
+          <button class="btn btn-primary" onclick="goTo('q1')">理解度クイズへ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>業種別 理解度クイズ</h1>
+        <p>この業務シナリオに最もフィットするDirectCloudの機能はどれですか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> ある小売チェーンでは、各店舗が月に一度、売り場の陳列写真を本社へ送り、ベスト陳列を選ぶ改善活動を行っています。現在はLINEで写真を送り合っているため、過去の写真が探せません。DirectCloudでどう解決しますか？</p>
+        </div>
+
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>共有リンク発行</h5>
+            <p>各店舗から本社へ毎月リンクを送る</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>ゲスト招待でフォルダ共有</h5>
+            <p>陳列写真フォルダを全店で共有。写真が自動蓄積され、過去分も参照できる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>複合機連携</h5>
+            <p>写真をプリントして複合機でスキャン保存する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('infra')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>業種別 理解度クイズ</h1>
+        <p>この業務シナリオに最もフィットするDirectCloudの機能はどれですか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> 建設現場の作業員が夕方に工事の完了確認写真を撮影しています。事務所の担当者はリアルタイムで進捗を把握し、翌朝すぐ書類を作りたいと考えています。現場&#8596;事務所の連携にどの機能が最適ですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>モバイルアプリでUL</h5>
+            <p>現場でスマホから直接DirectCloudへアップロード。事務所が即座に確認できる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>メール添付で送付</h5>
+            <p>写真をメールに添付して事務所へ送る</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>USBメモリで持ち帰り</h5>
+            <p>現場でUSBに保存し、翌朝事務所でアップロード</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>業種別 理解度クイズ</h1>
+        <p>この業務シナリオに最もフィットするDirectCloudの機能はどれですか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> ある運送会社では、荷主から毎日FAXで配送指示書が届きます。現在は紙で保管しているため、過去の伝票を探すのに時間がかかり、トラブル対応が遅れることがあります。この課題をDirectCloudで解決するには？</p>
+        </div>
+
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>手動でスキャンして保存</h5>
+            <p>担当者が毎日複合機でスキャンしてPCに保存する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>複合機連携で自動保存</h5>
+            <p>FAX受信と同時に複合機からDirectCloudの指定フォルダへ自動保存。担当者の作業ゼロ</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>共有リンクで荷主に転送</h5>
+            <p>FAXをスキャンして荷主に共有リンクで返す</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>業種別 理解度クイズ</h1>
+        <p>この業務シナリオに最もフィットするDirectCloudの機能はどれですか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> 介護施設では、スタッフが業務用スマホで利用者のケア写真を撮影しています。端末を紛失した場合の個人情報漏えいリスクを最小化しながら、写真を記録として残すにはどうすればよいですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>撮影後すぐメールで送信</h5>
+            <p>写真を撮ったらすぐ本部メールに送り、スマホから手動削除する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>MDM連携でDirectCloudのみ保存</h5>
+            <p>MDMでカメラロールを非表示化。撮影した写真はDirectCloudにのみ保存され、端末に残らない</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>専用カメラを購入して管理</h5>
+            <p>スマホを使わずデジカメで撮影し、専任者がPC転送する</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>業種別 理解度クイズ</h1>
+        <p>この業務シナリオに最もフィットするDirectCloudの機能はどれですか？</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> 鉄道会社では、夜間工事ごとに数百枚の施工写真を記録しています。後日の定期監査で「3年前のこの区間の施工状況」を提示するよう求められました。迅速に対応するには、普段からどう運用しておくべきですか？</p>
+        </div>
+
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>DVDに焼いて倉庫保管</h5>
+            <p>工事ごとにDVDを作成し、物理的に保管する</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>フォルダ蓄積＋操作ログ</h5>
+            <p>工事別フォルダに写真を蓄積し、操作ログで「いつ誰が確認したか」も記録。監査時に即座に提示できる</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>担当者のPCに保存</h5>
+            <p>担当者が個人PCに写真を保存し、必要時にメール提出</p>
+          </div>
+        </div>
+
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした！</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div style="margin-top:32px;">
+          <h3 style="font-size:16px; font-weight:700; color:#1A2332; margin-bottom:12px;">業種別おすすめ機能 早見表</h3>
+          <div class="ref-table-wrap">
+            <table class="ref-table">
+              <thead>
+                <tr>
+                  <th>業種</th>
+                  <th>主な活用機能</th>
+                  <th>ポイント</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>小売業</td>
+                  <td><span class="cell-ok">ゲスト招待 / モバイルUL</span></td>
+                  <td>陳列写真蓄積・仕入先連携</td>
+                </tr>
+                <tr>
+                  <td>建設業</td>
+                  <td><span class="cell-ok">モバイルアプリ / ゲスト招待</span></td>
+                  <td>現場&#8596;事務所・図面の最新版管理</td>
+                </tr>
+                <tr>
+                  <td>運送業</td>
+                  <td><span class="cell-ok">複合機連携 / ゲスト招待</span></td>
+                  <td>FAX電子化・荷主フォルダ蓄積</td>
+                </tr>
+                <tr>
+                  <td>介護</td>
+                  <td><span class="cell-ok">MDM連携 / フォルダ管理</span></td>
+                  <td>端末に個人情報を残さない運用</td>
+                </tr>
+                <tr>
+                  <td>鉄道・インフラ</td>
+                  <td><span class="cell-ok">大容量ストレージ / 操作ログ</span></td>
+                  <td>工事記録の長期蓄積・監査対応</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="insight" style="margin-top:24px;">
+          <h4>次のステップ</h4>
+          <ul>
+            <li><strong>ゲスト招待:</strong> 取引先・協力会社との共有方法を整理する &#8594; <a href="guest-permissions.html" style="color:var(--dc-teal);">ゲスト招待 権限設定ガイド</a></li>
+            <li><strong>共有リンク vs ゲスト:</strong> どちらを使うか迷ったら &#8594; <a href="link-to-guest.html" style="color:var(--dc-teal);">リンク→ゲスト移行ガイド</a></li>
+            <li><strong>セキュリティ:</strong> 組織全体の設定を確認する &#8594; <a href="security-check.html" style="color:var(--dc-teal);">セキュリティ設定チェック</a></li>
+          </ul>
+        </div>
+
+
+        <div id="nextGuides"></div>
+        <div class="saved-notice" id="savedNotice" style="display:none;">回答を記録しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: '業種別活用ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 1,
+  q2: 0,
+  q3: 1,
+  q4: 1,
+  q5: 1
+};
+
+var explanations = {
+  q1: {
+    correct: '正解！ ゲスト招待でフォルダを全店共有すると、各店舗がアップロードするだけで写真が自動的に蓄積されます。過去の陳列写真もいつでも参照でき、月次フィードバックの根拠になります。',
+    wrong: {
+      0: '共有リンクは毎回リンクを発行し直す必要があり、過去の写真が一か所に蓄積されません。「ゲスト招待」でフォルダを共有することで、全店の写真が自動的に蓄積されます。',
+      2: '複合機連携はFAX・紙の電子化に向いた機能です。スマホ撮影の写真共有には「ゲスト招待」フォルダへのモバイルアップロードが最適です。'
+    }
+  },
+  q2: {
+    correct: '正解！ モバイルアプリを使えば、現場でスマホからDirectCloudへ直接アップロードできます。事務所はリアルタイムで写真を確認でき、翌朝すぐに書類作成に着手できます。',
+    wrong: {
+      1: 'メール添付では添付ファイルのサイズ制限があり、蓄積もされません。モバイルアプリならその場でDirectCloudへアップロードでき、事務所が即座に確認できます。',
+      2: 'USBメモリは物理的に持ち帰る必要があり、リアルタイム性がありません。モバイルアプリなら現場からクラウドへ即座に送れます。'
+    }
+  },
+  q3: {
+    correct: '正解！ 複合機連携を使えば、FAXを受信した複合機が自動的にDirectCloudの指定フォルダへ保存します。担当者の手作業ゼロで電子化が完了し、過去の伝票も検索できるようになります。',
+    wrong: {
+      0: '手動スキャンでは担当者の工数が増えます。「複合機連携」を設定すれば、FAX到着と同時に自動保存されるため、作業ゼロで電子化できます。',
+      2: '荷主への共有リンク送信は別の用途です。FAX電子化の自動化には「複合機連携」でDirectCloudフォルダへ直接保存する設定が最適です。'
+    }
+  },
+  q4: {
+    correct: '正解！ MDM連携でカメラロールを非表示にし、DirectCloudへのみ保存される設定にすることで、端末紛失時も写真は端末に残りません。個人情報保護と業務記録の両立が実現します。',
+    wrong: {
+      0: 'メール送信後の手動削除は運用ミスのリスクがあります。「MDM連携」でそもそも端末に残らない仕組みを作ることが確実です。',
+      2: '専用カメラは導入コストが高く、担当者への集中も課題です。業務スマホにMDMを適用することで、現状の端末を使いながら安全な運用が可能です。'
+    }
+  },
+  q5: {
+    correct: '正解！ フォルダに写真を蓄積し続けることで、数年後でも工事記録をすぐに提示できます。操作ログにより「誰がいつ確認したか」も記録されるため、監査時のエビデンスとして完全な形で対応できます。',
+    wrong: {
+      0: 'DVDは検索性がなく、劣化リスクもあります。DirectCloudのフォルダに蓄積することで、キーワード検索で過去の記録を即座に見つけられます。',
+      2: '担当者のPCに保存すると、担当者交代・PC故障で記録が失われるリスクがあります。クラウドのフォルダに蓄積することで組織の資産として永続的に管理できます。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+var submitted = false;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'retail', 'construction', 'logistics', 'care', 'infra', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>正解！</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    fb.className = 'feedback show incorrect';
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.innerHTML = '<h4>不正解 &#8212; 正解は「' + correctCard + '」</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result (sidebar guard) ===== */
+function goToResult() {
+  var allAnswered = Object.keys(correctAnswers).every(function(q) {
+    return answered[q] !== undefined;
+  });
+  if (allAnswered) {
+    showResult();
+  } else {
+    for (var i = 0; i < sectionOrder.length; i++) {
+      var s = sectionOrder[i];
+      if (s.charAt(0) === 'q' && answered[s] === undefined) {
+        goTo(s);
+        return;
+      }
+    }
+  }
+}
+
+function showResult() {
+  goTo('result');
+
+  var totalQ = Object.keys(correctAnswers).length;
+  var pct = (score / totalQ) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#0F766E ' + pct + '%, #D1E8E5 ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '全問正解！業種別の活用シナリオを完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧！実務でも業種に合わせた提案ができるレベルです';
+  else if (score >= 3) msg = '基本はOK！早見表を見ながら、各業種の特徴を整理してみましょう';
+  else msg = '早見表を参考に、業種別のポイントをもう一度確認してみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: '小売業: 陳列写真を店舗間で共有・改善サイクル',
+    q2: '建設業: 現場写真をリアルタイムで事務所へ送る',
+    q3: '運送業: FAXで届いた伝票を電子化・自動保存',
+    q4: '介護: 端末に個人情報を残さない写真管理',
+    q5: '鉄道・インフラ: 工事記録の長期蓄積と監査対応'
+  };
+  var correctNames = {
+    q1: 'ゲスト招待でフォルダ共有',
+    q2: 'モバイルアプリでUL',
+    q3: '複合機連携で自動保存',
+    q4: 'MDM連携でDirectCloudのみ保存',
+    q5: 'フォルダ蓄積＋操作ログ'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    var yourAnswer = answersLabel[q] ? answersLabel[q].replace(/ \(不正解\)/, '') : '未回答';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' / あなたの回答: ' + yourAnswer) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  if (!submitted) {
+    submitted = true;
+    submitResults({ score: score, total: totalQ });
+  }
+  var _ba_score = score;
+  var _ba_total = totalQ;
+  // --- Bowling Alley: score-based next guide recommendations ---
+  var _EC = 'https://community.directcloud.jp/s/learning/';
+  var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+  var _guides = {
+      'file-sharing': {title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+      'browser-guide': {title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+      'initial-setup': {title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+      'security-check': {title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+      'drive-troubleshooting': {title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+      'guest-permissions': {title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+      'link-to-guest': {title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+      'shield-security': {title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+      'supply-chain-check': {title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+      'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+      'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+      'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'}
+    };
+  var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
+  var _picks, _h, _s;
+  if (_pct >= 80) {
+    _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+    _s = '\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
+    _picks = ['file-sharing', 'browser-guide'];
+  } else if (_pct >= 40) {
+    _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
+    _s = '\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
+    _picks = ['file-sharing', 'security-check'];
+  } else {
+    _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+    _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
+    _picks = ['initial-setup', 'drive-troubleshooting'];
+  }
+  var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
+  for (var _gi = 0; _gi < _picks.length; _gi++) {
+    var _g = _guides[_picks[_gi]];
+    _gh += '<a class="next-guide-card" href="' + _EC + _picks[_gi] + _up + '" target="_top">';
+    _gh += '<div class="next-guide-icon" style="background:' + _g.bg + ';">' + _g.icon + '</div>';
+    _gh += '<div><h5>' + _g.title + '</h5><p>' + _g.desc + '</p>';
+    _gh += '<span class="next-guide-tag" style="background:' + _g.bg + ';color:' + _g.color + ';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+  }
+  _gh += '</div></div>';
+  document.getElementById('nextGuides').innerHTML = _gh;
+
+}
+</script>
+</body>
+</html>
