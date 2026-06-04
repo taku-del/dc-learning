@@ -1384,7 +1384,7 @@
 
 <script>
 /* ===== Data Collection ===== */
-var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+var COLLECT_ENDPOINT = 'YOUR_POWER_AUTOMATE_ENDPOINT_HERE';
 
 function getUser() {
   return new URLSearchParams(window.location.search).get('user') || '';
@@ -1607,7 +1607,8 @@ function showResult() {
       'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
       'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
       'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
-      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'}
+      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'},
+      'document-management': {title:'\u6587\u66F8\u7BA1\u7406\u30D5\u30A9\u30EB\u30C0\u6D3B\u7528',desc:'\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC\u3092\u5B66\u3076',icon:'\uD83D\uDCC4',bg:'#e8f5ee',color:'#2D6A4F'}
     };
   var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
   var _picks, _h, _s;

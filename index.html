@@ -352,11 +352,11 @@
     </div>
     <div class="hero-counts">
       <div class="hero-count">
-        <div class="hero-count-num">8</div>
+        <div class="hero-count-num">11</div>
         <div class="hero-count-label">公開中</div>
       </div>
       <div class="hero-count">
-        <div class="hero-count-num">2</div>
+        <div class="hero-count-num">0</div>
         <div class="hero-count-label">近日公開</div>
       </div>
     </div>
@@ -437,8 +437,33 @@
         </div>
       </a>
 
-      <!-- link-to-guest: EC公開後に表示 -->
-      <!-- browser-guide: EC公開後に表示 -->
+      <a id="link-linktoguest" href="https://community.directcloud.jp/s/learning/link-to-guest" target="_top" class="guide-card" style="--accent:#0D9488; --accent-pale:#f0fdfa;" data-industry="retail,construction,logistics,office">
+        <div class="gc-badge">シナリオ+クイズ形式</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-fileshare">ファイル共有</span>
+          <span class="tag-pill tag-beginner">初心者</span>
+        </div>
+        <div class="gc-title">共有リンク→ゲスト招待 移行ガイド</div>
+        <div class="gc-desc">共有リンクの課題を整理し、ゲスト招待への移行メリットを6業種のシナリオで学びます。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約6分 ・ 全ユーザー向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a id="link-browserguide" href="https://community.directcloud.jp/s/learning/browser-guide" target="_top" class="guide-card" style="--accent:#4F46E5; --accent-pale:#EEF2FF;" data-industry="retail,construction,logistics,care,infra,office">
+        <div class="gc-badge">4STEP学習</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-browser">ブラウザ</span>
+          <span class="tag-pill tag-beginner">初心者</span>
+        </div>
+        <div class="gc-title">ドライブ→ブラウザ併用ガイド</div>
+        <div class="gc-desc">ドライブ版とブラウザ版の使い分けを整理し、Web機能を活かした運用を4STEPで学びます。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約5分 ・ 全ユーザー向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
 
     </div>
   </div>
@@ -531,6 +556,20 @@
         <div class="gc-desc">フォルダ設計・容量管理・アーカイブ運用を4STEPで学びます。大量データを扱う業種に。</div>
         <div class="gc-footer">
           <span class="gc-meta">5問 ・ 約6分 ・ 管理者向け</span>
+          <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
+        </div>
+      </a>
+
+      <a id="link-docmgmt" href="https://community.directcloud.jp/s/learning/document-management" target="_top" class="guide-card" style="--accent:#2D6A4F; --accent-pale:#E8F5EE;" data-industry="retail,construction,office,logistics">
+        <div class="gc-badge">4STEP学習</div>
+        <div class="gc-tags">
+          <span class="tag-pill tag-compliance">コンプライアンス</span>
+          <span class="tag-pill tag-admin">管理者</span>
+        </div>
+        <div class="gc-title">文書管理フォルダ活用ガイド</div>
+        <div class="gc-desc">削除不可・属性検索・電帳法対応。文書管理フォルダの設定と運用を4STEPで学びます。</div>
+        <div class="gc-footer">
+          <span class="gc-meta">5問 ・ 約5分 ・ 管理者向け</span>
           <span class="gc-link">始める <span style="font-size:14px;">&#8594;</span></span>
         </div>
       </a>
@@ -646,7 +685,10 @@ if (window === window.top) {
     'link-shield': 'shield-security.html',
     'link-initialsetup': 'initial-setup.html',
     'link-tiering': 'storage-tiering.html',
-    'link-troubleshoot': 'drive-troubleshooting.html'
+    'link-troubleshoot': 'drive-troubleshooting.html',
+    'link-linktoguest': 'link-to-guest.html',
+    'link-browserguide': 'browser-guide.html',
+    'link-docmgmt': 'document-management.html'
   };
   Object.keys(localMap).forEach(function(id) {
     var el = document.getElementById(id);
