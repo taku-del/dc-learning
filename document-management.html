@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 活用ガイド — 文書管理フォルダ活用ガイド</title>
+<style>
+  :root {
+    --dc-primary: #2D6A4F;
+    --dc-primary-light: #E8F5EE;
+    --dc-primary-dark: #1B4332;
+    --dc-accent: #40916C;
+    --dc-accent-light: #D8F3DC;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #E67E22;
+    --dc-orange-light: #FEF3E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --dc-blue: #2563EB;
+    --dc-blue-light: #EFF6FF;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F0F5F2;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-primary);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar-logo {
+    font-size: 14px; font-weight: 700; color: var(--dc-primary);
+  }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-primary); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-primary); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: var(--dc-primary-light); color: var(--dc-primary); }
+  .sidebar-item.active {
+    color: var(--dc-primary);
+    background: var(--dc-primary-light);
+    border-left-color: var(--dc-primary);
+    font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Scenario box ===== */
+  .scenario {
+    background: var(--dc-primary-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--dc-primary);
+  }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-primary-dark); }
+
+  /* ===== Tip box ===== */
+  .tip {
+    background: var(--dc-orange-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #92400E;
+    line-height: 1.7;
+  }
+  .tip strong { color: #B45309; }
+
+  /* ===== Insight box ===== */
+  .insight {
+    background: var(--dc-blue-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 16px;
+  }
+  .insight h4 { font-size: 14px; font-weight: 700; color: var(--dc-blue); margin-bottom: 8px; }
+  .insight ul { list-style: none; padding: 0; }
+  .insight li {
+    font-size: 13px; color: #374151; padding: 4px 0 4px 18px;
+    position: relative; line-height: 1.7;
+  }
+  .insight li::before {
+    content: '>'; position: absolute; left: 2px;
+    font-weight: 700; color: var(--dc-blue); font-size: 12px;
+  }
+
+  /* ===== Warning box ===== */
+  .warning-box {
+    background: var(--dc-red-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #991B1B;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .warning-box strong { color: #B91C1C; }
+
+  /* ===== Compare table ===== */
+  .compare-table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #E0E6ED;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 480px;
+  }
+  .compare-table th {
+    background: #F0F5F2;
+    padding: 10px 12px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid #E0E6ED;
+    white-space: nowrap;
+    color: #1A2332;
+  }
+  .compare-table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+    min-width: 140px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: var(--dc-primary-light); }
+  .compare-table th.highlight {
+    background: var(--dc-primary-light);
+    color: var(--dc-primary-dark);
+  }
+  .cell-yes { color: var(--dc-primary); font-weight: 700; }
+  .cell-no { color: var(--dc-gray); }
+  .cell-accent { color: var(--dc-accent); font-weight: 700; }
+
+  /* ===== Document type cards ===== */
+  .doc-type-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .doc-type-card {
+    background: var(--dc-primary-light);
+    border: 1px solid #C7E0D2;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .doc-type-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--dc-primary);
+  }
+  .doc-type-icon { font-size: 24px; margin-bottom: 6px; }
+  .doc-type-label { font-size: 13px; font-weight: 600; color: var(--dc-primary-dark); }
+
+  /* ===== 3-category cards ===== */
+  .cat-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .cat-card {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--dc-primary);
+  }
+  .cat-card h4 {
+    font-size: 14px; font-weight: 700; color: var(--dc-primary-dark);
+    margin-bottom: 8px;
+  }
+  .cat-card p {
+    font-size: 13px; color: #666; line-height: 1.6;
+  }
+  .cat-card .cat-example {
+    font-size: 12px; color: #888; margin-top: 8px;
+    padding-top: 8px; border-top: 1px solid #F0F0F5;
+  }
+
+  /* ===== Attribute table ===== */
+  .attr-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .attr-item {
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .attr-name {
+    font-size: 13px; font-weight: 700; color: var(--dc-primary-dark);
+    margin-bottom: 4px;
+  }
+  .attr-detail { font-size: 12px; color: #888; line-height: 1.5; }
+  .attr-item.required {
+    border-color: var(--dc-primary);
+    background: var(--dc-primary-light);
+  }
+  .attr-item.required .attr-name::after {
+    content: ' *'; color: var(--dc-red); font-size: 11px;
+  }
+
+  /* ===== Step list ===== */
+  .step-list {
+    margin: 16px 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step-counter;
+  }
+  .step-list li {
+    counter-increment: step-counter;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid #F0F0F5;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before {
+    content: counter(step-counter);
+    background: var(--dc-primary);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== Mock UI ===== */
+  .mock-ui {
+    background: #F8FAF9;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .mock-ui-title {
+    font-size: 12px; font-weight: 700; color: #999;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .mock-browser {
+    background: #fff;
+    border: 1px solid #D0D7DE;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .mock-browser-bar {
+    background: #F3F4F6;
+    border-bottom: 1px solid #E0E6ED;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .mock-dot-r { background: #FCA5A5; }
+  .mock-dot-y { background: #FCD34D; }
+  .mock-dot-g { background: #6EE7B7; }
+  .mock-browser-body { padding: 16px; }
+  .mock-sidebar-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #E0E6ED;
+  }
+  .mock-nav-item {
+    padding: 8px 16px;
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+  .mock-nav-item.active {
+    color: var(--dc-primary);
+    border-bottom-color: var(--dc-primary);
+  }
+  .mock-file-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid #F0F0F5;
+    align-items: center;
+  }
+  .mock-file-row.header {
+    font-weight: 700;
+    color: #666;
+    background: #F8FAF9;
+    border-radius: 4px;
+  }
+  .mock-file-name { color: var(--dc-primary); font-weight: 600; }
+  .mock-attr-panel {
+    background: var(--dc-primary-light);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .mock-attr-panel h5 { font-size: 13px; font-weight: 700; color: var(--dc-primary-dark); margin-bottom: 8px; }
+  .mock-attr-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed #C7E0D2;
+  }
+  .mock-attr-row:last-child { border-bottom: none; }
+  .mock-attr-label { color: #666; font-weight: 600; }
+  .mock-attr-value { color: #1A2332; }
+
+  /* ===== Search demo ===== */
+  .search-demo {
+    background: #F8FAF9;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .search-bar {
+    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .search-field {
+    padding: 8px 12px; border: 1px solid #D0D7DE; border-radius: 6px;
+    font-size: 12px; background: #fff; color: #374151;
+  }
+  .search-field.active { border-color: var(--dc-primary); background: var(--dc-primary-light); }
+  .search-btn {
+    padding: 8px 16px; background: var(--dc-primary); color: #fff;
+    border: none; border-radius: 6px; font-size: 12px; font-weight: 600;
+  }
+  .search-toggle {
+    display: flex; gap: 4px; margin-bottom: 12px;
+  }
+  .search-toggle span {
+    padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+  }
+  .search-toggle .on { background: var(--dc-primary); color: #fff; }
+  .search-toggle .off { background: #E0E6ED; color: #888; }
+
+  /* ===== Stat banner ===== */
+  .stat-banner {
+    background: linear-gradient(135deg, var(--dc-primary-dark) 0%, var(--dc-primary) 100%);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin: 20px 0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .stat-number { font-size: 48px; font-weight: 800; line-height: 1; }
+  .stat-unit { font-size: 20px; font-weight: 400; }
+  .stat-text h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .stat-text p { font-size: 13px; opacity: 0.85; line-height: 1.6; }
+
+  /* ===== Buttons ===== */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+  }
+  .btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--dc-primary);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--dc-primary-dark); }
+  .btn-primary:disabled { background: #9CA3AF; cursor: not-allowed; }
+  .btn-outline {
+    background: transparent;
+    color: var(--dc-primary);
+    border: 1px solid var(--dc-primary);
+  }
+  .btn-outline:hover { background: var(--dc-primary-light); }
+
+  /* ===== Quiz ===== */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .choice-card {
+    background: #fff;
+    border: 2px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .choice-card:hover { border-color: var(--dc-primary); background: var(--dc-primary-light); }
+  .choice-card h5 { font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+  .choice-card p { font-size: 13px; color: #666; line-height: 1.5; }
+  .choice-card.correct { border-color: var(--dc-green); background: var(--dc-green-light); }
+  .choice-card.correct h5 { color: #065F46; }
+  .choice-card.wrong { border-color: var(--dc-red); background: var(--dc-red-light); }
+  .choice-card.wrong h5 { color: #991B1B; }
+  .choice-card.disabled { opacity: 0.4; pointer-events: none; }
+
+  .feedback {
+    display: none;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: var(--dc-green-light); border-left: 4px solid var(--dc-green); }
+  .feedback.correct h4 { color: #065F46; }
+  .feedback.incorrect { background: var(--dc-red-light); border-left: 4px solid var(--dc-red); }
+  .feedback.incorrect h4 { color: #991B1B; }
+  .feedback h4 { margin-bottom: 4px; }
+
+  /* ===== Result ===== */
+  .score-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  .score-circle {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(#E0E6ED 0%, #E0E6ED 100%);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .score-inner {
+    width: 110px; height: 110px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .score-num { font-size: 36px; font-weight: 800; color: var(--dc-primary); }
+  .score-label { font-size: 12px; color: #888; }
+  .score-msg { font-size: 15px; font-weight: 600; color: #374151; text-align: center; }
+
+  .result-review { margin: 24px 0; }
+  .review-item {
+    display: flex; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid #F0F0F5;
+  }
+  .review-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 13px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 12px; color: #888; }
+
+  .ref-table-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #E0E6ED;
+  }
+  .ref-table-section h3 {
+    font-size: 16px; font-weight: 700; color: #1A2332; margin-bottom: 12px;
+  }
+
+  .saved-notice {
+    margin-top: 16px; padding: 10px 16px;
+    background: var(--dc-green-light); color: #065F46;
+    border-radius: 8px; font-size: 13px; font-weight: 600;
+    text-align: center;
+  }
+
+  /* ===== Next guides (cross-link) ===== */
+  .next-guides { margin-top: 32px; }
+  .next-guides h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .next-guide-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .next-guide-card {
+    display: block;
+    background: #fff;
+    border: 1px solid #E0E6ED;
+    border-radius: 10px;
+    padding: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .next-guide-card:hover { border-color: var(--dc-primary); transform: translateY(-2px); }
+  .next-guide-icon { font-size: 24px; margin-bottom: 6px; }
+  .next-guide-title { font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+  .next-guide-desc { font-size: 12px; color: #888; line-height: 1.5; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .topbar { padding: 12px 20px; }
+    .choices { grid-template-columns: 1fr; }
+    .doc-type-grid { grid-template-columns: repeat(2, 1fr); }
+    .cat-cards { grid-template-columns: 1fr; }
+    .attr-grid { grid-template-columns: 1fr; }
+    .next-guide-grid { grid-template-columns: 1fr; }
+    .stat-banner { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">文書管理フォルダ活用ガイド</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 10</span>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')">
+      <span class="icon">&#9654;</span> はじめに
+    </div>
+    <div class="sidebar-item" data-sec="step1" onclick="goTo('step1')">
+      <span class="icon">1</span> 文書管理フォルダとは
+    </div>
+    <div class="sidebar-item" data-sec="step2" onclick="goTo('step2')">
+      <span class="icon">2</span> どんな書類を入れる？
+    </div>
+    <div class="sidebar-item" data-sec="step3" onclick="goTo('step3')">
+      <span class="icon">3</span> 設定と運用
+    </div>
+    <div class="sidebar-item" data-sec="step4" onclick="goTo('step4')">
+      <span class="icon">4</span> 検索・エクスポート
+    </div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')">
+      <span class="icon">Q</span> クイズ 1
+    </div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')">
+      <span class="icon">Q</span> クイズ 2
+    </div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')">
+      <span class="icon">Q</span> クイズ 3
+    </div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')">
+      <span class="icon">Q</span> クイズ 4
+    </div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')">
+      <span class="icon">Q</span> クイズ 5
+    </div>
+    <div class="sidebar-item" data-sec="result" onclick="goTo('result')">
+      <span class="icon">&#9733;</span> 結果
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- ========== INTRO ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>その書類、探せますか？</h1>
+        <p>文書管理フォルダで「消えない・見つかる・すぐ出せる」を実現しましょう</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p><strong>「あの請求書どこだっけ？」「誰かに消されてた&#8230;」</strong><br>
+          共有フォルダに入れっぱなしの書類、必要なときにすぐ出せますか？<br>
+          文書管理フォルダなら、<strong>消せない場所にまとめて入れておく</strong>だけで解決します。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">こんな場面で使われています</h3>
+        <div class="cat-cards">
+          <div class="cat-card">
+            <h4>仕入先との請求書を一元管理</h4>
+            <p>毎月届く請求書を文書管理フォルダに入れるだけ。取引先名で検索すればすぐ見つかる</p>
+            <div class="cat-example">小売・一般事務</div>
+          </div>
+          <div class="cat-card">
+            <h4>契約書を消えない場所に保管</h4>
+            <p>共有フォルダと違って誤削除の心配がない。更新時期に取引先名で検索して確認</p>
+            <div class="cat-example">建設・運送・全業種</div>
+          </div>
+          <div class="cat-card">
+            <h4>監査・税務調査にすぐ対応</h4>
+            <p>「○年の○社の書類を全部」と言われても、検索+CSVエクスポートで即対応</p>
+            <div class="cat-example">経理・管理部門</div>
+          </div>
+        </div>
+
+        <div class="stat-banner">
+          <div>
+            <span class="stat-number">3.3<span class="stat-unit">%</span></span>
+          </div>
+          <div class="stat-text">
+            <h4>ビジネスプラン以上で利用できるのに、利用率はわずか3.3%</h4>
+            <p>文書管理フォルダは追加費用なしで使えます。まだ使っていないなら、もったいない状態かもしれません。このガイドで使い方を確認してみましょう。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <span></span>
+        <button class="btn btn-primary" onclick="goTo('step1')">始める &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP1: 文書管理フォルダとは ========== -->
+    <div class="section" id="sec-step1">
+      <div class="content-header">
+        <h1>STEP 1: 文書管理フォルダとは</h1>
+        <p>共有フォルダとは別の、消せない専用領域です</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>文書管理フォルダは、DirectCloudの<strong>ビジネスプラン以上</strong>で追加費用なしで使える専用のストレージ領域です。<br>
+          共有フォルダとは別に「文書管理」メニューからアクセスし、<strong>保存したファイルは削除できない</strong>仕組みになっています。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">共有フォルダとの違い</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>共有フォルダ</th>
+                <th class="highlight">文書管理フォルダ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ファイル削除</td>
+                <td>誰でも可能</td>
+                <td class="cell-yes">削除不可</td>
+              </tr>
+              <tr>
+                <td>文書属性</td>
+                <td class="cell-no">なし</td>
+                <td class="cell-yes">6属性で管理</td>
+              </tr>
+              <tr>
+                <td>属性検索</td>
+                <td class="cell-no">ファイル名のみ</td>
+                <td class="cell-yes">AND/OR・範囲指定</td>
+              </tr>
+              <tr>
+                <td>CSVエクスポート</td>
+                <td class="cell-no">なし</td>
+                <td class="cell-yes">属性付きで出力</td>
+              </tr>
+              <tr>
+                <td>タイムスタンプ</td>
+                <td>必要に応じて</td>
+                <td class="cell-yes">不要（削除不可で代替）</td>
+              </tr>
+              <tr>
+                <td>電帳法対応</td>
+                <td class="cell-no">非対応</td>
+                <td class="cell-yes">JIIMA認証取得済み</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">対応プラン</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>スタンダード</th>
+                <th>アドバンスド</th>
+                <th class="highlight">ビジネス</th>
+                <th class="highlight">プレミアム</th>
+                <th class="highlight">エンタープライズ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cell-no">-</td>
+                <td class="cell-no">-</td>
+                <td class="cell-yes">標準提供</td>
+                <td class="cell-yes">標準提供</td>
+                <td class="cell-yes">標準提供</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insight">
+          <h4>Webアプリからすぐ使える</h4>
+          <ul>
+            <li>文書管理フォルダはWebアプリケーション（ブラウザ）から利用します</li>
+            <li>ブラウザ版の操作に慣れておきたい方は「ドライブ→ブラウザ併用ガイド」もあわせてどうぞ</li>
+          </ul>
+        </div>
+
+        <div class="insight">
+          <h4>電帳法のことを知らなくても大丈夫</h4>
+          <ul>
+            <li><strong>「大事な書類を消せないフォルダに入れる」</strong>、まずはそれだけでOK</li>
+            <li>削除不可の仕組みが、電帳法で求められるタイムスタンプの代替として認められています</li>
+            <li>JIIMA認証（電帳法の法的要件認証）を2種取得済みなので、認証手続きの心配も不要</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('intro')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step2')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP2: どんな書類を入れる？ ========== -->
+    <div class="section" id="sec-step2">
+      <div class="content-header">
+        <h1>STEP 2: どんな書類を入れる？</h1>
+        <p>まずは請求書と契約書から始めるのがおすすめです</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>考え方はシンプルです。<br>
+          <strong>「消えたら困る書類は、文書管理フォルダに入れる」</strong><br>
+          電帳法の知識は必要ありません。まずはここから始めてみてください。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">まずは請求書と契約書から</h3>
+        <p style="font-size:14px; color:#666; margin-bottom:16px; line-height:1.7;">文書管理フォルダに入れたファイルには「取引先」「金額」「日付」などの属性を付けられます。<br>ファイル名で探すのではなく、<strong>「A商事の2024年の請求書」</strong>のように条件で検索できるようになります。</p>
+
+        <h3 style="font-size:16px; font-weight:700; margin:24px 0 12px; color:#1A2332;">業種別: どう使う？</h3>
+        <div class="cat-cards" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="cat-card">
+            <h4>小売・一般事務</h4>
+            <p>仕入先からの請求書をフォルダに入れて属性登録。月末の突き合わせは取引先名で検索するだけ</p>
+            <div class="cat-example">メール添付のPDF → 文書管理フォルダへ</div>
+          </div>
+          <div class="cat-card">
+            <h4>建設</h4>
+            <p>工事ごとの契約書・見積書をまとめて保管。現場名で検索すれば関連書類が一覧で出る</p>
+            <div class="cat-example">紙の契約書はスキャンしてアップロード</div>
+          </div>
+          <div class="cat-card">
+            <h4>運送</h4>
+            <p>FAXで届く伝票を複合機連携で電子化。フォルダに入れておけば紙のファイリングが不要に</p>
+            <div class="cat-example">複合機スキャン → フォルダに自動保存</div>
+          </div>
+          <div class="cat-card">
+            <h4>管理部門</h4>
+            <p>全社の契約書を一元管理。更新時期が来たら期間指定で対象契約を一括確認</p>
+            <div class="cat-example">CSVエクスポートで契約台帳を自動生成</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">対応する文書種別（8種類）</h3>
+        <div class="doc-type-grid">
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F4DD;</div>
+            <div class="doc-type-label">契約書</div>
+          </div>
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F4E6;</div>
+            <div class="doc-type-label">納品書</div>
+          </div>
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F4B0;</div>
+            <div class="doc-type-label">請求書</div>
+          </div>
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F9FE;</div>
+            <div class="doc-type-label">領収書</div>
+          </div>
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F4CB;</div>
+            <div class="doc-type-label">見積書</div>
+          </div>
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F4E8;</div>
+            <div class="doc-type-label">注文書</div>
+          </div>
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F4E9;</div>
+            <div class="doc-type-label">発注書</div>
+          </div>
+          <div class="doc-type-card">
+            <div class="doc-type-icon">&#x1F69A;</div>
+            <div class="doc-type-label">送り状</div>
+          </div>
+        </div>
+
+        <div class="insight">
+          <h4>電帳法の対応もカバーしています</h4>
+          <ul>
+            <li>文書管理フォルダに入れた書類は、電帳法で求められる「電子書類」「スキャナ保存」「電子取引」の3区分すべてに対応</li>
+            <li>難しく考える必要はありません &#8212; <strong>普段使いでそのまま法令対応になる</strong>設計です</li>
+          </ul>
+        </div>
+
+        <div class="tip">
+          <strong>スキャナ保存の要件:</strong> 紙をスキャンして保存する場合、200dpi以上・RGB256階調以上の解像度が必要です。一般的な複合機やスマートフォンのカメラであれば問題ありません。
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step1')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step3')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP3: 設定と運用 ========== -->
+    <div class="section" id="sec-step3">
+      <div class="content-header">
+        <h1>STEP 3: 設定と運用</h1>
+        <p>管理者の設定と、ユーザーの日常操作を確認しましょう</p>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">管理者: 文書属性の設定</h3>
+        <p style="font-size:14px; color:#666; margin-bottom:16px;">管理ページの「環境設定」>「文書管理」>「文書属性の設定」から、ファイルに付与する属性を設定します。</p>
+
+        <div class="attr-grid">
+          <div class="attr-item required">
+            <div class="attr-name">取引年月日</div>
+            <div class="attr-detail">カレンダーから日付を選択</div>
+          </div>
+          <div class="attr-item required">
+            <div class="attr-name">取引先</div>
+            <div class="attr-detail">50文字以下のテキスト</div>
+          </div>
+          <div class="attr-item required">
+            <div class="attr-name">取引金額</div>
+            <div class="attr-detail">通貨選択 + 半角数字（15桁以下）</div>
+          </div>
+          <div class="attr-item">
+            <div class="attr-name">文書種別</div>
+            <div class="attr-detail">契約書/請求書等から選択</div>
+          </div>
+          <div class="attr-item">
+            <div class="attr-name">事業者登録番号</div>
+            <div class="attr-detail">50文字以下のテキスト</div>
+          </div>
+          <div class="attr-item">
+            <div class="attr-name">メモ</div>
+            <div class="attr-detail">1,000文字以下の自由テキスト</div>
+          </div>
+        </div>
+        <p style="font-size:12px; color:#888; margin-top:8px;">* 印の3項目は電帳法の要件により常時有効です。</p>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">ユーザー: 文書属性の登録</h3>
+
+        <div class="mock-ui">
+          <div class="mock-ui-title">操作イメージ</div>
+          <div class="mock-browser" style="overflow:hidden;">
+            <!-- ヘッダーバー -->
+            <div style="background:#9FC5E8; border-bottom:2px solid #D9EAD3; height:32px; display:flex; align-items:center; padding:0 12px; gap:12px;">
+              <span style="font-size:11px; font-weight:700; color:#fff; letter-spacing:0.5px;">DirectCloud</span>
+              <div style="flex:1; max-width:220px; height:20px; background:#fff; border-radius:3px; display:flex; align-items:center; padding:0 8px;">
+                <span style="font-size:9px; color:#aaa;">検索</span>
+              </div>
+              <div style="background:#F9CB9C; border-radius:3px; padding:2px 8px; font-size:9px; font-weight:600; color:#7F4B00; cursor:default;">文書属性検索</div>
+            </div>
+            <!-- メイン3カラム -->
+            <div style="display:flex; min-height:240px;">
+              <!-- 左サイドバー -->
+              <div style="width:120px; background:#F4F4F8; border-right:1px solid #E6E6E8; padding:6px 0; flex-shrink:0; font-size:10px; color:#6A6A6F;">
+                <div style="padding:4px 8px 4px 12px;">ホーム</div>
+                <div style="padding:4px 8px 4px 12px;">マイボックス</div>
+                <div style="padding:4px 8px 4px 12px;">共有</div>
+                <div style="padding:4px 8px 4px 10px; background:#E8F5EE; color:var(--dc-primary); font-weight:700; border-left:3px solid var(--dc-primary);">文書管理</div>
+                <div style="padding:2px 8px 2px 24px; font-size:9px; color:var(--dc-primary); background:#F0FAF4;">&#x2514; 請求書</div>
+                <div style="padding:4px 8px 4px 12px;">ウォームストレージ</div>
+                <div style="padding:4px 8px 4px 12px;">コールドストレージ</div>
+                <div style="border-top:1px solid #E0E0E2; margin:3px 8px;"></div>
+                <div style="padding:4px 8px 4px 12px;">ゴミ箱</div>
+              </div>
+              <!-- 中央: ファイルリスト -->
+              <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+                <!-- パンくず -->
+                <div style="padding:4px 10px; border-bottom:1px solid #E6E6E8; font-size:10px; color:#666; background:#FAFAFA; display:flex; align-items:center; gap:4px;">
+                  <span style="opacity:0.5;">&#x1F4C4;</span> 文書管理 <span style="color:#ccc;">&#x203A;</span> <strong style="color:#333;">請求書</strong>
+                </div>
+                <!-- ツールバー -->
+                <div style="padding:3px 8px; border-bottom:1px solid #F0F0F5; display:flex; gap:6px; align-items:center; background:#fff;">
+                  <span style="font-size:9px; color:#999; border:1px solid #ddd; border-radius:2px; padding:1px 4px;">&#x2191; 上位へ</span>
+                  <span style="font-size:9px; color:#999; border:1px solid #ddd; border-radius:2px; padding:1px 4px;">&#x2B06; アップロード</span>
+                  <span style="font-size:9px; color:#999; border:1px solid #ddd; border-radius:2px; padding:1px 4px;">&#x2B07; ダウンロード</span>
+                  <span style="font-size:9px; color:#ccc; margin-left:auto;">CSVエクスポート</span>
+                </div>
+                <!-- ファイル一覧 -->
+                <div style="flex:1;">
+                  <div style="display:grid; grid-template-columns:2fr 64px 78px 1fr 80px; gap:4px; padding:5px 8px; font-size:10px; font-weight:700; color:#666; background:#F8FAF9; border-bottom:1px solid #E6E6E8;">
+                    <span>名前</span><span>文書種別</span><span>取引年月日</span><span>取引先</span><span style="text-align:right;">取引金額</span>
+                  </div>
+                  <div style="display:grid; grid-template-columns:2fr 64px 78px 1fr 80px; gap:4px; padding:5px 8px; font-size:10px; border-bottom:1px solid #F0F0F5; background:#E8F0FF;">
+                    <span style="color:var(--dc-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">&#x1F4C4; 請求書_202603_A商事.pdf</span>
+                    <span>請求書</span><span>2026-03-31</span><span>A商事株式会社</span><span style="text-align:right;">&#xA5;1,500,000</span>
+                  </div>
+                  <div style="display:grid; grid-template-columns:2fr 64px 78px 1fr 80px; gap:4px; padding:5px 8px; font-size:10px; border-bottom:1px solid #F0F0F5;">
+                    <span style="color:#374151; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">&#x1F4C4; 契約書_B工業_2026.pdf</span>
+                    <span>契約書</span><span>2026-04-01</span><span>B工業株式会社</span><span style="text-align:right;">&#xA5;3,200,000</span>
+                  </div>
+                  <div style="display:grid; grid-template-columns:2fr 64px 78px 1fr 80px; gap:4px; padding:5px 8px; font-size:10px; border-bottom:1px solid #F0F0F5;">
+                    <span style="color:#374151; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">&#x1F4C4; 見積書_C物流_0415.pdf</span>
+                    <span>見積書</span><span>2026-04-15</span><span>C物流株式会社</span><span style="text-align:right;">&#xA5;480,000</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 右パネル: 文書属性 -->
+              <div style="width:160px; border-left:1px solid #E6E6E8; background:#fff; flex-shrink:0; padding:8px; font-size:10px; overflow-y:auto;">
+                <div style="font-size:10px; font-weight:700; color:#333; padding-bottom:6px; border-bottom:1px solid #E6E6E8; margin-bottom:6px;">文書属性</div>
+                <div style="margin-bottom:6px;">
+                  <div style="color:#888; font-size:9px;">文書種別</div>
+                  <div style="color:#333;">請求書</div>
+                </div>
+                <div style="margin-bottom:6px;">
+                  <div style="color:#888; font-size:9px;">取引年月日</div>
+                  <div style="color:#333;">2026-03-31</div>
+                </div>
+                <div style="margin-bottom:6px;">
+                  <div style="color:#888; font-size:9px;">取引先</div>
+                  <div style="color:#333;">A商事株式会社</div>
+                </div>
+                <div style="margin-bottom:6px;">
+                  <div style="color:#888; font-size:9px;">取引金額</div>
+                  <div style="color:#333;">&#xA5;(JPY) 1,500,000</div>
+                </div>
+                <div style="margin-bottom:6px;">
+                  <div style="color:#888; font-size:9px;">事業者登録番号</div>
+                  <div style="color:#333;">T1234567890123</div>
+                </div>
+                <div style="margin-bottom:6px;">
+                  <div style="color:#888; font-size:9px;">メモ</div>
+                  <div style="color:#333;">月次定期請求</div>
+                </div>
+                <div style="margin-top:8px; text-align:center;">
+                  <span style="background:var(--dc-primary); color:#fff; padding:3px 12px; border-radius:3px; font-size:9px; font-weight:600;">登録</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ol class="step-list">
+          <li>左メニューの「文書管理」をクリック</li>
+          <li>対象ファイルが保存されているフォルダを開く</li>
+          <li>ファイル名をクリックしてプレビュー画面を表示</li>
+          <li>右スライドメニューの「文書属性」で「登録」をクリック</li>
+          <li>各項目を入力して「保存」</li>
+        </ol>
+
+        <div class="insight">
+          <h4>運用のコツ</h4>
+          <ul>
+            <li><strong>ファイル名の命名規則を決めておく</strong>と後から探しやすい（例: 請求書_YYYYMM_取引先名.pdf）</li>
+            <li>属性登録は<strong>ファイルをアップロードした直後</strong>が漏れにくい</li>
+            <li>部門ごとにフォルダを分けると<strong>アクセス権の管理もシンプル</strong>になる</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step2')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('step4')">次へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== STEP4: 検索・エクスポート ========== -->
+    <div class="section" id="sec-step4">
+      <div class="content-header">
+        <h1>STEP 4: 検索・エクスポートで即対応</h1>
+        <p>税務調査や監査で求められても、数クリックで対応できます</p>
+      </div>
+
+      <div class="card">
+        <div class="scenario">
+          <p>「3年前のA商事との取引に関する請求書を全部見せてください」<br>
+          <strong>文書属性検索なら、取引先と年月日を指定するだけ。</strong>数クリックで一覧が表示されます。</p>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">検索の仕組み</h3>
+
+        <div class="search-demo">
+          <div class="search-toggle">
+            <span class="on">AND検索</span>
+            <span class="off">OR検索</span>
+          </div>
+          <div class="search-bar">
+            <span class="search-field active">文書種別: 請求書</span>
+            <span class="search-field active">取引先: A商事（部分一致）</span>
+            <span class="search-field active">取引年月日: 2023-01-01 ~ 2023-12-31</span>
+            <span class="search-btn">検索</span>
+          </div>
+          <div style="font-size:12px; color:#888; margin-top:8px;">
+            &#8594; 条件に合うファイルが一覧表示されます。そのままCSVエクスポートも可能です。
+          </div>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">検索できる項目</h3>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>検索方法</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>文書種別</td>
+                <td>選択式</td>
+                <td>契約書/請求書等から選択</td>
+              </tr>
+              <tr>
+                <td>取引年月日</td>
+                <td class="cell-yes">範囲指定</td>
+                <td>開始日~終了日を指定</td>
+              </tr>
+              <tr>
+                <td>取引先</td>
+                <td class="cell-yes">完全一致 / 部分一致</td>
+                <td>2文字以上で部分一致検索</td>
+              </tr>
+              <tr>
+                <td>取引金額</td>
+                <td class="cell-yes">範囲指定</td>
+                <td>○円~○円で絞り込み</td>
+              </tr>
+              <tr>
+                <td>事業者登録番号</td>
+                <td>完全一致 / 部分一致</td>
+                <td>インボイス番号での検索</td>
+              </tr>
+              <tr>
+                <td>メモ</td>
+                <td>完全一致 / 部分一致</td>
+                <td>自由テキストで絞り込み</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">CSVエクスポート</h3>
+        <ol class="step-list">
+          <li>文書管理フォルダのファイル一覧で対象ファイルにチェック</li>
+          <li>「CSVエクスポート」ボタンをクリック</li>
+          <li>文書属性付きのCSVファイルがダウンロードされる</li>
+        </ol>
+
+        <div class="insight">
+          <h4>CSVエクスポートのポイント</h4>
+          <ul>
+            <li>1回のエクスポートで<strong>5,000件まで</strong>出力できます</li>
+            <li>件数が多い場合は、検索で絞り込んでからエクスポートするとスムーズです</li>
+          </ul>
+        </div>
+
+        <div class="insight">
+          <h4>こんな場面で活躍します</h4>
+          <ul>
+            <li><strong>取引先からの問い合わせ</strong> &#8212; 「あの見積書、もう一度送ってもらえますか？」にすぐ対応</li>
+            <li><strong>月末の突き合わせ</strong> &#8212; 取引先名と期間で絞り込んで一覧表示</li>
+            <li><strong>決算・監査</strong> &#8212; CSVエクスポートで台帳を自動生成。期間指定で一括確認</li>
+            <li><strong>契約更新</strong> &#8212; 更新月が近い契約書を期間検索で漏れなくチェック</li>
+          </ul>
+        </div>
+
+        <div class="scenario" style="margin-top:24px;">
+          <p><strong>使い始めると、自然に広がります。</strong><br>
+          請求書から始めて、契約書、見積書、納品書&#8230;と保管対象が増えていくのが典型的な流れです。<br>
+          取引先との書類がフォルダに蓄積されるほど、<strong>検索の価値が上がり、業務の基盤として定着</strong>します。</p>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goTo('step3')">&#8592; 戻る</button>
+        <button class="btn btn-primary" onclick="goTo('q1')">クイズに挑戦 &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>文書管理フォルダの知識を確認しましょう</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q1.</strong> 文書管理フォルダに保存したファイルを、ユーザーが誤って<strong>削除しようとした場合</strong>、何が起きますか？</p>
+        </div>
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)">
+            <h5>A. 削除されずそのまま保持される</h5>
+            <p>文書管理フォルダではファイルが保護されています</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)">
+            <h5>B. ゴミ箱に移動する</h5>
+            <p>通常の共有フォルダと同じくゴミ箱に移動します</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)">
+            <h5>C. 管理者に承認依頼が飛ぶ</h5>
+            <p>削除には管理者の承認が必要です</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)">
+            <h5>D. 30日後に自動削除される</h5>
+            <p>削除マークがつき、30日後に完全削除されます</p>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('step4')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>文書管理フォルダの知識を確認しましょう</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q2.</strong> 電帳法の要件により、文書属性として<strong>必ず設定が必要な3項目</strong>はどれですか？</p>
+        </div>
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)">
+            <h5>A. 文書種別・取引先・メモ</h5>
+            <p>文書の種類と取引先、補足情報の3つ</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)">
+            <h5>B. 取引年月日・取引先・取引金額</h5>
+            <p>いつ・誰と・いくらの取引かを特定する3項目</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)">
+            <h5>C. 取引年月日・文書種別・事業者登録番号</h5>
+            <p>日付と種別、インボイス番号の3つ</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)">
+            <h5>D. 取引金額・事業者登録番号・メモ</h5>
+            <p>金額と登録番号、メモの3つ</p>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q1')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>文書管理フォルダの知識を確認しましょう</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q3.</strong> 文書管理フォルダが利用できるのは<strong>どのプラン</strong>からですか？</p>
+        </div>
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)">
+            <h5>A. 全プランで利用可能</h5>
+            <p>スタンダードを含む全プランで利用できます</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)">
+            <h5>B. アドバンスド以上</h5>
+            <p>アドバンスドプランから利用可能です</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)">
+            <h5>C. ビジネス以上（追加費用なし）</h5>
+            <p>ビジネスプランから標準機能として提供されます</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)">
+            <h5>D. エンタープライズのみ</h5>
+            <p>最上位プラン限定の機能です</p>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q2')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>文書管理フォルダの知識を確認しましょう</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q4.</strong> 文書管理フォルダを<strong>利用するときの操作方法</strong>として正しいのはどれですか？</p>
+        </div>
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)">
+            <h5>A. Webアプリケーションから利用する</h5>
+            <p>ブラウザでログインして「文書管理」メニューから操作します</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)">
+            <h5>B. Webアプリ + ドライブの両方で利用する</h5>
+            <p>ブラウザとドライブ版の両方で利用できます</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)">
+            <h5>C. すべてのアプリケーションで利用する</h5>
+            <p>Web・ドライブ・モバイルすべてで利用可能です</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)">
+            <h5>D. Webアプリ + モバイルアプリで利用する</h5>
+            <p>ブラウザとスマートフォンアプリで利用できます</p>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q3')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header">
+        <h1>理解度チェック</h1>
+        <p>文書管理フォルダの知識を確認しましょう</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p><strong>Q5.</strong> 文書属性検索で<strong>取引金額を探す方法</strong>として正しいのはどれですか？</p>
+        </div>
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)">
+            <h5>A. 完全一致のみ</h5>
+            <p>ぴったり一致する金額のみ検索できます</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)">
+            <h5>B. 範囲指定検索</h5>
+            <p>○円~○円の範囲で絞り込むことができます</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)">
+            <h5>C. あいまい検索</h5>
+            <p>近い金額のファイルも含めて表示されます</p>
+          </div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)">
+            <h5>D. 金額では検索できない</h5>
+            <p>取引金額は表示のみで検索対象外です</p>
+          </div>
+        </div>
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goTo('q4')">&#8592; 戻る</button>
+          <button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header">
+        <h1>クイズ結果</h1>
+        <p>お疲れさまでした!</p>
+      </div>
+
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+              <div class="score-num" id="scoreNum">0</div>
+              <div class="score-label">/ 5 問正解</div>
+            </div>
+          </div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+
+        <div class="result-review" id="resultReview"></div>
+
+        <div class="ref-table-section">
+          <h3>文書管理フォルダ 早見表（保存用）</h3>
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>内容</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>対応プラン</td><td class="cell-yes">ビジネス以上（追加費用なし）</td></tr>
+                <tr><td>対応アプリ</td><td>Webアプリケーション（ブラウザ）</td></tr>
+                <tr><td>ファイル削除</td><td class="cell-yes">削除から保護（訂正削除防止）</td></tr>
+                <tr><td>タイムスタンプ</td><td class="cell-yes">不要（削除不可で代替）</td></tr>
+                <tr><td>属性項目</td><td>文書種別/取引年月日/取引先/取引金額/事業者登録番号/メモ</td></tr>
+                <tr><td>必須項目</td><td class="cell-accent">取引年月日・取引先・取引金額</td></tr>
+                <tr><td>検索機能</td><td>AND/OR検索、範囲指定、完全/部分一致</td></tr>
+                <tr><td>CSVエクスポート</td><td>1回あたり5,000件まで</td></tr>
+                <tr><td>法定保存期間</td><td>7年（最長10年）</td></tr>
+                <tr><td>認証</td><td>JIIMA認証2種取得済み</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="nextGuides"></div>
+        <div class="saved-notice" id="savedNotice" style="display:none;">&#x2713; 結果を保存しました</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="location.reload()">もう一度やる</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+/* ===== Data Collection ===== */
+var COLLECT_ENDPOINT = '';
+
+function getUser() {
+  return new URLSearchParams(window.location.search).get('user') || '';
+}
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = {
+    page: '文書管理フォルダ活用ガイド',
+    timestamp: new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}),
+    user: getUser(),
+    answers: answersLabel
+  };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res) {
+    if (res.ok) document.getElementById('savedNotice').style.display = 'block';
+    else console.error('回答送信エラー:', res.status);
+  }).catch(function(e) { console.error('回答送信失敗:', e); });
+}
+
+/* ===== Quiz Data ===== */
+var correctAnswers = {
+  q1: 0, // A. 削除できない
+  q2: 1, // B. 取引年月日・取引先・取引金額
+  q3: 2, // C. ビジネス以上
+  q4: 0, // A. Webアプリケーションのみ
+  q5: 1  // B. 範囲指定検索
+};
+
+var explanations = {
+  q1: {
+    correct: '正解! 文書管理フォルダのファイルは削除から保護されています。これが「訂正削除防止」の仕組みで、電帳法で求められるタイムスタンプの代わりとして認められています。',
+    wrong: {
+      1: 'ゴミ箱には移動しません。文書管理フォルダのファイルは削除から保護されており、契約期間中はそのまま保持されます。',
+      2: '承認依頼の仕組みではありません。管理者であっても削除されない保護設計になっている点が、共有フォルダとの大きな違いです。',
+      3: '自動削除はされません。契約期間中、文書管理フォルダのファイルは保持され続けます。'
+    }
+  },
+  q2: {
+    correct: '正解! 電帳法の要件により「いつ・誰と・いくら」の取引かを特定するために、取引年月日・取引先・取引金額の3項目は常時有効になっています。',
+    wrong: {
+      0: '文書種別とメモは重要ですが、電帳法の必須3項目は「取引年月日・取引先・取引金額」です。',
+      2: '事業者登録番号は任意設定が可能です。必須3項目は「取引年月日・取引先・取引金額」です。',
+      3: 'メモは任意項目です。必須3項目は「取引年月日・取引先・取引金額」で、取引を特定するための基本情報です。'
+    }
+  },
+  q3: {
+    correct: '正解! ビジネスプラン以上で追加費用なしで利用できます。',
+    wrong: {
+      0: 'ビジネスプラン以上が対象です。ビジネス・プレミアム・エンタープライズで標準提供されています。',
+      1: 'ビジネスプランからが対象です。ビジネス・プレミアム・エンタープライズで標準提供されています。',
+      3: 'エンタープライズ限定ではありません。ビジネス・プレミアム・エンタープライズのすべてで利用可能です。'
+    }
+  },
+  q4: {
+    correct: '正解! 文書管理フォルダはWebアプリケーション（ブラウザ）から利用します。ブラウザでログインして「文書管理」メニューからすぐにアクセスできます。',
+    wrong: {
+      1: '文書管理フォルダはWebアプリケーション専用の機能です。ブラウザからの操作に集中した設計になっています。',
+      2: '文書管理フォルダはWebアプリケーション専用の機能です。ブラウザから「文書管理」メニューで利用します。',
+      3: '文書管理フォルダはWebアプリケーション専用の機能です。ブラウザでログインして利用します。'
+    }
+  },
+  q5: {
+    correct: '正解! 取引金額は範囲指定検索に対応しています。「100万円~500万円」のように金額の範囲を指定して絞り込むことができます。取引年月日も同様に範囲指定が可能です。',
+    wrong: {
+      0: '完全一致だけでなく、範囲指定検索ができます。「○円~○円」の範囲で絞り込めるのが便利なポイントです。',
+      2: 'あいまい検索ではなく、範囲指定検索です。開始金額と終了金額を指定して正確に絞り込みます。',
+      3: '取引金額は検索対象です。範囲指定で絞り込むことができます。'
+    }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+
+/* ===== Sections & Navigation ===== */
+var sectionOrder = ['intro', 'step1', 'step2', 'step3', 'step4', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+
+  visited[sec] = true;
+  currentSection = sec;
+  updateSidebar(sec);
+  updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+
+    if (itemSec === sec) {
+      items[i].classList.add('active');
+    } else if (visited[itemSec]) {
+      items[i].classList.add('done');
+      if (icon) icon.textContent = '\u2713';
+    }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  var pct = (step / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ===== Quiz Logic ===== */
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (正解)' : ' (不正解)');
+
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) {
+      cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    } else if (i === correctAnswers[q]) {
+      cards[i].classList.add('correct');
+    } else {
+      cards[i].classList.add('disabled');
+    }
+  }
+
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) {
+    fb.className = 'feedback show correct';
+    fb.innerHTML = '<h4>\u2B55 正解!</h4><p>' + explanations[q].correct + '</p>';
+  } else {
+    var wrongExp = explanations[q].wrong[idx] || '';
+    var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent;
+    fb.className = 'feedback show incorrect';
+    fb.innerHTML = '<h4>\u274C 不正解\u2026正解は\u300C' + correctCard + '\u300D</h4><p>' + wrongExp + '</p>';
+  }
+
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+/* ===== Result ===== */
+function showResult() {
+  goTo('result');
+
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background =
+    'conic-gradient(#2D6A4F ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+
+  var msg = '';
+  if (score === 5) msg = '全問正解! 文書管理フォルダを完璧に理解しています';
+  else if (score >= 4) msg = 'ほぼ完璧! 早見表を確認して、さっそく運用を始めてみましょう';
+  else if (score >= 3) msg = '基本はOK! 早見表を参考にもう少し復習してみましょう';
+  else msg = '早見表を見ながら、機能と設定のポイントを整理してみましょう';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = {
+    q1: '文書管理フォルダの削除保護',
+    q2: '電帳法の必須3項目',
+    q3: '利用可能なプラン',
+    q4: '利用するアプリケーション',
+    q5: '取引金額の検索方法'
+  };
+  var correctNames = {
+    q1: '削除されずそのまま保持される',
+    q2: '取引年月日・取引先・取引金額',
+    q3: 'ビジネス以上（追加費用なし）',
+    q4: 'Webアプリケーションから利用する',
+    q5: '範囲指定検索'
+  };
+
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item">';
+    html += '<div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>正解: ' + correctNames[q] + (isOk ? '' : ' / あなたの回答: ' + answersLabel[q].replace(/ \(不正解\)/, '')) + '</p></div>';
+    html += '</div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  // Cross-link recommendations
+  var _EC = 'https://community.directcloud.jp/s/learning/';
+  var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+  var recs = [
+    {slug:'browser-guide', title:'ドライブ\u2192ブラウザ併用ガイド', desc:'ブラウザ版の操作に慣れて文書管理もスムーズに', icon:'\uD83C\uDF10', bg:'#eef0ff', color:'#4F46E5'},
+    {slug:'security-check', title:'セキュリティ設定チェック', desc:'セキュリティ設定全体を見直して安全性を強化', icon:'\uD83D\uDEE1\uFE0F', bg:'#f1f5f9', color:'#475569'},
+    {slug:'storage-tiering', title:'ストレージ階層化ガイド', desc:'容量管理とコスト最適化をあわせて学ぶ', icon:'\uD83D\uDCE6', bg:'#fefce8', color:'#CA8A04'}
+  ];
+  var ngHtml = '<div class="next-guides"><h3>次におすすめのガイド</h3><div class="next-guide-grid">';
+  for (var r = 0; r < recs.length; r++) {
+    var rc = recs[r];
+    var href = (window === window.top) ? rc.slug + '.html' : _EC + rc.slug;
+    ngHtml += '<a href="' + href + '" target="' + (window === window.top ? '_self' : '_top') + '" class="next-guide-card" style="border-top:3px solid ' + rc.color + ';">';
+    ngHtml += '<div class="next-guide-icon">' + rc.icon + '</div>';
+    ngHtml += '<div class="next-guide-title">' + rc.title + '</div>';
+    ngHtml += '<div class="next-guide-desc">' + rc.desc + '</div>';
+    ngHtml += '</a>';
+  }
+  ngHtml += '</div></div>';
+  document.getElementById('nextGuides').innerHTML = ngHtml;
+
+  submitResults({ score: score, total: 5 });
+}
+
+/* ===== Local dev link override ===== */
+if (window === window.top) {
+  // Running outside iframe (local dev)
+}
+</script>
+</body>
+</html>
