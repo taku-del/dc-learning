@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 活用度セルフチェック</title>
+<style>
+  :root {
+    --dc-blue: #0EA5E9;
+    --dc-blue-light: #f0f9ff;
+    --dc-blue-dark: #0369A1;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F5A623;
+    --dc-orange-light: #FFF5E6;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F0F4F8;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-logo { font-size: 14px; font-weight: 700; color: var(--dc-blue-dark); }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue); }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-blue-dark); }
+  .progress-mini {
+    width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden;
+  }
+  .progress-mini-fill {
+    width: 0%; height: 100%; background: var(--dc-blue); border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 49px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #E0E6ED;
+    padding: 24px 0;
+    position: sticky;
+    top: 49px;
+    height: calc(100vh - 49px);
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #999; font-weight: 600;
+    padding: 0 20px; margin-bottom: 12px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #F5F8FB; color: #333; }
+  .sidebar-item.active {
+    background: var(--dc-blue-light);
+    color: var(--dc-blue-dark);
+    font-weight: 600;
+    border-left-color: var(--dc-blue);
+  }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item.done .sidebar-icon { color: var(--dc-green); }
+  .sidebar-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+
+  /* ===== Content ===== */
+  .content {
+    padding: 40px 48px 80px;
+    overflow-y: auto;
+  }
+
+  .section {
+    display: none;
+    animation: fadeSlideIn 0.4s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .content-header { margin-bottom: 32px; }
+  .content-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .content-header p { font-size: 14px; color: #666; }
+
+  /* ===== Cards ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .card h2 { font-size: 20px; margin-bottom: 16px; color: var(--dc-blue-dark); }
+  .card p { font-size: 15px; color: #4B5563; margin-bottom: 12px; }
+
+  /* ===== Intro meta ===== */
+  .intro-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .intro-meta-item {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .intro-meta-item .meta-icon { font-size: 22px; margin-bottom: 6px; }
+  .intro-meta-item .meta-label { font-size: 12px; color: #888; }
+  .intro-meta-item .meta-value { font-size: 15px; font-weight: 700; color: #333; }
+
+  /* ===== Feature check items ===== */
+  .feature-check {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    border-left: 4px solid #E0E6ED;
+    transition: border-color 0.3s;
+  }
+  .feature-check.answered { border-left-color: var(--dc-blue); }
+  .feature-check-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .feature-check-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: var(--dc-blue-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .feature-check-body { flex: 1; }
+  .feature-check-title {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+  .feature-check-title h4 { font-size: 15px; font-weight: 700; color: #1A2332; }
+  .dc-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #e0f2fe;
+    color: #0369A1;
+    white-space: nowrap;
+  }
+  .feature-check-desc {
+    font-size: 13px; color: #666; margin-bottom: 10px; line-height: 1.6;
+  }
+  .feature-check-why {
+    font-size: 13px; color: #4B5563; line-height: 1.7;
+    background: #F8FAFC;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+  }
+  .feature-check-why strong { color: var(--dc-blue-dark); }
+
+  /* ===== Radio pills ===== */
+  .radio-pills {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .radio-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 16px;
+    border: 2px solid #E0E6ED;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    background: #fff;
+    color: #666;
+  }
+  .radio-pill:hover { border-color: #B0B8C4; }
+  .radio-pill.selected-using {
+    border-color: #059669;
+    background: #ecfdf5;
+    color: #059669;
+  }
+  .radio-pill.selected-known {
+    border-color: #D97706;
+    background: #fffbeb;
+    color: #92400E;
+  }
+  .radio-pill.selected-unknown {
+    border-color: #9CA3AF;
+    background: #F3F4F6;
+    color: #6B7280;
+  }
+  .radio-pill .pill-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 2px solid #ccc;
+    transition: all 0.2s;
+  }
+  .radio-pill.selected-using .pill-dot { background: #059669; border-color: #059669; }
+  .radio-pill.selected-known .pill-dot { background: #D97706; border-color: #D97706; }
+  .radio-pill.selected-unknown .pill-dot { background: #9CA3AF; border-color: #9CA3AF; }
+
+  /* ===== Step progress ===== */
+  .step-progress {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #888;
+    margin-bottom: 20px;
+  }
+  .step-progress-bar {
+    flex: 1; height: 6px; background: #E0E6ED; border-radius: 3px; overflow: hidden;
+  }
+  .step-progress-fill {
+    height: 100%; background: var(--dc-blue); border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* ===== Buttons ===== */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+    gap: 12px;
+  }
+  .btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--dc-blue); color: #fff; }
+  .btn-primary:hover { background: var(--dc-blue-dark); }
+  .btn-secondary { background: none; color: #888; border: 1px solid #DDD; }
+  .btn-secondary:hover { background: var(--dc-gray-light); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ===== Result ===== */
+  .result-hero {
+    text-align: center;
+    padding: 40px 28px 32px;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .result-hero h2 { font-size: 20px; margin-bottom: 24px; color: var(--dc-blue-dark); }
+
+  .score-ring {
+    width: 160px; height: 160px;
+    margin: 0 auto 20px;
+    position: relative;
+  }
+  .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .score-ring-bg { fill: none; stroke: #E0E6ED; stroke-width: 10; }
+  .score-ring-fill {
+    fill: none; stroke: var(--dc-blue); stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 408;
+    stroke-dashoffset: 408;
+    transition: stroke-dashoffset 1.2s ease;
+  }
+  .score-ring-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .score-ring-num { font-size: 38px; font-weight: 800; color: var(--dc-blue-dark); }
+  .score-ring-unit { font-size: 16px; color: #888; }
+  .score-ring-label { font-size: 12px; color: #999; margin-top: 2px; }
+
+  .result-tier {
+    font-size: 18px; font-weight: 700; margin-bottom: 6px;
+  }
+  .result-msg { font-size: 14px; color: #666; }
+
+  /* category bars */
+  .cat-bars {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-bottom: 24px;
+  }
+  .cat-bar-item {
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .cat-bar-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+  .cat-bar-score { font-size: 20px; font-weight: 800; color: var(--dc-blue-dark); margin-bottom: 8px; }
+  .cat-bar-track { height: 6px; background: #E0E6ED; border-radius: 3px; overflow: hidden; }
+  .cat-bar-fill { height: 100%; background: var(--dc-blue); border-radius: 3px; transition: width 1s ease; }
+
+  /* missed features */
+  .missed-section {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .missed-section h3 { font-size: 17px; font-weight: 700; color: #333; margin-bottom: 6px; }
+  .missed-section .missed-sub { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .missed-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: #F8FAFC;
+    border: 1px solid #E8ECF0;
+  }
+  .missed-item-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--dc-blue-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .missed-item-body { flex: 1; }
+  .missed-item-body h5 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .missed-item-body p { font-size: 12px; color: #888; margin: 0; }
+  .missed-item-link {
+    font-size: 12px; font-weight: 600; color: var(--dc-blue);
+    text-decoration: none; white-space: nowrap;
+  }
+  .missed-item-link:hover { text-decoration: underline; }
+
+  .dc-highlight {
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-top: 20px;
+  }
+  .dc-highlight h4 { font-size: 14px; font-weight: 700; color: #0369A1; margin-bottom: 6px; }
+  .dc-highlight p { font-size: 13px; color: #4B5563; margin: 0; }
+
+  /* ===== Next Guides (cross-links) ===== */
+  .next-guides { margin-top: 32px; }
+  .next-guides h3 { font-size: 17px; font-weight: 700; color: #333; margin-bottom: 4px; }
+  .next-guides-sub { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .next-guide-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .next-guide-card {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow);
+    padding: 18px 20px;
+    text-decoration: none; color: inherit;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .next-guide-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .next-guide-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .next-guide-card h5 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .next-guide-card p { font-size: 12px; color: #888; margin: 0 0 6px; }
+  .next-guide-tag {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 4px; display: inline-block;
+  }
+
+  /* ===== Plan selector ===== */
+  .plan-selector {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px;
+  }
+  .plan-pill {
+    padding: 8px 18px;
+    border: 2px solid #E0E6ED;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff; color: #666;
+  }
+  .plan-pill:hover { border-color: #B0B8C4; }
+  .plan-pill.selected { border-color: var(--dc-blue); background: var(--dc-blue-light); color: var(--dc-blue-dark); }
+
+  /* ===== Feature unavailable state ===== */
+  .feature-check.unavailable {
+    opacity: 0.55;
+    border-left-color: #E0E6ED;
+  }
+  .feature-check.unavailable .radio-pills { display: none; }
+  .plan-required-label {
+    font-size: 12px; color: #9CA3AF; font-weight: 600;
+    padding: 6px 12px;
+    background: #F3F4F6;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .option-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    background: #FEF3C7; color: #92400E;
+    white-space: nowrap;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .topbar { padding: 10px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .content { padding: 24px 16px 60px; }
+    .intro-meta { grid-template-columns: 1fr; }
+    .cat-bars { grid-template-columns: 1fr; }
+    .radio-pills { flex-direction: column; }
+    .next-guide-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <a id="back-link" href="https://community.directcloud.jp/s/learning/" target="_top" class="topbar-back">&#8592; 活用ガイド一覧</a>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">活用度セルフチェック</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="topbarStep">Step <strong>1</strong> / 5</span>
+    <div class="progress-mini"><div class="progress-mini-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-title">STEPS</div>
+    <div class="sidebar-item active" onclick="goTo(1)">
+      <span class="sidebar-icon">&#9654;</span> はじめに
+    </div>
+    <div class="sidebar-item" onclick="goTo(2)">
+      <span class="sidebar-icon">&#9675;</span> STEP 1: ファイル共有
+    </div>
+    <div class="sidebar-item" onclick="goTo(3)">
+      <span class="sidebar-icon">&#9675;</span> STEP 2: セキュリティ
+    </div>
+    <div class="sidebar-item" onclick="goTo(4)">
+      <span class="sidebar-icon">&#9675;</span> STEP 3: 管理・運用
+    </div>
+    <div class="sidebar-item" onclick="goTo(5)">
+      <span class="sidebar-icon">&#9675;</span> 診断結果
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ====== SEC 1: Intro ====== -->
+    <div class="section active" id="sec1">
+      <div class="content-header">
+        <h1>DirectCloud 活用度セルフチェック</h1>
+        <p>15の主要機能について、今の活用状況をチェック。まだ使っていない機能を発見しましょう。</p>
+      </div>
+
+      <div class="intro-meta">
+        <div class="intro-meta-item">
+          <div class="meta-icon">&#9201;</div>
+          <div class="meta-label">所要時間</div>
+          <div class="meta-value">約3分</div>
+        </div>
+        <div class="intro-meta-item">
+          <div class="meta-icon">&#9745;</div>
+          <div class="meta-label">形式</div>
+          <div class="meta-value">チェックリスト診断</div>
+        </div>
+        <div class="intro-meta-item">
+          <div class="meta-icon">&#128101;</div>
+          <div class="meta-label">対象</div>
+          <div class="meta-value">全ユーザー</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>月額に含まれる機能、使いこなせていますか？</h2>
+        <p>DirectCloudには、ファイル共有だけでなく、セキュリティ管理や業務効率化を支える多くの機能があります。</p>
+        <p>すべての機能を活用しているユーザーは実は少数です。あなたの活用度を <strong>3つのカテゴリ・15項目</strong> でチェックして、まだ知らない機能を見つけてみましょう。</p>
+
+        <div style="background:#F8FAFC; border-radius:10px; padding:18px 22px; margin-top:20px;">
+          <p style="font-size:14px; color:#4B5563; margin:0;"><strong style="color:var(--dc-blue-dark);">チェック方法:</strong> 各機能について「使っている」「知っているが使っていない」「知らなかった」のいずれかを選択します。診断後、活用度スコアと見逃している機能の一覧が表示されます。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>ご利用中のプランを選択</h2>
+        <p>プランによって利用できる機能が異なります。お使いのプランを選ぶと、対象機能だけでチェックできます。</p>
+        <div class="plan-selector" id="planSelector">
+          <div class="plan-pill" onclick="selectPlan('standard', this)">スタンダード</div>
+          <div class="plan-pill" onclick="selectPlan('advanced', this)">アドバンスド</div>
+          <div class="plan-pill" onclick="selectPlan('business', this)">ビジネス</div>
+          <div class="plan-pill" onclick="selectPlan('premium', this)">プレミアム</div>
+          <div class="plan-pill" onclick="selectPlan('enterprise', this)">エンタープライズ</div>
+        </div>
+        <p id="planNote" style="font-size:12px; color:#9CA3AF; margin-top:10px; display:none;"></p>
+      </div>
+
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button class="btn btn-primary" id="btn-start" onclick="goTo(2)" disabled>チェックを始める &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ====== SEC 2: STEP 1 ファイル共有 ====== -->
+    <div class="section" id="sec2">
+      <div class="content-header">
+        <h1>STEP 1: ファイル共有・コラボレーション</h1>
+        <p>ファイルの共有・受け渡しに関する機能の活用状況を確認します。</p>
+      </div>
+
+      <div class="step-progress">
+        <span id="step1count">0 / 5 回答済み</span>
+        <div class="step-progress-bar"><div class="step-progress-fill" id="step1bar" style="width:0%"></div></div>
+      </div>
+
+      <!-- F1: 共有リンク -->
+      <div class="feature-check" id="fc-shared-link">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128228;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>共有リンク</h4>
+            </div>
+            <div class="feature-check-desc">パスワード・有効期限・ダウンロード回数制限付きでファイルを社外に共有</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> メール添付の容量制限やPPAPの代替として利用可能。期限切れで自動無効化されるため、送りっぱなしのセキュリティリスクを回避できます。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('shared-link', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('shared-link', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('shared-link', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F2: ゲスト招待 -->
+      <div class="feature-check" id="fc-guest-invite">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128101;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>ゲスト招待</h4>
+              <span class="dc-badge">DirectCloudの特長</span>
+            </div>
+            <div class="feature-check-desc">取引先ごとに専用フォルダを用意し、継続的にファイルをやり取り</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 共有リンクと違い、相手もフォルダにログインしてアップロード可能。7段階のアクセスレベルで細かく権限を制御できるため、双方向のやり取りに最適です。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('guest-invite', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('guest-invite', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('guest-invite', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F3: 受取フォルダ -->
+      <div class="feature-check" id="fc-receive-folder">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128229;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>受取フォルダ</h4>
+            </div>
+            <div class="feature-check-desc">アカウント不要で社外からファイルを受け取れる専用フォルダ</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 取引先にアカウントを発行しなくても、安全にファイルを受領可能。大容量ファイルのやり取りにも対応しており、メール添付では送れないファイルの受け取りに活躍します。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('receive-folder', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('receive-folder', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('receive-folder', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F4: ブラウザ版 -->
+      <div class="feature-check" id="fc-browser">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#127760;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>ブラウザ版プレビュー・編集</h4>
+            </div>
+            <div class="feature-check-desc">Office/PDFをブラウザ上でプレビュー・共同編集 <span id="browser-note" style="font-size:11px; color:#9CA3AF;"></span></div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> ドライブアプリをインストールしていないPCからでもアクセス可能。出先やBYOD端末での利用に便利です。プレビューは全プランで利用でき、オンライン編集はアドバンスド以上で対応しています。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('browser', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('browser', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('browser', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F5: モバイルアプリ -->
+      <div class="feature-check" id="fc-mobile">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128241;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>モバイルアプリ</h4>
+            </div>
+            <div class="feature-check-desc">スマホから閲覧・アップロード・オフライン保存</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 現場や外出先でもファイルを即座に確認・共有。写真を撮影してそのままアップロードする業務フローに対応しています。オフライン保存で通信環境がない場所でも利用可能。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('mobile', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('mobile', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('mobile', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(1)">&#8592; 戻る</button>
+        <button class="btn btn-primary" id="btn-step1" onclick="goTo(3)" disabled>STEP 2 へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ====== SEC 3: STEP 2 セキュリティ ====== -->
+    <div class="section" id="sec3">
+      <div class="content-header">
+        <h1>STEP 2: セキュリティ・情報漏洩対策</h1>
+        <p>不正アクセス防止や情報漏洩対策に関する機能の活用状況を確認します。</p>
+      </div>
+
+      <div class="step-progress">
+        <span id="step2count">0 / 5 回答済み</span>
+        <div class="step-progress-bar"><div class="step-progress-fill" id="step2bar" style="width:0%"></div></div>
+      </div>
+
+      <!-- F6: デバイス認証 -->
+      <div class="feature-check" id="fc-device-auth">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128274;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>デバイス認証</h4>
+            </div>
+            <div class="feature-check-desc">登録済みデバイスのみアクセスを許可</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 私物端末や退職者の端末からの不正アクセスを防止。管理コンソールからデバイスの追加・削除を一括管理できます。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('device-auth', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('device-auth', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('device-auth', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F7: IPアドレス制限 -->
+      <div class="feature-check" id="fc-ip-restrict">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#127757;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>IPアドレス制限</h4>
+            </div>
+            <div class="feature-check-desc">許可されたIPアドレスからのみアクセス可能</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 社内ネットワーク以外からのアクセスをブロック。VPNと併用すれば在宅勤務でもセキュリティを維持できます。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('ip-restrict', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('ip-restrict', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('ip-restrict', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F8: 二段階認証 -->
+      <div class="feature-check" id="fc-2fa">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128273;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>二段階認証</h4>
+            </div>
+            <div class="feature-check-desc">パスワードに加えてワンタイムコードで認証</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> パスワード漏洩時の不正ログインを防止。Google Authenticator等の認証アプリに対応しており、追加コストなしで導入できます。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('2fa', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('2fa', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('2fa', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F9: SHIELD IRM -->
+      <div class="feature-check" id="fc-shield-irm">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128737;&#65039;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>SHIELD IRM</h4>
+              <span class="dc-badge">DirectCloudの特長</span>
+              <span class="option-badge">オプション</span>
+            </div>
+            <div class="feature-check-desc">ダウンロード後もファイルを暗号化し、遠隔で閲覧権限を取り消し</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> ファイルが社外に持ち出されても暗号化が維持されます。取引先との契約終了後に遠隔で閲覧権限を無効化でき、退職者のPC上のファイルにも対策可能です。</div>
+            <div class="plan-required-label" id="pr-shield-irm" style="display:none;"></div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('shield-irm', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('shield-irm', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('shield-irm', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F10: バージョン管理 -->
+      <div class="feature-check" id="fc-versioning">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128260;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>ファイルバージョン管理</h4>
+              <span class="dc-badge">DirectCloudの特長</span>
+            </div>
+            <div class="feature-check-desc">プランに応じて<span id="ver-gen">40〜200</span>世代までファイルの変更履歴を自動保存</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 誤って上書きしても過去バージョンに復元可能。ランサムウェア被害時にも暗号化される前の状態に戻すことができます。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('versioning', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('versioning', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('versioning', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(2)">&#8592; 戻る</button>
+        <button class="btn btn-primary" id="btn-step2" onclick="goTo(4)" disabled>STEP 3 へ &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ====== SEC 4: STEP 3 管理・運用 ====== -->
+    <div class="section" id="sec4">
+      <div class="content-header">
+        <h1>STEP 3: 管理・運用の効率化</h1>
+        <p>管理機能やコスト最適化に関する機能の活用状況を確認します。</p>
+      </div>
+
+      <div class="step-progress">
+        <span id="step3count">0 / 5 回答済み</span>
+        <div class="step-progress-bar"><div class="step-progress-fill" id="step3bar" style="width:0%"></div></div>
+      </div>
+
+      <!-- F11: 操作ログ -->
+      <div class="feature-check" id="fc-audit-log">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128202;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>操作ログ</h4>
+              <span class="dc-badge">DirectCloudの特長</span>
+            </div>
+            <div class="feature-check-desc">ファイル操作・ログインなど250種以上のログを記録 <span id="log-note" style="font-size:11px; color:#9CA3AF;"></span></div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 「いつ・誰が・何をしたか」を追跡可能。ユーザー操作ログは全プランで利用でき、管理者操作ログはビジネス以上で対応。情報漏洩調査やコンプライアンス監査に活用できます。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('audit-log', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('audit-log', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('audit-log', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F12: AD/Entra ID連携 -->
+      <div class="feature-check" id="fc-ad-sso">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128279;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>AD/Entra ID連携</h4>
+            </div>
+            <div class="feature-check-desc">SSOやActive Directory認証による一元管理 <span id="ad-note" style="font-size:11px; color:#9CA3AF;"></span></div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> SSO（Entra ID/Google Workspace等）は全プランで利用可能。Active Directory認証・Entra IDグループ連携はビジネス以上で対応し、入退社時のアカウント管理を自動化できます。</div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('ad-sso', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('ad-sso', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('ad-sso', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F13: 文書管理フォルダ -->
+      <div class="feature-check" id="fc-doc-mgmt">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128196;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>文書管理フォルダ</h4>
+              <span class="dc-badge">DirectCloudの特長</span>
+            </div>
+            <div class="feature-check-desc">削除不可・属性検索・電帳法対応の専用フォルダ</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 契約書や請求書など削除されてはいけないファイルを確実に保全。属性情報で検索でき、電子帳簿保存法の要件にも対応しています。通常のストレージにはない文書管理専用の機能です。</div>
+            <div class="plan-required-label" id="pr-doc-mgmt" style="display:none;"></div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('doc-mgmt', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('doc-mgmt', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('doc-mgmt', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F14: ストレージ階層化 -->
+      <div class="feature-check" id="fc-tiering">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#128230;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>ストレージ階層化</h4>
+            </div>
+            <div class="feature-check-desc">コールドストレージ（低頻度アクセス用）とウォームストレージの使い分け</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> アクセス頻度が低い過去データをコールドストレージに移動し、ストレージコストを最適化。データは維持したまま、コストだけを削減できます。</div>
+            <div class="plan-required-label" id="pr-tiering" style="display:none;"></div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('tiering', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('tiering', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('tiering', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F15: 承認ワークフロー -->
+      <div class="feature-check" id="fc-approval">
+        <div class="feature-check-top">
+          <div class="feature-check-icon">&#9989;</div>
+          <div class="feature-check-body">
+            <div class="feature-check-title">
+              <h4>承認ワークフロー</h4>
+            </div>
+            <div class="feature-check-desc">ファイルのアップロード・共有・ダウンロードに承認プロセスを設定</div>
+            <div class="feature-check-why"><strong>なぜ便利？</strong> 機密ファイルの持ち出しや共有前に管理者の承認を必須にできます。内部統制の強化や、情報漏洩リスクの低減に有効です。</div>
+            <div class="plan-required-label" id="pr-approval" style="display:none;"></div>
+            <div class="radio-pills">
+              <label class="radio-pill" onclick="setAnswer('approval', 2, this)"><span class="pill-dot"></span> 使っている</label>
+              <label class="radio-pill" onclick="setAnswer('approval', 1, this)"><span class="pill-dot"></span> 知っているが使っていない</label>
+              <label class="radio-pill" onclick="setAnswer('approval', 0, this)"><span class="pill-dot"></span> 知らなかった</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goTo(3)">&#8592; 戻る</button>
+        <button class="btn btn-primary" id="btn-step3" onclick="showResult()" disabled>結果を見る &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ====== SEC 5: Result ====== -->
+    <div class="section" id="sec5">
+
+      <div class="result-hero">
+        <h2>あなたの活用度スコア</h2>
+        <div class="score-ring">
+          <svg viewBox="0 0 140 140">
+            <circle class="score-ring-bg" cx="70" cy="70" r="65" />
+            <circle class="score-ring-fill" id="scoreRing" cx="70" cy="70" r="65" />
+          </svg>
+          <div class="score-ring-text">
+            <div class="score-ring-num" id="scoreNum">0</div>
+            <div class="score-ring-unit">%</div>
+            <div class="score-ring-label">活用度</div>
+          </div>
+        </div>
+        <div class="result-tier" id="resultTier"></div>
+        <div class="result-msg" id="resultMsg"></div>
+      </div>
+
+      <div class="cat-bars">
+        <div class="cat-bar-item">
+          <div class="cat-bar-label">STEP 1: ファイル共有</div>
+          <div class="cat-bar-score" id="cat1score">0 / 10</div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" id="cat1bar" style="width:0%"></div></div>
+        </div>
+        <div class="cat-bar-item">
+          <div class="cat-bar-label">STEP 2: セキュリティ</div>
+          <div class="cat-bar-score" id="cat2score">0 / 10</div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" id="cat2bar" style="width:0%"></div></div>
+        </div>
+        <div class="cat-bar-item">
+          <div class="cat-bar-label">STEP 3: 管理・運用</div>
+          <div class="cat-bar-score" id="cat3score">0 / 10</div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" id="cat3bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="missed-section" id="missedSection" style="display:none;">
+        <h3 id="missedTitle">見逃している機能</h3>
+        <p class="missed-sub" id="missedSub">これらの機能も月額に含まれています</p>
+        <div id="missedList"></div>
+        <div class="dc-highlight" id="dcHighlight" style="display:none;">
+          <h4>DirectCloudの特長機能</h4>
+          <p>上記にはDirectCloud独自の特長機能が含まれています。これらの機能を活用することで、セキュリティと利便性を高いレベルで両立できます。</p>
+        </div>
+      </div>
+
+      <div id="nextGuides"></div>
+
+      <div class="btn-row" style="justify-content:center; margin-top:32px;">
+        <button class="btn btn-secondary" onclick="resetCheck()">もう一度チェックする</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /layout -->
+
+<script>
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+function getUser() { return new URLSearchParams(window.location.search).get('user') || ''; }
+
+// ===== Feature definitions with plan availability =====
+// plan: 'all'=全プラン, 'adv+'=アドバンスド以上, 'biz+'=ビジネス以上, 'biz+op'=ビジネス以上オプション
+var features = [
+  {id:'shared-link',  step:1,plan:'all',    icon:'\uD83D\uDCE4',name:'\u5171\u6709\u30EA\u30F3\u30AF',hint:'\u30E1\u30FC\u30EB\u6DFB\u4ED8\u306E\u4EE3\u66FF\u3068\u3057\u3066\u5B89\u5168\u306B\u30D5\u30A1\u30A4\u30EB\u3092\u5171\u6709',guide:'file-sharing',dc:false},
+  {id:'guest-invite', step:1,plan:'all',    icon:'\uD83D\uDC65',name:'\u30B2\u30B9\u30C8\u62DB\u5F85',hint:'7\u6BB5\u968E\u6A29\u9650\u3067\u53D6\u5F15\u5148\u3068\u53CC\u65B9\u5411\u306E\u30D5\u30A1\u30A4\u30EB\u5171\u6709',guide:'guest-permissions',dc:true},
+  {id:'receive-folder',step:1,plan:'all',   icon:'\uD83D\uDCE5',name:'\u53D7\u53D6\u30D5\u30A9\u30EB\u30C0',hint:'\u30A2\u30AB\u30A6\u30F3\u30C8\u4E0D\u8981\u3067\u5927\u5BB9\u91CF\u30D5\u30A1\u30A4\u30EB\u3092\u53D7\u9818',guide:'file-sharing',dc:false},
+  {id:'browser',      step:1,plan:'all',    icon:'\uD83C\uDF10',name:'\u30D6\u30E9\u30A6\u30B6\u7248\u30D7\u30EC\u30D3\u30E5\u30FC\u30FB\u7DE8\u96C6',hint:'\u30A2\u30D7\u30EA\u306A\u3057\u3067Office/PDF\u3092\u95B2\u89A7\u30FB\u5171\u540C\u7DE8\u96C6',guide:'browser-guide',dc:false},
+  {id:'mobile',       step:1,plan:'all',    icon:'\uD83D\uDCF1',name:'\u30E2\u30D0\u30A4\u30EB\u30A2\u30D7\u30EA',hint:'\u5916\u51FA\u5148\u3067\u3082\u30D5\u30A1\u30A4\u30EB\u78BA\u8A8D\u30FB\u5199\u771F\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9',guide:'mobile-guide',dc:false},
+  {id:'device-auth',  step:2,plan:'all',    icon:'\uD83D\uDD12',name:'\u30C7\u30D0\u30A4\u30B9\u8A8D\u8A3C',hint:'\u672A\u767B\u9332\u7AEF\u672B\u304B\u3089\u306E\u30A2\u30AF\u30BB\u30B9\u3092\u30D6\u30ED\u30C3\u30AF',guide:'security-check',dc:false},
+  {id:'ip-restrict',  step:2,plan:'all',    icon:'\uD83C\uDF0D',name:'IP\u30A2\u30C9\u30EC\u30B9\u5236\u9650',hint:'\u8A31\u53EF IP \u304B\u3089\u306E\u307F\u30A2\u30AF\u30BB\u30B9\u53EF\u80FD',guide:'security-check',dc:false},
+  {id:'2fa',          step:2,plan:'all',    icon:'\uD83D\uDD11',name:'\u4E8C\u6BB5\u968E\u8A8D\u8A3C',hint:'\u30D1\u30B9\u30EF\u30FC\u30C9\u6F0F\u6D29\u6642\u306E\u4E0D\u6B63\u30ED\u30B0\u30A4\u30F3\u3092\u9632\u6B62',guide:'security-check',dc:false},
+  {id:'shield-irm',   step:2,plan:'biz+op', icon:'\uD83D\uDEE1\uFE0F',name:'SHIELD IRM',hint:'\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u5F8C\u3082\u6697\u53F7\u5316\u7DAD\u6301\u30FB\u9060\u9694\u7121\u52B9\u5316',guide:'shield-security',dc:true},
+  {id:'versioning',   step:2,plan:'all',    icon:'\uD83D\uDD04',name:'\u30D5\u30A1\u30A4\u30EB\u30D0\u30FC\u30B8\u30E7\u30F3\u7BA1\u7406',hint:'\u30D7\u30E9\u30F3\u5225\u4E16\u4EE3\u4FDD\u6301\u3002\u30E9\u30F3\u30B5\u30E0\u5FA9\u65E7\u306B\u3082\u5BFE\u5FDC',guide:'nas-comparison',dc:true},
+  {id:'audit-log',    step:3,plan:'all',    icon:'\uD83D\uDCCA',name:'\u64CD\u4F5C\u30ED\u30B0',hint:'250\u7A2E\u4EE5\u4E0A\u306E\u30ED\u30B0\u3067\u300C\u3044\u3064\u30FB\u8AB0\u304C\u30FB\u4F55\u3092\u300D\u8FFD\u8DE1',guide:'security-check',dc:true},
+  {id:'ad-sso',       step:3,plan:'all',    icon:'\uD83D\uDD17',name:'AD/Entra ID\u9023\u643A',hint:'SSO\u3067\u30A2\u30AB\u30A6\u30F3\u30C8\u4E8C\u91CD\u7BA1\u7406\u3092\u89E3\u6D88',guide:'initial-setup',dc:false},
+  {id:'doc-mgmt',     step:3,plan:'biz+',   icon:'\uD83D\uDCC4',name:'\u6587\u66F8\u7BA1\u7406\u30D5\u30A9\u30EB\u30C0',hint:'\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC',guide:'document-management',dc:true},
+  {id:'tiering',      step:3,plan:'biz+op', icon:'\uD83D\uDCE6',name:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316',hint:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u3067\u30B3\u30B9\u30C8\u6700\u9069\u5316',guide:'storage-tiering',dc:false},
+  {id:'approval',     step:3,plan:'adv+',   icon:'\u2705',name:'\u627F\u8A8D\u30EF\u30FC\u30AF\u30D5\u30ED\u30FC',hint:'\u6A5F\u5BC6\u30D5\u30A1\u30A4\u30EB\u306E\u5171\u6709\u524D\u306B\u7BA1\u7406\u8005\u627F\u8A8D\u3092\u5FC5\u9808\u5316',guide:null,dc:false}
+];
+
+var versionGens = {standard:40,advanced:60,business:60,premium:100,enterprise:200};
+var planOrder = ['standard','advanced','business','premium','enterprise'];
+var planLabels = {standard:'\u30B9\u30BF\u30F3\u30C0\u30FC\u30C9',advanced:'\u30A2\u30C9\u30D0\u30F3\u30B9\u30C9',business:'\u30D3\u30B8\u30CD\u30B9',premium:'\u30D7\u30EC\u30DF\u30A2\u30E0',enterprise:'\u30A8\u30F3\u30BF\u30FC\u30D7\u30E9\u30A4\u30BA'};
+
+var stepFeatures = {1:[],2:[],3:[]};
+for (var i = 0; i < features.length; i++) stepFeatures[features[i].step].push(features[i].id);
+
+var totalSections = 5;
+var currentSection = 1;
+var visited = {1:true};
+var answers = {};
+var selectedPlan = null;
+var disabledFeatures = {};
+
+// ===== Plan selection =====
+function selectPlan(plan, el) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-pill').forEach(function(p){p.classList.remove('selected');});
+  el.classList.add('selected');
+  document.getElementById('btn-start').disabled = false;
+  var noteEl = document.getElementById('planNote');
+  var avail = 0;
+  disabledFeatures = {};
+  for (var i = 0; i < features.length; i++) {
+    var f = features[i];
+    var ok = isAvailable(f.plan, plan);
+    if (ok) { avail++; } else { disabledFeatures[f.id] = true; }
+  }
+  noteEl.textContent = planLabels[plan] + '\u30D7\u30E9\u30F3: 15\u6A5F\u80FD\u4E2D ' + avail + '\u6A5F\u80FD\u304C\u5BFE\u8C61';
+  noteEl.style.display = 'block';
+  // Update version gen display
+  var vg = document.getElementById('ver-gen');
+  if (vg) vg.textContent = versionGens[plan];
+  // Apply plan restrictions to feature cards
+  applyPlanRestrictions();
+}
+
+function isAvailable(req, plan) {
+  if (req === 'all') return true;
+  var idx = planOrder.indexOf(plan);
+  if (req === 'adv+') return idx >= 1;
+  if (req === 'biz+' || req === 'biz+op') return idx >= 2;
+  return true;
+}
+
+function applyPlanRestrictions() {
+  for (var i = 0; i < features.length; i++) {
+    var f = features[i];
+    var card = document.getElementById('fc-' + f.id);
+    var prLabel = document.getElementById('pr-' + f.id);
+    if (!card) continue;
+    if (disabledFeatures[f.id]) {
+      card.classList.add('unavailable');
+      card.classList.remove('answered');
+      delete answers[f.id];
+      if (prLabel) {
+        var reqText = '';
+        if (f.plan === 'adv+') reqText = '\u30A2\u30C9\u30D0\u30F3\u30B9\u30C9\u4EE5\u4E0A\u3067\u5229\u7528\u53EF\u80FD';
+        else if (f.plan === 'biz+') reqText = '\u30D3\u30B8\u30CD\u30B9\u4EE5\u4E0A\u3067\u5229\u7528\u53EF\u80FD';
+        else if (f.plan === 'biz+op') reqText = '\u30D3\u30B8\u30CD\u30B9\u4EE5\u4E0A\u30FB\u30AA\u30D7\u30B7\u30E7\u30F3';
+        prLabel.textContent = reqText;
+        prLabel.style.display = 'inline-block';
+      }
+    } else {
+      card.classList.remove('unavailable');
+      if (prLabel) prLabel.style.display = 'none';
+    }
+  }
+  updateStepProgress();
+}
+
+// ===== Navigation =====
+function updateSidebar(n) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var secNum = i + 1;
+    items[i].classList.remove('active','done');
+    var icon = items[i].querySelector('.sidebar-icon');
+    if (secNum === n) { items[i].classList.add('active'); icon.innerHTML = '&#9654;'; }
+    else if (visited[secNum]) { items[i].classList.add('done'); icon.innerHTML = '&#10003;'; }
+    else { icon.innerHTML = '&#9675;'; }
+  }
+}
+
+function goTo(n) {
+  visited[currentSection] = true;
+  currentSection = n;
+  visited[n] = true;
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('sec'+n).classList.add('active');
+  var pct = Math.round(((n-1)/(totalSections-1))*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('topbarStep').innerHTML = 'Step <strong>'+n+'</strong> / '+totalSections;
+  updateSidebar(n);
+  document.querySelector('.content').scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===== Answer handling =====
+function setAnswer(featureId, value, el) {
+  if (disabledFeatures[featureId]) return;
+  answers[featureId] = value;
+  var parent = el.parentElement;
+  parent.querySelectorAll('.radio-pill').forEach(function(p){p.className='radio-pill';});
+  if (value === 2) el.classList.add('selected-using');
+  else if (value === 1) el.classList.add('selected-known');
+  else el.classList.add('selected-unknown');
+  document.getElementById('fc-'+featureId).classList.add('answered');
+  updateStepProgress();
+}
+
+function updateStepProgress() {
+  for (var s = 1; s <= 3; s++) {
+    var ids = stepFeatures[s];
+    var answered = 0, required = 0;
+    for (var j = 0; j < ids.length; j++) {
+      if (disabledFeatures[ids[j]]) continue;
+      required++;
+      if (answers[ids[j]] !== undefined) answered++;
+    }
+    var el = document.getElementById('step'+s+'count');
+    if (el) el.textContent = answered+' / '+required+' \u56DE\u7B54\u6E08\u307F';
+    var bar = document.getElementById('step'+s+'bar');
+    if (bar) bar.style.width = (required > 0 ? answered/required*100 : 100)+'%';
+    var btn = document.getElementById('btn-step'+s);
+    if (btn) btn.disabled = (answered < required);
+  }
+}
+
+// ===== Result =====
+function showResult() {
+  goTo(5);
+  var cat = [0,0,0], catMax = [0,0,0];
+  var total = 0, maxScore = 0;
+  for (var i = 0; i < features.length; i++) {
+    if (disabledFeatures[features[i].id]) continue;
+    var v = answers[features[i].id] || 0;
+    total += v; maxScore += 2;
+    cat[features[i].step-1] += v;
+    catMax[features[i].step-1] += 2;
+  }
+  var pct = maxScore > 0 ? Math.round((total/maxScore)*100) : 0;
+
+  var ring = document.getElementById('scoreRing');
+  var offset = 408 - (pct/100)*408;
+  setTimeout(function(){ring.style.strokeDashoffset = offset;},100);
+  document.getElementById('scoreNum').textContent = pct;
+
+  var tierEl = document.getElementById('resultTier');
+  var msgEl = document.getElementById('resultMsg');
+  if (pct >= 80) {
+    tierEl.textContent = '\u30D1\u30EF\u30FC\u30E6\u30FC\u30B6\u30FC'; tierEl.style.color = '#059669';
+    msgEl.textContent = 'DirectCloud\u306E\u6A5F\u80FD\u3092\u3057\u3063\u304B\u308A\u6D3B\u7528\u3067\u304D\u3066\u3044\u307E\u3059\u3002\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+    ring.style.stroke = '#059669';
+  } else if (pct >= 50) {
+    tierEl.textContent = '\u306E\u3073\u3057\u308D\u3042\u308A'; tierEl.style.color = '#0369A1';
+    msgEl.textContent = '\u57FA\u672C\u6A5F\u80FD\u306F\u62BC\u3055\u3048\u3066\u3044\u307E\u3059\u304C\u3001\u307E\u3060\u6D3B\u7528\u3067\u304D\u308B\u6A5F\u80FD\u304C\u3042\u308A\u307E\u3059\u3002\u4F7F\u3063\u3066\u3044\u306A\u3044\u6A5F\u80FD\u30921\u3064\u8A66\u3057\u3066\u307F\u308B\u3060\u3051\u3067\u3001\u696D\u52D9\u52B9\u7387\u304C\u5909\u308F\u308A\u307E\u3059\u3002';
+    ring.style.stroke = '#0EA5E9';
+  } else {
+    tierEl.textContent = '\u767A\u898B\u304C\u305F\u304F\u3055\u3093'; tierEl.style.color = '#D97706';
+    msgEl.textContent = '\u4FBF\u5229\u306A\u6A5F\u80FD\u3092\u898B\u9003\u3057\u3066\u3044\u308B\u304B\u3082\u3057\u308C\u307E\u305B\u3093\u3002\u307E\u305A\u306F\u6C17\u306B\u306A\u3063\u305F\u6A5F\u80FD\u304B\u3089\u3001\u3072\u3068\u3064\u305A\u3064\u8A66\u3057\u3066\u307F\u307E\u3057\u3087\u3046\u3002';
+    ring.style.stroke = '#D97706';
+  }
+
+  for (var c = 0; c < 3; c++) {
+    document.getElementById('cat'+(c+1)+'score').textContent = cat[c]+' / '+catMax[c];
+    document.getElementById('cat'+(c+1)+'bar').style.width = (catMax[c]>0?cat[c]/catMax[c]*100:0)+'%';
+  }
+
+  // Missed features (only from available features)
+  var missed = [], hasDcMissed = false;
+  for (var k = 0; k < features.length; k++) {
+    if (disabledFeatures[features[k].id]) continue;
+    var v2 = answers[features[k].id];
+    if (v2 === 0 || v2 === 1) {
+      missed.push(features[k]);
+      if (features[k].dc && v2 === 0) hasDcMissed = true;
+    }
+  }
+
+  var missedEl = document.getElementById('missedSection');
+  var missedList = document.getElementById('missedList');
+  if (missed.length > 0) {
+    missedEl.style.display = 'block';
+    document.getElementById('missedTitle').textContent = missed.length <= 3 ? '\u3042\u3068\u5C11\u3057\u3067\u30D5\u30EB\u6D3B\u7528' : '\u898B\u9003\u3057\u3066\u3044\u308B\u6A5F\u80FD';
+    document.getElementById('missedSub').textContent = missed.length <= 3 ? '\u3053\u308C\u3089\u306E\u6A5F\u80FD\u3082\u8A66\u3057\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F' : '\u3053\u308C\u3089\u306E\u6A5F\u80FD\u3082\u6708\u984D\u306B\u542B\u307E\u308C\u3066\u3044\u307E\u3059';
+    var html = '';
+    var _EC2 = 'https://community.directcloud.jp/s/learning/';
+    var _up2 = getUser() ? '?user='+encodeURIComponent(getUser()) : '';
+    for (var m = 0; m < missed.length; m++) {
+      var f = missed[m];
+      var sl = (answers[f.id]===0)?'\u77E5\u3089\u306A\u304B\u3063\u305F':'\u672A\u4F7F\u7528';
+      var sc = (answers[f.id]===0)?'#9CA3AF':'#D97706';
+      html += '<div class="missed-item"><div class="missed-item-icon">'+f.icon+'</div>';
+      html += '<div class="missed-item-body"><h5>'+f.name+' <span style="font-size:11px;color:'+sc+';font-weight:400;">'+sl+'</span></h5>';
+      html += '<p>'+f.hint+'</p></div>';
+      if (f.guide) html += '<a class="missed-item-link" href="'+_EC2+f.guide+_up2+'" target="_top">\u30AC\u30A4\u30C9\u3092\u898B\u308B \u2192</a>';
+      html += '</div>';
+    }
+    missedList.innerHTML = html;
+    document.getElementById('dcHighlight').style.display = hasDcMissed ? 'block' : 'none';
+  } else {
+    missedEl.style.display = 'none';
+  }
+
+  // Cross-links
+  var _EC = 'https://community.directcloud.jp/s/learning/';
+  var _up = getUser() ? '?user='+encodeURIComponent(getUser()) : '';
+  var _guides = {
+    'file-sharing':{title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+    'browser-guide':{title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+    'initial-setup':{title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+    'security-check':{title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+    'drive-troubleshooting':{title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+    'guest-permissions':{title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+    'link-to-guest':{title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+    'shield-security':{title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+    'supply-chain-check':{title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+    'storage-tiering':{title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+    'company-rollout':{title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+    'file-server-migration':{title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+    'industry-guide':{title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'},
+    'document-management':{title:'\u6587\u66F8\u7BA1\u7406\u30D5\u30A9\u30EB\u30C0\u6D3B\u7528',desc:'\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC\u3092\u5B66\u3076',icon:'\uD83D\uDCC4',bg:'#e8f5ee',color:'#2D6A4F'},
+    'mobile-guide':{title:'\u30E2\u30D0\u30A4\u30EB\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u30A2\u30D7\u30EA\u6A5F\u80FD\u30FB\u696D\u7A2E\u5225\u6D3B\u7528\u30FB\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3',icon:'\uD83D\uDCF1',bg:'#fff7ed',color:'#F97316'},
+    'nas-comparison':{title:'NAS/\u30AA\u30F3\u30D7\u30EC vs \u30AF\u30E9\u30A6\u30C9\u6BD4\u8F03',desc:'\u30B3\u30B9\u30C8\u30FB\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30FB\u904B\u7528\u3092\u6BD4\u8F03',icon:'\uD83C\uDFE0',bg:'#eff6ff',color:'#1E40AF'},
+    'utilization-check':{title:'\u6D3B\u7528\u5EA6\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u6D3B\u7528\u72B6\u6CC1\u3092\u8A3A\u65AD\u3057\u3066\u4F7F\u3044\u3053\u306A\u3057\u5EA6\u3092\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDCCA',bg:'#f0f9ff',color:'#0EA5E9'}
+  };
+  var _picks, _h, _s;
+  if (pct >= 80) {
+    _h='\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F';
+    _s='\u3053\u306E\u8ABF\u5B50\u3067\u3001\u3082\u3046\u4E00\u6B69\u5148\u306E\u4F7F\u3044\u3053\u306A\u3057\u3078';
+    _picks=['shield-security','supply-chain-check','storage-tiering'];
+  } else if (pct >= 50) {
+    _h='\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059';
+    _s='\u65E5\u5E38\u306E\u64CD\u4F5C\u3067\u5F79\u7ACB\u3064\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059';
+    _picks=['security-check','browser-guide','guest-permissions'];
+  } else {
+    _h='\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+    _s='\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059';
+    _picks=['initial-setup','file-sharing','drive-troubleshooting'];
+  }
+  var _gh='<div class="next-guides"><h3>'+_h+'</h3><p class="next-guides-sub">'+_s+'</p><div class="next-guide-cards">';
+  for (var _gi=0;_gi<_picks.length;_gi++){
+    var _g=_guides[_picks[_gi]];
+    _gh+='<a class="next-guide-card" href="'+_EC+_picks[_gi]+_up+'" target="_top">';
+    _gh+='<div class="next-guide-icon" style="background:'+_g.bg+';">'+_g.icon+'</div>';
+    _gh+='<div><h5>'+_g.title+'</h5><p>'+_g.desc+'</p>';
+    _gh+='<span class="next-guide-tag" style="background:'+_g.bg+';color:'+_g.color+';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+  }
+  _gh+='</div></div>';
+  document.getElementById('nextGuides').innerHTML=_gh;
+
+  if (COLLECT_ENDPOINT) {
+    var payload = {
+      page:'\u6D3B\u7528\u5EA6\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',
+      timestamp:new Date().toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}),
+      user:getUser(), plan:selectedPlan,
+      score:total, maxScore:maxScore, percentage:pct,
+      features:answers
+    };
+    fetch(COLLECT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){});
+  }
+}
+
+function resetCheck() {
+  answers = {}; visited = {1:true}; selectedPlan = null; disabledFeatures = {};
+  document.querySelectorAll('.radio-pill').forEach(function(p){p.className='radio-pill';});
+  document.querySelectorAll('.feature-check').forEach(function(c){c.classList.remove('answered','unavailable');});
+  document.querySelectorAll('.plan-required-label').forEach(function(l){l.style.display='none';});
+  document.querySelectorAll('.plan-pill').forEach(function(p){p.classList.remove('selected');});
+  document.getElementById('scoreRing').style.strokeDashoffset = 408;
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('planNote').style.display = 'none';
+  for (var s=1;s<=3;s++){var btn=document.getElementById('btn-step'+s);if(btn)btn.disabled=true;}
+  updateStepProgress();
+  goTo(1);
+}
+
+if (window === window.top) {
+  var backLink = document.getElementById('back-link');
+  backLink.href = 'index.html'; backLink.target = '_self';
+}
+</script>
+</body>
+</html>

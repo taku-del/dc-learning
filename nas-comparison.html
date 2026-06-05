@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DirectCloud 活用ガイド — NAS/オンプレ vs クラウド比較ガイド</title>
+<style>
+  :root {
+    --dc-primary: #1E40AF;
+    --dc-primary-light: #EFF6FF;
+    --dc-primary-dark: #1E3A8A;
+    --dc-accent: #3B82F6;
+    --dc-accent-light: #DBEAFE;
+    --dc-green: #00A676;
+    --dc-green-light: #E6F9F2;
+    --dc-orange: #F97316;
+    --dc-orange-light: #FFF7ED;
+    --dc-gray: #6B7280;
+    --dc-gray-light: #F3F4F6;
+    --dc-red: #E74C3C;
+    --dc-red-light: #FDE8E8;
+    --dc-blue: #2563EB;
+    --dc-blue-light: #EFF6FF;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #F0F4FA;
+    color: #1A2332;
+    line-height: 1.8;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #E0E6ED;
+    border-top: 3px solid var(--dc-primary);
+    padding: 12px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-logo { font-size: 14px; font-weight: 700; color: var(--dc-primary); }
+  .topbar-sep { color: #D0D7DE; }
+  .topbar-title { font-size: 14px; color: #666; }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-step { font-size: 13px; color: #888; }
+  .topbar-step strong { color: var(--dc-primary); }
+  .progress-mini { width: 120px; height: 4px; background: #E0E6ED; border-radius: 2px; overflow: hidden; }
+  .progress-mini-fill { width: 0%; height: 100%; background: var(--dc-primary); border-radius: 2px; transition: width 0.5s ease; }
+
+  /* ===== Layout ===== */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 52px); }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: #fff; border-right: 1px solid #E0E6ED; padding: 24px 0;
+    position: sticky; top: 52px; height: calc(100vh - 52px); overflow-y: auto;
+  }
+  .sidebar-title { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #999; font-weight: 600; padding: 0 20px; margin-bottom: 12px; }
+  .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #666; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+  .sidebar-item:hover { background: var(--dc-primary-light); color: var(--dc-primary); }
+  .sidebar-item.active { color: var(--dc-primary); background: var(--dc-primary-light); border-left-color: var(--dc-primary); font-weight: 600; }
+  .sidebar-item.done { color: var(--dc-green); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 14px; }
+
+  /* ===== Main ===== */
+  .main { padding: 40px 56px 80px; }
+  .section { display: none; }
+  .section.active { display: block; animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .content-header { margin-bottom: 28px; }
+  .content-header h1 { font-size: 22px; font-weight: 700; color: #1A2332; line-height: 1.4; }
+  .content-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+  /* ===== Card ===== */
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; margin-bottom: 24px; }
+
+  /* ===== Scenario box ===== */
+  .scenario { background: var(--dc-primary-light); border-radius: 10px; padding: 20px 24px; margin-bottom: 24px; border-left: 4px solid var(--dc-primary); }
+  .scenario p { font-size: 15px; line-height: 1.8; }
+  .scenario strong { color: var(--dc-primary-dark); }
+
+  /* ===== Tip box ===== */
+  .tip { background: #E0EDFF; border-radius: 10px; padding: 16px 20px; margin-top: 16px; font-size: 13px; color: #1E3A5F; line-height: 1.7; }
+  .tip strong { color: var(--dc-primary-dark); }
+
+  /* ===== Insight box ===== */
+  .insight { background: var(--dc-blue-light); border-radius: 10px; padding: 20px 24px; margin-top: 16px; }
+  .insight h4 { font-size: 14px; font-weight: 700; color: var(--dc-primary); margin-bottom: 8px; }
+  .insight ul { list-style: none; padding: 0; }
+  .insight li { font-size: 13px; color: #374151; padding: 4px 0 4px 18px; position: relative; line-height: 1.7; }
+  .insight li::before { content: '>'; position: absolute; left: 2px; font-weight: 700; color: var(--dc-primary); font-size: 12px; }
+
+  /* ===== Warning box ===== */
+  .warning-box { background: var(--dc-orange-light); border-radius: 10px; padding: 16px 20px; font-size: 13px; color: #7C2D12; line-height: 1.8; margin-bottom: 16px; border-left: 3px solid var(--dc-orange); }
+  .warning-box strong { color: #C2410C; }
+
+  /* ===== 3-column cards ===== */
+  .cat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .cat-card { background: #fff; border: 1px solid #E0E6ED; border-radius: 10px; padding: 20px; position: relative; overflow: hidden; }
+  .cat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--dc-primary); }
+  .cat-card h4 { font-size: 14px; font-weight: 700; color: var(--dc-primary-dark); margin-bottom: 8px; }
+  .cat-card p { font-size: 13px; color: #666; line-height: 1.6; }
+  .cat-card .cat-example { font-size: 12px; color: #888; margin-top: 8px; padding-top: 8px; border-top: 1px solid #F0F0F5; }
+
+  /* ===== Compare table ===== */
+  .compare-table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 10px; border: 1px solid #E0E6ED; }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+  .compare-table th { background: var(--dc-primary-light); padding: 10px 12px; font-weight: 700; text-align: center; border-bottom: 2px solid #93C5FD; white-space: nowrap; color: #1A2332; }
+  .compare-table th:first-child { text-align: left; padding-left: 16px; min-width: 140px; }
+  .compare-table td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #F0F0F5; }
+  .compare-table td:first-child { text-align: left; padding-left: 16px; font-weight: 600; color: #374151; }
+  .compare-table tr:hover td { background: var(--dc-primary-light); }
+  .compare-table th.highlight { background: var(--dc-accent-light); color: var(--dc-primary-dark); }
+  .cell-yes { color: var(--dc-green); font-weight: 700; }
+  .cell-no { color: var(--dc-gray); }
+  .cell-accent { color: var(--dc-primary); font-weight: 700; }
+  .cell-warn { color: #C2410C; font-weight: 600; }
+
+  /* ===== TCO visual ===== */
+  .tco-visual { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+  .tco-card { border: 1px solid #E0E6ED; border-radius: 10px; padding: 24px; background: #fff; }
+  .tco-card.nas { border-top: 4px solid #9CA3AF; }
+  .tco-card.cloud { border-top: 4px solid var(--dc-primary); }
+  .tco-label { font-size: 13px; font-weight: 700; color: #888; margin-bottom: 8px; letter-spacing: 1px; }
+  .tco-total { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+  .tco-total.nas-color { color: #6B7280; }
+  .tco-total.cloud-color { color: var(--dc-primary); }
+  .tco-bar-wrap { margin: 6px 0; }
+  .tco-bar-label { font-size: 11px; color: #888; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .tco-bar { height: 8px; border-radius: 4px; background: #E0E6ED; overflow: hidden; }
+  .tco-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+  .tco-bar-fill.gray { background: #9CA3AF; }
+  .tco-bar-fill.blue { background: var(--dc-primary); }
+  .tco-note { font-size: 11px; color: #999; margin-top: 12px; line-height: 1.5; }
+
+  /* ===== Security layers ===== */
+  .security-layers { margin: 20px 0; display: flex; flex-direction: column; gap: 14px; }
+  .security-layer { background: #fff; border: 1px solid #E0E6ED; border-radius: 10px; padding: 18px 20px; display: flex; gap: 16px; align-items: flex-start; }
+  .layer-num { width: 32px; height: 32px; background: var(--dc-primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .layer-body h5 { font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 6px; }
+  .layer-body p { font-size: 13px; color: #555; line-height: 1.7; }
+  .layer-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .layer-tag { background: var(--dc-primary-light); color: var(--dc-primary-dark); border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
+
+  /* ===== Feature grid ===== */
+  .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 20px 0; }
+  .feature-item { display: flex; align-items: flex-start; gap: 12px; background: #FAFAFA; border: 1px solid #E0E6ED; border-radius: 8px; padding: 16px; }
+  .feature-badge { width: 36px; height: 36px; border-radius: 8px; background: var(--dc-primary-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .feature-text h5 { font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+  .feature-text p { font-size: 13px; color: #666; line-height: 1.5; }
+
+  /* ===== Mock admin ===== */
+  .mock-admin { background: #F8FAFC; border: 1px solid #E0E6ED; border-radius: 10px; padding: 20px; margin: 20px 0; }
+  .mock-admin-title { font-size: 12px; font-weight: 700; color: #999; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .mock-admin-inner { background: #fff; border: 1px solid #D0D7DE; border-radius: 8px; overflow: hidden; }
+  .mock-admin-bar { background: #F3F4F6; border-bottom: 1px solid #E0E6ED; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+  .mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .mock-dot-r { background: #FCA5A5; } .mock-dot-y { background: #FCD34D; } .mock-dot-g { background: #6EE7B7; }
+  .mock-admin-section { padding: 16px; border-bottom: 1px solid #F0F0F5; }
+  .mock-admin-section:last-child { border-bottom: none; }
+  .mock-admin-section-title { font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #F0F0F5; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 12px; color: #555; }
+  .toggle-on { background: var(--dc-primary); color: #fff; border-radius: 12px; padding: 3px 10px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .toggle-off { background: #E0E6ED; color: #888; border-radius: 12px; padding: 3px 10px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+
+  /* ===== Step list ===== */
+  .step-list { margin: 16px 0; padding: 0; list-style: none; counter-reset: step-counter; }
+  .step-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid #F0F0F5; font-size: 14px; color: #374151; line-height: 1.7; }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before { content: counter(step-counter); background: var(--dc-primary); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* ===== Flow arrows ===== */
+  .flow-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 12px 0; }
+  .flow-step { background: var(--dc-accent-light); border: 1px solid #93C5FD; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--dc-primary-dark); white-space: nowrap; }
+  .flow-arrow { font-size: 14px; color: var(--dc-primary); margin: 0 4px; flex-shrink: 0; }
+
+  /* ===== VS header ===== */
+  .vs-header { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin: 20px 0; }
+  .vs-side { text-align: center; padding: 16px; border-radius: 10px; }
+  .vs-side.nas-side { background: #F3F4F6; border: 1px solid #D1D5DB; }
+  .vs-side.cloud-side { background: var(--dc-primary-light); border: 1px solid #93C5FD; }
+  .vs-side h4 { font-size: 15px; font-weight: 700; }
+  .vs-side p { font-size: 12px; color: #888; margin-top: 2px; }
+  .vs-badge { width: 44px; height: 44px; border-radius: 50%; background: #374151; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; }
+
+  /* ===== Buttons ===== */
+  .btn-row { display: flex; justify-content: space-between; margin-top: 32px; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: var(--dc-primary); color: #fff; }
+  .btn-primary:hover { background: var(--dc-primary-dark); }
+  .btn-primary:disabled { background: #9CA3AF; cursor: not-allowed; }
+  .btn-outline { background: transparent; color: var(--dc-primary); border: 1px solid var(--dc-primary); }
+  .btn-outline:hover { background: var(--dc-primary-light); }
+
+  /* ===== Quiz ===== */
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  .choice-card { background: #fff; border: 2px solid #E0E6ED; border-radius: 10px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+  .choice-card:hover { border-color: var(--dc-primary); background: var(--dc-primary-light); }
+  .choice-card h5 { font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+  .choice-card p { font-size: 13px; color: #666; line-height: 1.5; }
+  .choice-card.correct { border-color: var(--dc-green); background: var(--dc-green-light); }
+  .choice-card.correct h5 { color: #065F46; }
+  .choice-card.wrong { border-color: var(--dc-red); background: var(--dc-red-light); }
+  .choice-card.wrong h5 { color: #991B1B; }
+  .choice-card.disabled { opacity: 0.4; pointer-events: none; }
+  .feedback { display: none; padding: 20px; border-radius: 10px; margin: 16px 0; font-size: 14px; line-height: 1.7; }
+  .feedback.show { display: block; }
+  .feedback.correct { background: var(--dc-green-light); border-left: 4px solid var(--dc-green); }
+  .feedback.correct h4 { color: #065F46; }
+  .feedback.incorrect { background: var(--dc-red-light); border-left: 4px solid var(--dc-red); }
+  .feedback.incorrect h4 { color: #991B1B; }
+  .feedback h4 { margin-bottom: 4px; }
+
+  /* ===== Result ===== */
+  .score-area { display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; }
+  .score-circle { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(#E0E6ED 0%, #E0E6ED 100%); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .score-inner { width: 110px; height: 110px; background: #fff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-num { font-size: 36px; font-weight: 800; color: var(--dc-primary); }
+  .score-label { font-size: 12px; color: #888; }
+  .score-msg { font-size: 15px; font-weight: 600; color: #374151; text-align: center; }
+  .result-review { margin: 24px 0; }
+  .review-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F0F0F5; }
+  .review-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .review-icon.ok { background: var(--dc-green-light); color: var(--dc-green); }
+  .review-icon.ng { background: var(--dc-red-light); color: var(--dc-red); }
+  .review-body h5 { font-size: 13px; font-weight: 600; color: #1A2332; }
+  .review-body p { font-size: 12px; color: #888; }
+  .ref-table-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid #E0E6ED; }
+  .ref-table-section h3 { font-size: 16px; font-weight: 700; color: #1A2332; margin-bottom: 12px; }
+  .saved-notice { margin-top: 16px; padding: 10px 16px; background: var(--dc-green-light); color: #065F46; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; }
+
+  /* ===== Next guides ===== */
+  .next-guides { margin-top: 32px; }
+  .next-guides h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .next-guides-sub { font-size: 13px; color: #888; margin-bottom: 12px; }
+  .next-guide-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .next-guide-card { display: flex; gap: 14px; align-items: flex-start; background: #fff; border: 1px solid #E0E6ED; border-radius: 10px; padding: 16px; text-decoration: none; color: inherit; transition: border-color 0.2s, transform 0.2s; }
+  .next-guide-card:hover { border-color: var(--dc-primary); transform: translateY(-2px); }
+  .next-guide-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .next-guide-card h5 { font-size: 14px; font-weight: 700; color: #1A2332; margin-bottom: 2px; }
+  .next-guide-card p { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 4px; }
+  .next-guide-tag { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 10px; padding: 2px 8px; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .topbar { padding: 12px 20px; }
+    .choices { grid-template-columns: 1fr; }
+    .cat-cards { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .next-guide-cards { grid-template-columns: 1fr; }
+    .tco-visual { grid-template-columns: 1fr; }
+    .vs-header { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">DirectCloud</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">NAS/&#12458;&#12531;&#12503;&#12524; vs &#12463;&#12521;&#12454;&#12489;&#27604;&#36611;&#12460;&#12452;&#12489;</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-step" id="stepLabel"><strong>1</strong> / 11</span>
+    <div class="progress-mini"><div class="progress-mini-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <div class="sidebar-item active" data-sec="intro" onclick="goTo('intro')"><span class="icon">&#9654;</span> はじめに</div>
+    <div class="sidebar-item" data-sec="step1" onclick="goTo('step1')"><span class="icon">1</span> コスト比較</div>
+    <div class="sidebar-item" data-sec="step2" onclick="goTo('step2')"><span class="icon">2</span> セキュリティ・BCP</div>
+    <div class="sidebar-item" data-sec="step3" onclick="goTo('step3')"><span class="icon">3</span> 運用・リモートワーク</div>
+    <div class="sidebar-item" data-sec="step4" onclick="goTo('step4')"><span class="icon">4</span> 移行・容量管理</div>
+    <div class="sidebar-item" data-sec="q1" onclick="goTo('q1')"><span class="icon">Q</span> クイズ 1</div>
+    <div class="sidebar-item" data-sec="q2" onclick="goTo('q2')"><span class="icon">Q</span> クイズ 2</div>
+    <div class="sidebar-item" data-sec="q3" onclick="goTo('q3')"><span class="icon">Q</span> クイズ 3</div>
+    <div class="sidebar-item" data-sec="q4" onclick="goTo('q4')"><span class="icon">Q</span> クイズ 4</div>
+    <div class="sidebar-item" data-sec="q5" onclick="goTo('q5')"><span class="icon">Q</span> クイズ 5</div>
+    <div class="sidebar-item" data-sec="result" onclick="showResult()"><span class="icon">&#9733;</span> 結果</div>
+  </nav>
+
+  <div class="main">
+
+    <!-- ========== INTRO ========== -->
+    <div class="section active" id="sec-intro">
+      <div class="content-header">
+        <h1>ファイルサーバーのリプレース、<br>次もNASを買い替えますか？</h1>
+        <p>NAS/オンプレとクラウドストレージを客観的に比較し、最適な選択を支援するガイドです</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p><strong>ファイルサーバーのリプレース時期が近づいています。</strong><br>
+          「5年前と同じ構成でNASを買い替えればいい」&#8212;&#8212;本当にそれが最善でしょうか？<br>
+          コスト・セキュリティ・運用負荷の3軸で、<strong>NAS/オンプレとクラウドの違い</strong>を整理していきます。</p>
+        </div>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">リプレースのタイミングで直面する課題</h3>
+        <div class="cat-cards">
+          <div class="cat-card">
+            <h4>&#x1F3ED; 製造業</h4>
+            <p>CADや図面データが膨大で、NASの容量増設に限界がある。拠点間での共有にVPNを使っているが、遅延が課題になっている</p>
+            <div class="cat-example">図面データ 数十TB / 拠点間VPN遅延</div>
+          </div>
+          <div class="cat-card">
+            <h4>&#x1F3D7; 建設</h4>
+            <p>現場写真や竣工図書がNASに入りきらない。災害時にオフィスのNASにアクセスできなくなるBCP面の不安がある</p>
+            <div class="cat-example">写真データ増大 / 災害時のアクセス不能</div>
+          </div>
+          <div class="cat-card">
+            <h4>&#x1F4BC; 管理部門</h4>
+            <p>VPN接続のトラブル対応に時間を取られている。リモートワーク推進でNAS中心の運用が限界を迎えている</p>
+            <div class="cat-example">VPNトラブル対応 / リモートワーク対応</div>
+          </div>
+        </div>
+        <div class="insight">
+          <h4>このガイドで分かること</h4>
+          <ul>
+            <li>NAS/オンプレの5年TCO（総所有コスト）とクラウドサービス料金の比較</li>
+            <li>BCP・ランサムウェア対策の観点から見たインフラ選定</li>
+            <li>VPN不要のリモートアクセスと運用負荷の削減効果</li>
+            <li>移行手順と容量増加への対応方法</li>
+          </ul>
+        </div>
+      </div>
+      <div class="btn-row"><span></span><button class="btn btn-primary" onclick="goTo('step1')">始める &#8594;</button></div>
+    </div>
+
+    <!-- ========== STEP1: コスト比較 ========== -->
+    <div class="section" id="sec-step1">
+      <div class="content-header">
+        <h1>STEP 1: コスト比較 &#8212; 5年TCOで考える</h1>
+        <p>初期費用だけでなく、保守・電気代・リプレース費用を含めた総コストで比較します</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p>NASは「買い切り」に見えて、実は<strong>5&#65374;7年ごとのリプレース</strong>が前提です。<br>
+          保守契約・電気代・設置スペース・管理者の人件費まで含めると、5年間のTCOは想像以上に膨らみます。</p>
+        </div>
+        <div class="vs-header">
+          <div class="vs-side nas-side"><h4 style="color:#6B7280;">NAS / オンプレ</h4><p>ハードウェア買い切り型</p></div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-side cloud-side"><h4 style="color:var(--dc-primary);">DirectCloud</h4><p>クラウドサブスクリプション型</p></div>
+        </div>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead><tr><th>コスト項目</th><th>NAS / オンプレ</th><th class="highlight">DirectCloud</th></tr></thead>
+            <tbody>
+              <tr><td>初期費用</td><td class="cell-warn">10&#65374;90万円（容量・冗長構成による）</td><td class="cell-yes">無料</td></tr>
+              <tr><td>月額/年額</td><td>&#8212;</td><td>月額制（プラン別）</td></tr>
+              <tr><td>保守契約</td><td class="cell-warn">年間5&#65374;15万円（目安）</td><td class="cell-yes">月額に含む</td></tr>
+              <tr><td>リプレース</td><td class="cell-warn">5&#65374;7年ごとに再購入</td><td class="cell-yes">不要</td></tr>
+              <tr><td>電気代・設置スペース</td><td class="cell-warn">必要（24時間稼働）</td><td class="cell-yes">不要</td></tr>
+              <tr><td>容量拡張</td><td class="cell-warn">HDD追加 or 本体交換</td><td class="cell-yes">5営業日で対応</td></tr>
+              <tr><td>ユーザー数</td><td>ライセンスによる</td><td class="cell-accent">無制限</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">5年間の累積コストイメージ</h3>
+        <div class="tco-visual">
+          <div class="tco-card nas">
+            <div class="tco-label">NAS / オンプレ（5年間）</div>
+            <div class="tco-total nas-color">150&#65374;350万円</div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>初期購入</span><span>30&#65374;90万</span></div><div class="tco-bar"><div class="tco-bar-fill gray" style="width:55%;"></div></div></div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>保守（5年）</span><span>25&#65374;75万</span></div><div class="tco-bar"><div class="tco-bar-fill gray" style="width:40%;"></div></div></div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>リプレース</span><span>30&#65374;90万</span></div><div class="tco-bar"><div class="tco-bar-fill gray" style="width:55%;"></div></div></div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>電気代・管理工数</span><span>30&#65374;60万</span></div><div class="tco-bar"><div class="tco-bar-fill gray" style="width:30%;"></div></div></div>
+            <div class="tco-note">* 上記は一般的な中小企業（10&#65374;100名規模）のNAS導入ケースの目安です</div>
+          </div>
+          <div class="tco-card cloud">
+            <div class="tco-label">DirectCloud（5年間）</div>
+            <div class="tco-total cloud-color">月額 &#215; 60ヶ月</div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>初期費用</span><span>0円</span></div><div class="tco-bar"><div class="tco-bar-fill blue" style="width:0%;"></div></div></div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>月額利用料</span><span>プラン別</span></div><div class="tco-bar"><div class="tco-bar-fill blue" style="width:65%;"></div></div></div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>リプレース</span><span>0円</span></div><div class="tco-bar"><div class="tco-bar-fill blue" style="width:0%;"></div></div></div>
+            <div class="tco-bar-wrap"><div class="tco-bar-label"><span>保守・電気代</span><span>0円</span></div><div class="tco-bar"><div class="tco-bar-fill blue" style="width:0%;"></div></div></div>
+            <div class="tco-note">* 初期費用無料、ユーザー数無制限。容量拡張は5営業日で対応可能</div>
+          </div>
+        </div>
+        <div class="tip"><strong>ポイント:</strong> NASの「安さ」は初期費用だけの話です。5年間の総コストで比較すると、クラウドストレージの方がコスト予測がしやすく、突発的な出費も発生しません。稟議も月額経費として処理できるため、予算管理が容易になります。</div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="goTo('intro')">&#8592; 戻る</button><button class="btn btn-primary" onclick="goTo('step2')">次へ &#8594;</button></div>
+    </div>
+
+    <!-- ========== STEP2: セキュリティ・BCP ========== -->
+    <div class="section" id="sec-step2">
+      <div class="content-header">
+        <h1>STEP 2: セキュリティ・BCP対策</h1>
+        <p>ランサムウェアや災害から業務データを守る仕組みを比較します</p>
+      </div>
+      <div class="card">
+        <div class="warning-box"><strong>IPA公開事例（2020年11月）:</strong> ある企業のNASがmakopランサムウェアに感染し、<strong>40万個以上のファイルが暗号化</strong>される被害が発生しました。VPN装置の脆弱性が侵入経路となり、単拠点のNASでは復旧までに長期間を要しました。</div>
+        <div class="scenario">
+          <p>NASは物理的に「1か所」にデータが集中するため、<strong>災害やランサムウェアの被害が直撃</strong>します。<br>
+          クラウドストレージは複数拠点にデータを分散保管し、万が一の事態でもファイルを復元できる設計になっています。</p>
+        </div>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead><tr><th>セキュリティ項目</th><th>NAS / オンプレ</th><th class="highlight">DirectCloud</th></tr></thead>
+            <tbody>
+              <tr><td>データ保管拠点</td><td class="cell-warn">単拠点（オフィス内）</td><td class="cell-yes">国内3拠点分散（AWS東京リージョン）</td></tr>
+              <tr><td>バックアップ</td><td class="cell-warn">管理者が手動設定</td><td class="cell-yes">30世代自動バックアップ</td></tr>
+              <tr><td>稼働率SLA</td><td class="cell-no">なし（自己管理）</td><td class="cell-yes">月間99.95%</td></tr>
+              <tr><td>暗号化</td><td class="cell-warn">機種による</td><td class="cell-yes">AES-256</td></tr>
+              <tr><td>不正侵入対策</td><td class="cell-warn">自前でFW構築</td><td class="cell-yes">WAF + IDS標準装備</td></tr>
+              <tr><td>ランサムウェア対策</td><td class="cell-warn">追加ソフトが必要</td><td class="cell-yes">全プラン標準（バージョン管理で復元）</td></tr>
+              <tr><td>操作ログ</td><td class="cell-warn">機種・設定依存</td><td class="cell-accent">250種類以上</td></tr>
+              <tr><td>第三者認証</td><td class="cell-no">&#8212;</td><td class="cell-yes">Pマーク / ISO 27001</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">DirectCloudのセキュリティ多層防御</h3>
+        <div class="security-layers">
+          <div class="security-layer"><div class="layer-num">1</div><div class="layer-body"><h5>国内3拠点データ分散</h5><p>AWS東京リージョン内の複数のアベイラビリティゾーンにデータを分散保管。1拠点が被災しても他拠点からデータにアクセスできます。</p><div class="layer-tags"><span class="layer-tag">AWS東京リージョン</span><span class="layer-tag">3拠点分散</span><span class="layer-tag">99.95% SLA</span></div></div></div>
+          <div class="security-layer"><div class="layer-num">2</div><div class="layer-body"><h5>ランサムウェア対策</h5><p>全プラン標準でバージョン管理を搭載。ランサムウェアにファイルを暗号化されても、30世代前の正常なバージョンに復元できます。追加費用なしで全プランに適用されます。</p><div class="layer-tags"><span class="layer-tag">30世代バックアップ</span><span class="layer-tag">全プラン標準</span><span class="layer-tag">追加費用なし</span></div></div></div>
+          <div class="security-layer"><div class="layer-num">3</div><div class="layer-body"><h5>通信・保存データの暗号化</h5><p>通信はSSL/TLSで保護、保存データはAES-256で暗号化。WAFとIDSが不正アクセスを常時監視し、外部からの攻撃を自動でブロックします。</p><div class="layer-tags"><span class="layer-tag">AES-256暗号化</span><span class="layer-tag">WAF標準装備</span><span class="layer-tag">IDS常時監視</span></div></div></div>
+          <div class="security-layer"><div class="layer-num">4</div><div class="layer-body"><h5>監査ログ・第三者認証</h5><p>250種類以上の操作ログで「誰が・いつ・何を」を記録。Pマーク・ISO 27001認証を取得しており、上場企業やISMS取得企業のセキュリティ要件にも対応します。</p><div class="layer-tags"><span class="layer-tag">操作ログ250種類以上</span><span class="layer-tag">Pマーク</span><span class="layer-tag">ISO 27001</span></div></div></div>
+        </div>
+        <div class="insight">
+          <h4>NASでよくある課題とDirectCloudでの対応</h4>
+          <ul>
+            <li><strong>VPN脆弱性:</strong> NASへのVPN接続がランサムウェアの侵入口に。DirectCloudはVPN不要でアクセス可能</li>
+            <li><strong>単拠点集中:</strong> オフィスの停電・火災でデータ消失の可能性。3拠点分散で事業継続を担保</li>
+            <li><strong>バックアップ未設定:</strong> NASのバックアップは管理者任せになりがち。30世代自動バックアップで属人化を排除</li>
+          </ul>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="goTo('step1')">&#8592; 戻る</button><button class="btn btn-primary" onclick="goTo('step3')">次へ &#8594;</button></div>
+    </div>
+
+    <!-- ========== STEP3: 運用・リモートワーク ========== -->
+    <div class="section" id="sec-step3">
+      <div class="content-header">
+        <h1>STEP 3: 運用負荷とリモートワーク対応</h1>
+        <p>日常の管理負荷と、場所を選ばない働き方への対応力を比較します</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p>NASの運用は管理者に負荷が集中します。<strong>バックアップ設定・パッチ適用・障害対応・VPNトラブル対応</strong>&#8212;&#8212;これらすべてを社内で対応する必要があります。<br>
+          クラウドに移行すると、これらの運用工数が大幅に削減され、管理者は本来の業務に集中できます。</p>
+        </div>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead><tr><th>運用項目</th><th>NAS / オンプレ</th><th class="highlight">DirectCloud</th></tr></thead>
+            <tbody>
+              <tr><td>リモートアクセス</td><td class="cell-warn">VPN必須</td><td class="cell-yes">ブラウザ / アプリ / DC ドライブ（VPN不要）</td></tr>
+              <tr><td>バックアップ</td><td class="cell-warn">管理者が設定・監視</td><td class="cell-yes">自動（30世代）</td></tr>
+              <tr><td>パッチ・アップデート</td><td class="cell-warn">管理者が手動適用</td><td class="cell-yes">自動（サービス側で対応）</td></tr>
+              <tr><td>障害対応</td><td class="cell-warn">自社で対応</td><td class="cell-yes">24/365監視体制</td></tr>
+              <tr><td>ユーザー管理</td><td class="cell-warn">個別設定</td><td class="cell-yes">AD / Entra ID連携 / CSV一括登録</td></tr>
+              <tr><td>アクセス権限</td><td>フォルダ単位</td><td class="cell-accent">7段階アクセスレベル</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">管理画面イメージ</h3>
+        <div class="mock-admin">
+          <div class="mock-admin-title">操作イメージ &#8212; DirectCloud 管理コンソール</div>
+          <div class="mock-admin-inner">
+            <div class="mock-admin-bar"><div class="mock-dot mock-dot-r"></div><div class="mock-dot mock-dot-y"></div><div class="mock-dot mock-dot-g"></div><span style="font-size:11px; color:#999; margin-left:8px;">管理ページ > セキュリティ設定</span></div>
+            <div class="mock-admin-section">
+              <div class="mock-admin-section-title">アクセス制御</div>
+              <div class="toggle-row"><span>7段階アクセスレベル管理</span><span class="toggle-on">有効</span></div>
+              <div class="toggle-row"><span>AD / Entra ID連携（SSO）</span><span class="toggle-on">連携済</span></div>
+              <div class="toggle-row"><span>デバイス認証</span><span class="toggle-on">ON</span></div>
+            </div>
+            <div class="mock-admin-section">
+              <div class="mock-admin-section-title">データ保護</div>
+              <div class="toggle-row"><span>AES-256暗号化</span><span class="toggle-on">常時有効</span></div>
+              <div class="toggle-row"><span>バージョン管理（30世代）</span><span class="toggle-on">有効</span></div>
+              <div class="toggle-row"><span>操作ログ記録（250種類以上）</span><span class="toggle-on">記録中</span></div>
+            </div>
+            <div class="mock-admin-section">
+              <div class="mock-admin-section-title">ネットワーク防御</div>
+              <div class="toggle-row"><span>WAF（Web Application Firewall）</span><span class="toggle-on">有効</span></div>
+              <div class="toggle-row"><span>IDS（不正侵入検知）</span><span class="toggle-on">監視中</span></div>
+              <div class="toggle-row"><span>IPアドレス制限</span><span class="toggle-off">未設定</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-item"><div class="feature-badge">&#x1F310;</div><div class="feature-text"><h5>ブラウザ版アクセス</h5><p>インストール不要。ブラウザからログインするだけで、どの端末からでもファイルにアクセスできます。出先やBYOD端末でも利用可能です。</p></div></div>
+          <div class="feature-item"><div class="feature-badge">&#x1F4BB;</div><div class="feature-text"><h5>DC ドライブ</h5><p>エクスプローラー上でクラウドファイルをローカルファイルと同じ感覚で操作できます。NASからの移行でもユーザーが違和感なく使えます。</p></div></div>
+          <div class="feature-item"><div class="feature-badge">&#x1F4F1;</div><div class="feature-text"><h5>モバイルアプリ</h5><p>スマートフォンから直接ファイルにアクセス。現場写真のアップロードや外出先での図面確認に活用できます。</p></div></div>
+          <div class="feature-item"><div class="feature-badge">&#x1F465;</div><div class="feature-text"><h5>AD / Entra ID連携</h5><p>既存のActive DirectoryやMicrosoft Entra IDと連携し、シングルサインオンを実現。CSV一括登録にも対応しており、大規模なユーザー管理も効率的に行えます。</p></div></div>
+        </div>
+        <div class="insight">
+          <h4>管理者の負担がこう変わります</h4>
+          <ul>
+            <li><strong>VPNトラブル対応:</strong> 接続不良・証明書更新・帯域不足の問い合わせがゼロに</li>
+            <li><strong>バックアップ監視:</strong> 手動チェック不要。30世代自動で記録</li>
+            <li><strong>パッチ適用:</strong> ファームウェア更新作業が不要。サービス側で常に最新</li>
+            <li><strong>障害復旧:</strong> HDD交換やRAID再構築の待ち時間がなくなる</li>
+          </ul>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="goTo('step2')">&#8592; 戻る</button><button class="btn btn-primary" onclick="goTo('step4')">次へ &#8594;</button></div>
+    </div>
+
+    <!-- ========== STEP4: 移行・容量 ========== -->
+    <div class="section" id="sec-step4">
+      <div class="content-header">
+        <h1>STEP 4: 移行のポイントと容量管理</h1>
+        <p>既存ファイルの移行手順と、容量増加への計画的な対応方法を確認します</p>
+      </div>
+      <div class="card">
+        <div class="scenario">
+          <p>「クラウドに移行したいけど、既存ファイルをどう移すのか分からない」&#8212;&#8212;これが最大のハードルです。<br>
+          <strong>DirectCloudは段階的な移行に対応</strong>しており、一度にすべてを移す必要はありません。</p>
+        </div>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:#1A2332;">移行の基本ステップ</h3>
+        <div class="flow-steps" style="margin-bottom:20px;">
+          <span class="flow-step">移行対象の棚卸し</span><span class="flow-arrow">&#8594;</span>
+          <span class="flow-step">フォルダ構成を設計</span><span class="flow-arrow">&#8594;</span>
+          <span class="flow-step">優先度の高い部署から移行</span><span class="flow-arrow">&#8594;</span>
+          <span class="flow-step">全社展開</span>
+        </div>
+        <ol class="step-list">
+          <li><span><strong>移行対象の棚卸し:</strong> NAS上の全ファイルを確認し、現在も利用中のデータ・アーカイブ対象・不要データに分類します。この段階で不要ファイルを整理するだけでも移行量を30&#65374;50%削減できるケースがあります。</span></li>
+          <li><span><strong>フォルダ構成の設計:</strong> NASのフォルダ構成をそのまま持ち込むのではなく、部署別・プロジェクト別など最適な構成を検討します。7段階アクセスレベルを活かした権限設計もこの段階で行います。</span></li>
+          <li><span><strong>部署別の段階移行:</strong> 情報システム部門やパイロット部署から先行移行し、手順を確立してから全社展開します。DCドライブを導入すれば、エクスプローラーの操作感を維持でき、ユーザーへの教育コストを最小限に抑えられます。</span></li>
+          <li><span><strong>NAS並行期間の運用:</strong> 完全移行までの並行期間を設け、移行漏れがないことを確認してからNASを廃止します。この期間中もDirectCloudのバックアップは稼働しています。</span></li>
+        </ol>
+        <h3 style="font-size:16px; font-weight:700; margin:28px 0 12px; color:#1A2332;">容量が増えても計画的に管理する</h3>
+        <div class="feature-grid">
+          <div class="feature-item"><div class="feature-badge">&#x1F4C8;</div><div class="feature-text"><h5>容量拡張は5営業日</h5><p>ストレージ容量が足りなくなったら、申請から5営業日で容量を追加できます。NASのようにHDDの発注・取り付け・RAID構築を待つ必要はありません。</p></div></div>
+          <div class="feature-item"><div class="feature-badge">&#x1F4E6;</div><div class="feature-text"><h5>ストレージ階層化</h5><p>アクセス頻度の低いデータをコールドストレージに移すことで、コストを最適化しながら長期保管できます。必要になったときにはいつでも取り出せます。</p></div></div>
+          <div class="feature-item"><div class="feature-badge">&#x1F4CA;</div><div class="feature-text"><h5>利用状況の可視化</h5><p>管理画面から部署別・ユーザー別のストレージ使用量を確認でき、容量不足になる前に計画的な対応が可能です。</p></div></div>
+          <div class="feature-item"><div class="feature-badge">&#x2B06;</div><div class="feature-text"><h5>プランアップで柔軟に対応</h5><p>事業拡大やM&amp;Aでデータ量が急増した場合も、プランの変更で柔軟に対応できます。ユーザー数は全プラン無制限なので、人数増加による追加コストは発生しません。</p></div></div>
+        </div>
+        <div class="tip"><strong>移行支援:</strong> DirectCloudでは、既存NASからの移行をサポートするツールや手順書を提供しています。大規模データの移行についても、担当者がヒアリングの上で個別に支援いたします。</div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="goTo('step3')">&#8592; 戻る</button><button class="btn btn-primary" onclick="goTo('q1')">クイズへ &#8594;</button></div>
+    </div>
+
+    <!-- ========== Q1 ========== -->
+    <div class="section" id="sec-q1">
+      <div class="content-header"><h1>理解度チェック</h1><p>NAS vs クラウドの知識を確認しましょう</p></div>
+      <div class="card">
+        <div class="scenario"><p><strong>Q1.</strong> NASの一般的なリプレース周期はどれくらいですか？</p></div>
+        <div class="choices" id="choices-q1">
+          <div class="choice-card" onclick="selectAnswer('q1', 0)"><h5>A. 2&#65374;3年</h5><p>比較的短い周期で買い替えます</p></div>
+          <div class="choice-card" onclick="selectAnswer('q1', 1)"><h5>B. 5&#65374;7年</h5><p>HDDの寿命やメーカーサポート期限に合わせたリプレース周期です</p></div>
+          <div class="choice-card" onclick="selectAnswer('q1', 2)"><h5>C. 10&#65374;15年</h5><p>長期間使い続けて壊れたら交換します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q1', 3)"><h5>D. リプレース不要</h5><p>HDDを交換すればずっと使えます</p></div>
+        </div>
+        <div class="feedback" id="fb-q1"></div>
+        <div class="btn-row"><button class="btn btn-outline" onclick="goTo('step4')">&#8592; 戻る</button><button class="btn btn-primary" id="next-q1" onclick="goTo('q2')" disabled>次の問題へ &#8594;</button></div>
+      </div>
+    </div>
+
+    <!-- ========== Q2 ========== -->
+    <div class="section" id="sec-q2">
+      <div class="content-header"><h1>理解度チェック</h1><p>NAS vs クラウドの知識を確認しましょう</p></div>
+      <div class="card">
+        <div class="scenario"><p><strong>Q2.</strong> DirectCloudのバックアップ世代数は何世代ですか？</p></div>
+        <div class="choices" id="choices-q2">
+          <div class="choice-card" onclick="selectAnswer('q2', 0)"><h5>A. 5世代</h5><p>5回分の変更履歴を保持します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q2', 1)"><h5>B. 10世代</h5><p>10回分の変更履歴を保持します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q2', 2)"><h5>C. 30世代</h5><p>30回分の変更履歴を保持します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q2', 3)"><h5>D. 無制限</h5><p>すべての変更履歴を永久に保持します</p></div>
+        </div>
+        <div class="feedback" id="fb-q2"></div>
+        <div class="btn-row"><button class="btn btn-outline" onclick="goTo('q1')">&#8592; 戻る</button><button class="btn btn-primary" id="next-q2" onclick="goTo('q3')" disabled>次の問題へ &#8594;</button></div>
+      </div>
+    </div>
+
+    <!-- ========== Q3 ========== -->
+    <div class="section" id="sec-q3">
+      <div class="content-header"><h1>理解度チェック</h1><p>NAS vs クラウドの知識を確認しましょう</p></div>
+      <div class="card">
+        <div class="scenario"><p><strong>Q3.</strong> DirectCloudで記録できる操作ログの種類は？</p></div>
+        <div class="choices" id="choices-q3">
+          <div class="choice-card" onclick="selectAnswer('q3', 0)"><h5>A. 約50種類</h5><p>ログイン・ダウンロードなど主要な操作を記録します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q3', 1)"><h5>B. 約100種類</h5><p>操作の大半をカバーする詳細なログです</p></div>
+          <div class="choice-card" onclick="selectAnswer('q3', 2)"><h5>C. 250種類以上</h5><p>ファイル操作から管理設定変更まで網羅的に記録します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q3', 3)"><h5>D. 操作ログは非対応</h5><p>操作ログ機能はありません</p></div>
+        </div>
+        <div class="feedback" id="fb-q3"></div>
+        <div class="btn-row"><button class="btn btn-outline" onclick="goTo('q2')">&#8592; 戻る</button><button class="btn btn-primary" id="next-q3" onclick="goTo('q4')" disabled>次の問題へ &#8594;</button></div>
+      </div>
+    </div>
+
+    <!-- ========== Q4 ========== -->
+    <div class="section" id="sec-q4">
+      <div class="content-header"><h1>理解度チェック</h1><p>NAS vs クラウドの知識を確認しましょう</p></div>
+      <div class="card">
+        <div class="scenario"><p><strong>Q4.</strong> DirectCloudでVPN不要のリモートアクセスを実現する方法として正しいものは？</p></div>
+        <div class="choices" id="choices-q4">
+          <div class="choice-card" onclick="selectAnswer('q4', 0)"><h5>A. VPNソフトを内蔵している</h5><p>DirectCloud側でVPN機能を提供しています</p></div>
+          <div class="choice-card" onclick="selectAnswer('q4', 1)"><h5>B. ブラウザ版 / DC ドライブ / モバイルアプリ</h5><p>3つのアクセス方法でVPN不要のリモートアクセスを実現します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q4', 2)"><h5>C. 専用のリモートデスクトップを使用</h5><p>リモートデスクトップ経由でファイルにアクセスします</p></div>
+          <div class="choice-card" onclick="selectAnswer('q4', 3)"><h5>D. 社内ネットワーク限定でリモート不可</h5><p>セキュリティのため社内からのみアクセスできます</p></div>
+        </div>
+        <div class="feedback" id="fb-q4"></div>
+        <div class="btn-row"><button class="btn btn-outline" onclick="goTo('q3')">&#8592; 戻る</button><button class="btn btn-primary" id="next-q4" onclick="goTo('q5')" disabled>次の問題へ &#8594;</button></div>
+      </div>
+    </div>
+
+    <!-- ========== Q5 ========== -->
+    <div class="section" id="sec-q5">
+      <div class="content-header"><h1>理解度チェック</h1><p>NAS vs クラウドの知識を確認しましょう</p></div>
+      <div class="card">
+        <div class="scenario"><p><strong>Q5.</strong> ランサムウェアにファイルを暗号化された場合、DirectCloudで復元に使う機能は？</p></div>
+        <div class="choices" id="choices-q5">
+          <div class="choice-card" onclick="selectAnswer('q5', 0)"><h5>A. ウイルス駆除ツール</h5><p>ランサムウェアを駆除してからファイルを復元します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q5', 1)"><h5>B. バージョン管理</h5><p>暗号化される前のバージョンに戻すことで復元します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q5', 2)"><h5>C. スナップショット</h5><p>ストレージ全体のスナップショットから復元します</p></div>
+          <div class="choice-card" onclick="selectAnswer('q5', 3)"><h5>D. 復元は不可能</h5><p>一度暗号化されたファイルは復元できません</p></div>
+        </div>
+        <div class="feedback" id="fb-q5"></div>
+        <div class="btn-row"><button class="btn btn-outline" onclick="goTo('q4')">&#8592; 戻る</button><button class="btn btn-primary" id="next-q5" onclick="showResult()" disabled>結果を見る &#8594;</button></div>
+      </div>
+    </div>
+
+    <!-- ========== Result ========== -->
+    <div class="section" id="sec-result">
+      <div class="content-header"><h1>クイズ結果</h1><p>お疲れさまでした!</p></div>
+      <div class="card">
+        <div class="score-area">
+          <div class="score-circle" id="scoreCircle"><div class="score-inner"><div class="score-num" id="scoreNum">0</div><div class="score-label">/ 5 問正解</div></div></div>
+          <div class="score-msg" id="scoreMsg"></div>
+        </div>
+        <div class="result-review" id="resultReview"></div>
+        <div class="ref-table-section">
+          <h3>NAS vs クラウド 比較早見表（保存用）</h3>
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead><tr><th>比較項目</th><th>NAS / オンプレ</th><th class="highlight">DirectCloud</th></tr></thead>
+              <tbody>
+                <tr><td>初期費用</td><td>10&#65374;90万円</td><td class="cell-yes">無料</td></tr>
+                <tr><td>リプレース</td><td>5&#65374;7年ごと</td><td class="cell-yes">不要</td></tr>
+                <tr><td>ユーザー数</td><td>ライセンス制限あり</td><td class="cell-accent">無制限</td></tr>
+                <tr><td>容量拡張</td><td>HDD追加/本体交換</td><td class="cell-yes">5営業日</td></tr>
+                <tr><td>データ保管</td><td>単拠点</td><td class="cell-yes">国内3拠点（AWS東京）</td></tr>
+                <tr><td>バックアップ</td><td>手動設定</td><td class="cell-yes">30世代自動</td></tr>
+                <tr><td>暗号化</td><td>機種による</td><td class="cell-yes">AES-256</td></tr>
+                <tr><td>ランサムウェア対策</td><td>追加ソフト必要</td><td class="cell-yes">全プラン標準</td></tr>
+                <tr><td>操作ログ</td><td>機種依存</td><td class="cell-accent">250種類以上</td></tr>
+                <tr><td>リモートアクセス</td><td>VPN必須</td><td class="cell-yes">VPN不要</td></tr>
+                <tr><td>認証連携</td><td>限定的</td><td class="cell-yes">AD / Entra ID</td></tr>
+                <tr><td>第三者認証</td><td>&#8212;</td><td class="cell-yes">Pマーク / ISO 27001</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="nextGuides"></div>
+        <div class="saved-notice" id="savedNotice" style="display:none;">&#x2713; 結果を保存しました</div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="location.reload()">もう一度やる</button></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
+
+function getUser() { return new URLSearchParams(window.location.search).get('user') || ''; }
+
+function submitResults(extra) {
+  if (!COLLECT_ENDPOINT) return;
+  var payload = { page: 'NAS/\u30AA\u30F3\u30D7\u30EC vs \u30AF\u30E9\u30A6\u30C9\u6BD4\u8F03\u30AC\u30A4\u30C9', timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }), user: getUser(), answers: answersLabel };
+  Object.keys(extra || {}).forEach(function(k) { payload[k] = extra[k]; });
+  fetch(COLLECT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+  .then(function(res) { if (res.ok) document.getElementById('savedNotice').style.display = 'block'; else console.error('\u56DE\u7B54\u9001\u4FE1\u30A8\u30E9\u30FC:', res.status); })
+  .catch(function(e) { console.error('\u56DE\u7B54\u9001\u4FE1\u5931\u6557:', e); });
+}
+
+var correctAnswers = { q1: 1, q2: 2, q3: 2, q4: 1, q5: 1 };
+
+var explanations = {
+  q1: {
+    correct: '\u6B63\u89E3! NAS\u306E\u4E00\u822C\u7684\u306A\u30EA\u30D7\u30EC\u30FC\u30B9\u5468\u671F\u306F5\uFF5E7\u5E74\u3067\u3059\u3002HDD\u306E\u7269\u7406\u7684\u5BFF\u547D\u3084\u30E1\u30FC\u30AB\u30FC\u306E\u4FDD\u5B88\u30B5\u30DD\u30FC\u30C8\u671F\u9650\u304C\u76EE\u5B89\u3068\u306A\u308A\u3001\u3053\u306E\u5468\u671F\u3067\u672C\u4F53\u3054\u3068\u306E\u8CB7\u3044\u66FF\u3048\u304C\u5FC5\u8981\u306B\u306A\u308A\u307E\u3059\u30025\u5E74\u9593\u306ETCO\u306B\u306F\u3053\u306E\u30EA\u30D7\u30EC\u30FC\u30B9\u8CBB\u7528\u3082\u542B\u307E\u308C\u307E\u3059\u3002',
+    wrong: { 0: '2\uFF5E3\u5E74\u306F\u77ED\u3059\u304E\u307E\u3059\u3002NAS\u306E\u4E00\u822C\u7684\u306A\u30EA\u30D7\u30EC\u30FC\u30B9\u5468\u671F\u306F5\uFF5E7\u5E74\u3067\u3001HDD\u306E\u5BFF\u547D\u3084\u30E1\u30FC\u30AB\u30FC\u4FDD\u5B88\u671F\u9650\u304C\u57FA\u6E96\u3068\u306A\u308A\u307E\u3059\u3002', 2: '10\uFF5E15\u5E74\u306F\u9577\u3059\u304E\u307E\u3059\u3002HDD\u306E\u7269\u7406\u7684\u5BFF\u547D\u3092\u8D85\u3048\u3066\u4F7F\u3044\u7D9A\u3051\u308B\u3068\u3001\u6545\u969C\u306B\u3088\u308B\u30C7\u30FC\u30BF\u6D88\u5931\u306E\u53EF\u80FD\u6027\u304C\u9AD8\u307E\u308A\u307E\u3059\u30025\uFF5E7\u5E74\u3067\u306E\u30EA\u30D7\u30EC\u30FC\u30B9\u304C\u63A8\u5968\u3055\u308C\u307E\u3059\u3002', 3: 'HDD\u3092\u4EA4\u63DB\u3059\u308C\u3070\u7D9A\u304F\u3088\u3046\u306B\u898B\u3048\u307E\u3059\u304C\u3001NAS\u672C\u4F53\u306E\u30B3\u30F3\u30C8\u30ED\u30FC\u30E9\u3084\u30D5\u30A1\u30FC\u30E0\u30A6\u30A7\u30A2\u3082\u7D4C\u5E74\u52A3\u5316\u3057\u307E\u3059\u3002\u30E1\u30FC\u30AB\u30FC\u306E\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30D1\u30C3\u30C1\u3082\u30B5\u30DD\u30FC\u30C8\u7D42\u4E86\u5F8C\u306F\u63D0\u4F9B\u3055\u308C\u307E\u305B\u3093\u3002' }
+  },
+  q2: {
+    correct: '\u6B63\u89E3! DirectCloud\u306F30\u4E16\u4EE3\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u81EA\u52D5\u3067\u4FDD\u6301\u3057\u307E\u3059\u3002\u30E9\u30F3\u30B5\u30E0\u30A6\u30A7\u30A2\u3067\u30D5\u30A1\u30A4\u30EB\u304C\u6697\u53F7\u5316\u3055\u308C\u3066\u3082\u300130\u4E16\u4EE3\u524D\u307E\u3067\u306E\u6B63\u5E38\u306A\u30D0\u30FC\u30B8\u30E7\u30F3\u306B\u5FA9\u5143\u3067\u304D\u307E\u3059\u3002\u3053\u308C\u304C\u5168\u30D7\u30E9\u30F3\u6A19\u6E96\u3067\u63D0\u4F9B\u3055\u308C\u3066\u3044\u307E\u3059\u3002',
+    wrong: { 0: '5\u4E16\u4EE3\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002DirectCloud\u306F30\u4E16\u4EE3\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u3092\u4FDD\u6301\u3057\u307E\u3059\u3002', 1: '10\u4E16\u4EE3\u3067\u306F\u306A\u304F30\u4E16\u4EE3\u3067\u3059\u3002\u3088\u308A\u591A\u304F\u306E\u5FA9\u5143\u30DD\u30A4\u30F3\u30C8\u3092\u6301\u3064\u3053\u3068\u3067\u3001\u767A\u898B\u304C\u9045\u308C\u305F\u88AB\u5BB3\u3067\u3082\u5BFE\u5FDC\u3067\u304D\u308B\u53EF\u80FD\u6027\u304C\u9AD8\u307E\u308A\u307E\u3059\u3002', 3: '\u7121\u5236\u9650\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u304C\u300130\u4E16\u4EE3\u3068\u3044\u3046\u5341\u5206\u306A\u4E16\u4EE3\u6570\u3092\u78BA\u4FDD\u3057\u3066\u3044\u307E\u3059\u3002' }
+  },
+  q3: {
+    correct: '\u6B63\u89E3! DirectCloud\u306F250\u7A2E\u985E\u4EE5\u4E0A\u306E\u64CD\u4F5C\u30ED\u30B0\u3092\u8A18\u9332\u3057\u307E\u3059\u3002\u300C\u8AB0\u304C\u30FB\u3044\u3064\u30FB\u4F55\u3092\u300D\u3092\u8A73\u7D30\u306B\u8FFD\u8DE1\u3067\u304D\u308B\u305F\u3081\u3001\u76E3\u67FB\u5BFE\u5FDC\u3084\u30A4\u30F3\u30B7\u30C7\u30F3\u30C8\u8ABF\u67FB\u306B\u3082\u6D3B\u7528\u3067\u304D\u307E\u3059\u3002',
+    wrong: { 0: '50\u7A2E\u985E\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002DirectCloud\u306F250\u7A2E\u985E\u4EE5\u4E0A\u306E\u64CD\u4F5C\u30ED\u30B0\u3092\u8A18\u9332\u3057\u307E\u3059\u3002', 1: '100\u7A2E\u985E\u3067\u306F\u306A\u304F250\u7A2E\u985E\u4EE5\u4E0A\u3067\u3059\u3002ISMS\u3084\u76E3\u67FB\u5BFE\u5FDC\u306B\u3082\u5F37\u3044\u4EF2\u9593\u306B\u306A\u308A\u307E\u3059\u3002', 3: '\u64CD\u4F5C\u30ED\u30B0\u306F\u5BFE\u5FDC\u3057\u3066\u3044\u307E\u3059\u3002DirectCloud\u306F250\u7A2E\u985E\u4EE5\u4E0A\u306E\u64CD\u4F5C\u30ED\u30B0\u3092\u6A19\u6E96\u3067\u8A18\u9332\u3057\u307E\u3059\u3002' }
+  },
+  q4: {
+    correct: '\u6B63\u89E3! DirectCloud\u306F\u30D6\u30E9\u30A6\u30B6\u7248\u30FBDC\u30C9\u30E9\u30A4\u30D6\u30FB\u30E2\u30D0\u30A4\u30EB\u30A2\u30D7\u30EA\u306E3\u3064\u306E\u30A2\u30AF\u30BB\u30B9\u65B9\u6CD5\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u3059\u3002\u3044\u305A\u308C\u3082VPN\u4E0D\u8981\u3067\u3001\u30A4\u30F3\u30BF\u30FC\u30CD\u30C3\u30C8\u63A5\u7D9A\u304C\u3042\u308C\u3070\u3069\u3053\u304B\u3089\u3067\u3082\u30D5\u30A1\u30A4\u30EB\u306B\u30A2\u30AF\u30BB\u30B9\u3067\u304D\u307E\u3059\u3002',
+    wrong: { 0: 'DirectCloud\u306FVPN\u30BD\u30D5\u30C8\u3092\u5185\u8535\u3057\u3066\u3044\u308B\u308F\u3051\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002VPN\u81EA\u4F53\u304C\u4E0D\u8981\u3067\u3059\u3002', 2: '\u30EA\u30E2\u30FC\u30C8\u30C7\u30B9\u30AF\u30C8\u30C3\u30D7\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u30D6\u30E9\u30A6\u30B6\u30FBDC\u30C9\u30E9\u30A4\u30D6\u30FB\u30E2\u30D0\u30A4\u30EB\u30A2\u30D7\u30EA\u3067VPN\u4E0D\u8981\u306E\u30EA\u30E2\u30FC\u30C8\u30A2\u30AF\u30BB\u30B9\u3092\u5B9F\u73FE\u3057\u307E\u3059\u3002', 3: '\u793E\u5185\u9650\u5B9A\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u30AF\u30E9\u30A6\u30C9\u306E\u6700\u5927\u306E\u30E1\u30EA\u30C3\u30C8\u306E\u4E00\u3064\u304C\u3001\u5834\u6240\u3092\u9078\u3070\u306A\u3044\u30A2\u30AF\u30BB\u30B9\u3067\u3059\u3002' }
+  },
+  q5: {
+    correct: '\u6B63\u89E3! DirectCloud\u306E\u30D0\u30FC\u30B8\u30E7\u30F3\u7BA1\u7406\u6A5F\u80FD\u3067\u3001\u30E9\u30F3\u30B5\u30E0\u30A6\u30A7\u30A2\u306B\u3088\u308B\u6697\u53F7\u5316\u524D\u306E\u30D0\u30FC\u30B8\u30E7\u30F3\u306B\u623B\u3059\u3053\u3068\u3067\u30D5\u30A1\u30A4\u30EB\u3092\u5FA9\u5143\u3067\u304D\u307E\u3059\u300230\u4E16\u4EE3\u307E\u3067\u4FDD\u6301\u3055\u308C\u308B\u305F\u3081\u3001\u767A\u898B\u304C\u9045\u308C\u305F\u5834\u5408\u3067\u3082\u5FA9\u5143\u306E\u53EF\u80FD\u6027\u304C\u9AD8\u3044\u3067\u3059\u3002',
+    wrong: { 0: '\u30A6\u30A4\u30EB\u30B9\u99C6\u9664\u30C4\u30FC\u30EB\u3067\u306F\u6697\u53F7\u5316\u3055\u308C\u305F\u30D5\u30A1\u30A4\u30EB\u306F\u5FA9\u5143\u3067\u304D\u307E\u305B\u3093\u3002\u30D0\u30FC\u30B8\u30E7\u30F3\u7BA1\u7406\u304C\u6B63\u3057\u3044\u5FA9\u5143\u65B9\u6CD5\u3067\u3059\u3002', 2: '\u30B9\u30CA\u30C3\u30D7\u30B7\u30E7\u30C3\u30C8\u3067\u306F\u306A\u304F\u3001\u30D0\u30FC\u30B8\u30E7\u30F3\u7BA1\u7406\u304C\u6B63\u89E3\u3067\u3059\u3002\u30D5\u30A1\u30A4\u30EB\u5358\u4F4D\u306730\u4E16\u4EE3\u306E\u30D0\u30FC\u30B8\u30E7\u30F3\u3092\u4FDD\u6301\u3057\u307E\u3059\u3002', 3: '\u5FA9\u5143\u4E0D\u53EF\u80FD\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u30D0\u30FC\u30B8\u30E7\u30F3\u7BA1\u7406\u306F\u5168\u30D7\u30E9\u30F3\u6A19\u6E96\u3067\u3001\u30E9\u30F3\u30B5\u30E0\u30A6\u30A7\u30A2\u88AB\u5BB3\u6642\u306E\u5FA9\u5143\u624B\u6BB5\u3068\u3057\u3066\u6A5F\u80FD\u3057\u307E\u3059\u3002' }
+  }
+};
+
+var answered = {};
+var answersLabel = {};
+var score = 0;
+var sectionOrder = ['intro', 'step1', 'step2', 'step3', 'step4', 'q1', 'q2', 'q3', 'q4', 'q5', 'result'];
+var currentSection = 'intro';
+var visited = { intro: true };
+
+function goTo(sec) {
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) sections[i].classList.remove('active');
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.classList.add('active');
+  visited[sec] = true; currentSection = sec;
+  updateSidebar(sec); updateProgress(sec);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSidebar(sec) {
+  var items = document.querySelectorAll('.sidebar-item');
+  for (var i = 0; i < items.length; i++) {
+    var itemSec = items[i].getAttribute('data-sec');
+    var icon = items[i].querySelector('.icon');
+    items[i].classList.remove('active', 'done');
+    if (itemSec === sec) items[i].classList.add('active');
+    else if (visited[itemSec]) { items[i].classList.add('done'); if (icon) icon.textContent = '\u2713'; }
+  }
+}
+
+function updateProgress(sec) {
+  var idx = sectionOrder.indexOf(sec);
+  var total = sectionOrder.length;
+  var step = idx + 1;
+  document.getElementById('stepLabel').innerHTML = '<strong>' + step + '</strong> / ' + total;
+  document.getElementById('progressFill').style.width = ((step / total) * 100) + '%';
+}
+
+function selectAnswer(q, idx) {
+  if (answered[q] !== undefined) return;
+  var isCorrect = (idx === correctAnswers[q]);
+  answered[q] = idx;
+  if (isCorrect) score++;
+  var cards = document.querySelectorAll('#choices-' + q + ' .choice-card');
+  var selectedText = cards[idx].querySelector('h5').textContent;
+  answersLabel[q] = selectedText + (isCorrect ? ' (\u6B63\u89E3)' : ' (\u4E0D\u6B63\u89E3)');
+  for (var i = 0; i < cards.length; i++) {
+    if (i === idx) cards[i].classList.add(isCorrect ? 'correct' : 'wrong');
+    else if (i === correctAnswers[q]) cards[i].classList.add('correct');
+    else cards[i].classList.add('disabled');
+  }
+  var fb = document.getElementById('fb-' + q);
+  if (isCorrect) { fb.className = 'feedback show correct'; fb.innerHTML = '<h4>\u2B55 \u6B63\u89E3!</h4><p>' + explanations[q].correct + '</p>'; }
+  else { var wrongExp = explanations[q].wrong[idx] || ''; var correctCard = cards[correctAnswers[q]].querySelector('h5').textContent; fb.className = 'feedback show incorrect'; fb.innerHTML = '<h4>\u274C \u4E0D\u6B63\u89E3\u2026\u6B63\u89E3\u306F\u300C' + correctCard + '\u300D</h4><p>' + wrongExp + '</p>'; }
+  document.getElementById('next-' + q).removeAttribute('disabled');
+}
+
+function showResult() {
+  goTo('result');
+  var pct = (score / 5) * 100;
+  document.getElementById('scoreCircle').style.background = 'conic-gradient(#1E40AF ' + pct + '%, #E0E6ED ' + pct + '%)';
+  document.getElementById('scoreNum').textContent = score;
+  var msg = '';
+  if (score === 5) msg = '\u5168\u554F\u6B63\u89E3! NAS vs \u30AF\u30E9\u30A6\u30C9\u306E\u9055\u3044\u3092\u5B8C\u74A7\u306B\u7406\u89E3\u3057\u3066\u3044\u307E\u3059';
+  else if (score >= 4) msg = '\u307B\u307C\u5B8C\u74A7! \u65E9\u898B\u8868\u3092\u78BA\u8A8D\u3057\u3066\u3001\u793E\u5185\u63D0\u6848\u306E\u53C2\u8003\u306B\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+  else if (score >= 3) msg = '\u57FA\u672C\u306F\u628A\u63E1\u3067\u304D\u3066\u3044\u307E\u3059\u3002\u65E9\u898B\u8868\u3067\u8DB3\u308A\u306A\u3044\u90E8\u5206\u3092\u88DC\u5F37\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+  else msg = '\u65E9\u898B\u8868\u3092\u898B\u306A\u304C\u3089\u3001\u5404STEP\u306E\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406\u3057\u3066\u307F\u307E\u3057\u3087\u3046';
+  document.getElementById('scoreMsg').textContent = msg;
+
+  var questions = { q1: 'NAS\u306E\u30EA\u30D7\u30EC\u30FC\u30B9\u5468\u671F', q2: 'DirectCloud\u306E\u30D0\u30C3\u30AF\u30A2\u30C3\u30D7\u4E16\u4EE3\u6570', q3: '\u64CD\u4F5C\u30ED\u30B0\u306E\u7A2E\u985E\u6570', q4: 'VPN\u4E0D\u8981\u306E\u30EA\u30E2\u30FC\u30C8\u30A2\u30AF\u30BB\u30B9\u65B9\u6CD5', q5: '\u30E9\u30F3\u30B5\u30E0\u30A6\u30A7\u30A2\u88AB\u5BB3\u6642\u306E\u5FA9\u5143\u6A5F\u80FD' };
+  var correctNames = { q1: '5\uFF5E7\u5E74', q2: '30\u4E16\u4EE3', q3: '250\u7A2E\u985E\u4EE5\u4E0A', q4: '\u30D6\u30E9\u30A6\u30B6\u7248 / DC \u30C9\u30E9\u30A4\u30D6 / \u30E2\u30D0\u30A4\u30EB\u30A2\u30D7\u30EA', q5: '\u30D0\u30FC\u30B8\u30E7\u30F3\u7BA1\u7406' };
+  var html = '';
+  for (var q in questions) {
+    var isOk = answered[q] === correctAnswers[q];
+    html += '<div class="review-item"><div class="review-icon ' + (isOk ? 'ok' : 'ng') + '">' + (isOk ? '\u25CB' : '\u00D7') + '</div>';
+    html += '<div class="review-body"><h5>' + questions[q] + '</h5>';
+    html += '<p>\u6B63\u89E3: ' + correctNames[q] + (isOk ? '' : ' / \u3042\u306A\u305F\u306E\u56DE\u7B54: ' + answersLabel[q].replace(/ \(\u4E0D\u6B63\u89E3\)/, '')) + '</p></div></div>';
+  }
+  document.getElementById('resultReview').innerHTML = html;
+
+  var _EC = 'https://community.directcloud.jp/s/learning/';
+  var _up = getUser() ? '?user=' + encodeURIComponent(getUser()) : '';
+  var _guides = {
+    'file-sharing': {title:'\u30D5\u30A1\u30A4\u30EB\u5171\u6709\u65B9\u6CD5\u306E\u9078\u3073\u65B9',desc:'\u5171\u6709\u30EA\u30F3\u30AF\u30FB\u30B2\u30B9\u30C8\u62DB\u5F85\u30FB\u76F4\u63A5\u7DE8\u96C6\u306E\u4F7F\u3044\u5206\u3051\u3092\u6574\u7406',icon:'\uD83D\uDCC2',bg:'#eef4ff',color:'#2E6DFE'},
+    'browser-guide': {title:'\u30C9\u30E9\u30A4\u30D6\u2192\u30D6\u30E9\u30A6\u30B6\u4F75\u7528\u30AC\u30A4\u30C9',desc:'\u30D6\u30E9\u30A6\u30B6\u7248\u3068\u306E\u4F7F\u3044\u5206\u3051\u3067\u30C8\u30E9\u30D6\u30EB\u3092\u6E1B\u3089\u3059',icon:'\uD83C\uDF10',bg:'#eef0ff',color:'#4F46E5'},
+    'initial-setup': {title:'\u521D\u671F\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u63A8\u5968\u8A2D\u5B9A\u3084\u30D5\u30A9\u30EB\u30C0\u69CB\u6210\u306E\u57FA\u672C\u3092\u304A\u3055\u3089\u3044',icon:'\u2699\uFE0F',bg:'#f0fdf4',color:'#059669'},
+    'security-check': {title:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u8A2D\u5B9A\u30C1\u30A7\u30C3\u30AF',desc:'\u4ECA\u306E\u8A2D\u5B9A\u306B\u30EA\u30B9\u30AF\u304C\u306A\u3044\u304B\u30BB\u30EB\u30D5\u30C1\u30A7\u30C3\u30AF',icon:'\uD83D\uDEE1\uFE0F',bg:'#f1f5f9',color:'#475569'},
+    'drive-troubleshooting': {title:'\u30C9\u30E9\u30A4\u30D6 \u30C8\u30E9\u30D6\u30EB\u89E3\u6C7A\u30AC\u30A4\u30C9',desc:'\u3088\u304F\u3042\u308B\u30C8\u30E9\u30D6\u30EB\u306E\u539F\u56E0\u3068\u5BFE\u51E6\u6CD5\u3092\u78BA\u8A8D',icon:'\uD83D\uDD27',bg:'#fff7ed',color:'#D97706'},
+    'guest-permissions': {title:'\u30B2\u30B9\u30C8\u62DB\u5F85 \u6A29\u9650\u8A2D\u5B9A\u30AC\u30A4\u30C9',desc:'\u30B2\u30B9\u30C8\u62DB\u5F85\u6642\u306E\u6A29\u9650\u8A2D\u5B9A\u3092\u6B63\u3057\u304F\u7406\u89E3',icon:'\uD83D\uDC65',bg:'#f5f3ff',color:'#7B61FF'},
+    'link-to-guest': {title:'\u30EA\u30F3\u30AF\u2192\u30B2\u30B9\u30C8\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u30EA\u30F3\u30AF\u5171\u6709\u304B\u3089\u30B2\u30B9\u30C8\u62DB\u5F85\u3078\u306E\u5207\u308A\u66FF\u3048\u65B9',icon:'\uD83D\uDD17',bg:'#fdf2f8',color:'#DB2777'},
+    'shield-security': {title:'SHIELD \u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u30AC\u30A4\u30C9',desc:'SHIELD\u30AA\u30D7\u30B7\u30E7\u30F3\u306E\u8A2D\u5B9A\u3068\u6D3B\u7528\u6CD5',icon:'\uD83D\uDD12',bg:'#ecfdf5',color:'#059669'},
+    'supply-chain-check': {title:'\u30B5\u30D7\u30E9\u30A4\u30C1\u30A7\u30FC\u30F3\u5BFE\u5FDC\u5EA6\u30C1\u30A7\u30C3\u30AF',desc:'\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5BFE\u7B56\u8A55\u4FA1\u5236\u5EA6\u3078\u306E\u5BFE\u5FDC\u72B6\u6CC1\u3092\u8A3A\u65AD',icon:'\uD83D\uDCCB',bg:'#f0fdfa',color:'#0D9488'},
+    'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
+    'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
+    'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
+    'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'},
+    'document-management': {title:'\u6587\u66F8\u7BA1\u7406\u30D5\u30A9\u30EB\u30C0\u6D3B\u7528',desc:'\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC\u3092\u5B66\u3076',icon:'\uD83D\uDCC4',bg:'#e8f5ee',color:'#2D6A4F'},
+    'mobile-guide': {title:'\u30E2\u30D0\u30A4\u30EB\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u30A2\u30D7\u30EA\u6A5F\u80FD\u30FB\u696D\u7A2E\u5225\u6D3B\u7528\u30FB\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3',icon:'\uD83D\uDCF1',bg:'#fff7ed',color:'#F97316'},
+    'nas-comparison': {title:'NAS/\u30AA\u30F3\u30D7\u30EC vs \u30AF\u30E9\u30A6\u30C9\u6BD4\u8F03',desc:'\u30B3\u30B9\u30C8\u30FBBCP\u30FB\u904B\u7528\u306E3\u8EF8\u3067NAS\u3068\u30AF\u30E9\u30A6\u30C9\u3092\u6BD4\u8F03',icon:'\u2696\uFE0F',bg:'#eff6ff',color:'#1E40AF'}
+  };
+  var _pct = (score / 5) * 100;
+  var _picks, _h, _s;
+  if (_pct >= 80) { _h = '\u3055\u3089\u306B\u6D3B\u7528\u306E\u5E45\u3092\u5E83\u3052\u3066\u307F\u307E\u305B\u3093\u304B\uFF1F'; _s = '\u79FB\u884C\u3084\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u5F37\u5316\u306E\u5177\u4F53\u7684\u306A\u9032\u3081\u65B9\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059'; _picks = ['file-server-migration', 'storage-tiering']; }
+  else if (_pct >= 40) { _h = '\u95A2\u9023\u3059\u308B\u30AC\u30A4\u30C9\u3082\u304A\u3059\u3059\u3081\u3067\u3059'; _s = '\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3\u3084\u904B\u7528\u306E\u77E5\u8B58\u3092\u88DC\u5F37\u3067\u304D\u307E\u3059'; _picks = ['security-check', 'company-rollout']; }
+  else { _h = '\u307E\u305A\u306F\u3053\u3061\u3089\u304B\u3089\u78BA\u8A8D\u3057\u3066\u307F\u307E\u3057\u3087\u3046'; _s = '\u57FA\u672C\u8A2D\u5B9A\u3092\u898B\u76F4\u3059\u3060\u3051\u3067\u3001\u591A\u304F\u306E\u554F\u984C\u3092\u4E88\u9632\u3067\u304D\u307E\u3059'; _picks = ['initial-setup', 'browser-guide']; }
+
+  var _gh = '<div class="next-guides"><h3>' + _h + '</h3><p class="next-guides-sub">' + _s + '</p><div class="next-guide-cards">';
+  for (var _gi = 0; _gi < _picks.length; _gi++) {
+    var _g = _guides[_picks[_gi]];
+    _gh += '<a class="next-guide-card" href="' + _EC + _picks[_gi] + _up + '" target="_top">';
+    _gh += '<div class="next-guide-icon" style="background:' + _g.bg + ';">' + _g.icon + '</div>';
+    _gh += '<div><h5>' + _g.title + '</h5><p>' + _g.desc + '</p>';
+    _gh += '<span class="next-guide-tag" style="background:' + _g.bg + ';color:' + _g.color + ';">\u6D3B\u7528\u30AC\u30A4\u30C9</span></div></a>';
+  }
+  _gh += '</div></div>';
+  document.getElementById('nextGuides').innerHTML = _gh;
+  submitResults({ score: score, total: 5 });
+}
+
+if (window === window.top) { /* Running outside iframe (local dev) */ }
+</script>
+</body>
+</html>
