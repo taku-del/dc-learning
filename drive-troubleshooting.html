@@ -46,6 +46,14 @@
   .topbar-left {
     display: flex; align-items: center; gap: 16px;
   }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue, #0EA5E9); }
+  .topbar-sep { color: #D0D7DE; }
+
   .topbar-logo {
     font-size: 14px; font-weight: 700; color: var(--dc-primary);
   }
@@ -625,6 +633,9 @@
 <!-- ===== Top Bar ===== -->
 <div class="topbar">
   <div class="topbar-left">
+    <a id="back-link" href="https://community.directcloud.jp/s/learning/" target="_top" class="topbar-back">&#8592; 活用ガイド一覧</a>
+    <span class="topbar-sep">|</span>
+    
     <span class="topbar-logo">DirectCloud</span>
     <span class="topbar-sep">|</span>
     <span class="topbar-title">ドライブ トラブル解決ガイド</span>
@@ -1484,7 +1495,8 @@ function showResult() {
       desc: '\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC\u3092\u5B66\u3076',
       icon: '\uD83D\uDCC4',
       bg: '#e8f5ee', color: '#2D6A4F'
-    }
+    },
+        'mobile-guide': {title:'\u30E2\u30D0\u30A4\u30EB\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u30A2\u30D7\u30EA\u6A5F\u80FD\u30FB\u696D\u7A2E\u5225\u6D3B\u7528\u30FB\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3',icon:'\uD83D\uDCF1',bg:'#fff7ed',color:'#F97316'}
   };
 
   // スコア別の推奨（BJ Fogg: Motivation段階に合わせた導線）
@@ -1521,6 +1533,12 @@ function showResult() {
   document.getElementById('nextGuides').innerHTML = guideHtml;
 }
 
+
+// iframe fallback
+if (window === window.top) {
+  var backLink = document.getElementById('back-link');
+  if (backLink) { backLink.href = 'index.html'; backLink.target = '_self'; }
+}
 </script>
 </body>
 </html>

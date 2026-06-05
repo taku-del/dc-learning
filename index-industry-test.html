@@ -408,7 +408,7 @@
     <div class="section-label">ファイル共有・コラボレーション</div>
     <div class="content-grid">
 
-      <a id="link-filesharing" href="file-sharing.html" class="guide-card" style="--accent:#2E6DFE; --accent-pale:#eef4ff;" data-industry="retail,construction,logistics,care,infra,office">
+      <a id="link-filesharing" href="https://community.directcloud.jp/s/learning/file-sharing" target="_top" class="guide-card" style="--accent:#2E6DFE; --accent-pale:#eef4ff;" data-industry="retail,construction,logistics,care,infra,office">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">クイズ形式</div>
         <div class="gc-tags">
@@ -423,7 +423,7 @@
         </div>
       </a>
 
-      <a id="link-guest" href="guest-permissions.html" class="guide-card" style="--accent:#7B61FF; --accent-pale:#f5f3ff;" data-industry="retail,office,construction">
+      <a id="link-guest" href="https://community.directcloud.jp/s/learning/guest-permissions" target="_top" class="guide-card" style="--accent:#7B61FF; --accent-pale:#f5f3ff;" data-industry="retail,office,construction">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">比較+クイズ形式</div>
         <div class="gc-tags">
@@ -451,7 +451,7 @@
     <div class="section-label">セキュリティ・コンプライアンス</div>
     <div class="content-grid">
 
-      <a id="link-security" href="security-check.html" class="guide-card" style="--accent:#475569; --accent-pale:#f1f5f9;" data-industry="retail,construction,logistics,care,infra,office">
+      <a id="link-security" href="https://community.directcloud.jp/s/learning/security-check" target="_top" class="guide-card" style="--accent:#475569; --accent-pale:#f1f5f9;" data-industry="retail,construction,logistics,care,infra,office">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">診断形式</div>
         <div class="gc-tags">
@@ -466,7 +466,7 @@
         </div>
       </a>
 
-      <a id="link-supplychain" href="supply-chain-check.html" class="guide-card" style="--accent:#0D9488; --accent-pale:#f0fdfa;" data-industry="construction,logistics,retail,office">
+      <a id="link-supplychain" href="https://community.directcloud.jp/s/learning/supply-chain-check" target="_top" class="guide-card" style="--accent:#0D9488; --accent-pale:#f0fdfa;" data-industry="construction,logistics,retail,office">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">診断形式</div>
         <div class="gc-tags">
@@ -481,7 +481,7 @@
         </div>
       </a>
 
-      <a id="link-shield" href="shield-security.html" class="guide-card" style="--accent:#DC2626; --accent-pale:#FEE2E2;" data-industry="care,office,logistics">
+      <a id="link-shield" href="https://community.directcloud.jp/s/learning/shield-security" target="_top" class="guide-card" style="--accent:#DC2626; --accent-pale:#FEE2E2;" data-industry="care,office,logistics">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">学習+クイズ形式</div>
         <div class="gc-tags">
@@ -506,7 +506,7 @@
     <div class="section-label">運用・活用</div>
     <div class="content-grid">
 
-      <a id="link-initialsetup" href="initial-setup.html" class="guide-card" style="--accent:#E67E22; --accent-pale:#FEF3E6;" data-industry="retail,construction,logistics,care,infra,office">
+      <a id="link-initialsetup" href="https://community.directcloud.jp/s/learning/initial-setup" target="_top" class="guide-card" style="--accent:#E67E22; --accent-pale:#FEF3E6;" data-industry="retail,construction,logistics,care,infra,office">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">5STEP学習</div>
         <div class="gc-tags">
@@ -521,7 +521,7 @@
         </div>
       </a>
 
-      <a id="link-tiering" href="storage-tiering.html" class="guide-card" style="--accent:#0891B2; --accent-pale:#ECFEFF;" data-industry="infra,care,construction">
+      <a id="link-tiering" href="https://community.directcloud.jp/s/learning/storage-tiering" target="_top" class="guide-card" style="--accent:#0891B2; --accent-pale:#ECFEFF;" data-industry="infra,care,construction">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">4STEP学習</div>
         <div class="gc-tags">
@@ -536,7 +536,7 @@
         </div>
       </a>
 
-      <a id="link-troubleshoot" href="drive-troubleshooting.html" class="guide-card" style="--accent:#D97706; --accent-pale:#FFFBEB;" data-industry="retail,construction,logistics,care,infra,office">
+      <a id="link-troubleshoot" href="https://community.directcloud.jp/s/learning/drive-troubleshooting" target="_top" class="guide-card" style="--accent:#D97706; --accent-pale:#FFFBEB;" data-industry="retail,construction,logistics,care,infra,office">
         <div class="gc-recommend">おすすめ</div>
         <div class="gc-badge">FAQ+クイズ形式</div>
         <div class="gc-tags">
@@ -635,6 +635,24 @@ function filterIndustry(industry) {
       cards[j].classList.add('dimmed');
     }
   }
+}
+
+// iframe外（直接アクセス時）はローカルHTMLにリンク
+if (window === window.top) {
+  var localMap = {
+    'link-filesharing': 'file-sharing.html',
+    'link-guest': 'guest-permissions.html',
+    'link-security': 'security-check.html',
+    'link-supplychain': 'supply-chain-check.html',
+    'link-shield': 'shield-security.html',
+    'link-initialsetup': 'initial-setup.html',
+    'link-tiering': 'storage-tiering.html',
+    'link-troubleshoot': 'drive-troubleshooting.html'
+  };
+  Object.keys(localMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.href = localMap[id]; el.target = '_self'; }
+  });
 }
 </script>
 </body>

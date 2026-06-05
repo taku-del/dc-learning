@@ -42,6 +42,14 @@
     position: sticky; top: 0; z-index: 100;
   }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #888; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--dc-blue, #0EA5E9); }
+  .topbar-sep { color: #D0D7DE; }
+
   .topbar-logo { font-size: 14px; font-weight: 700; color: var(--dc-primary); }
   .topbar-sep { color: #D0D7DE; }
   .topbar-title { font-size: 14px; color: #666; }
@@ -264,6 +272,9 @@
 
 <div class="topbar">
   <div class="topbar-left">
+    <a id="back-link" href="https://community.directcloud.jp/s/learning/" target="_top" class="topbar-back">&#8592; 活用ガイド一覧</a>
+    <span class="topbar-sep">|</span>
+    
     <span class="topbar-logo">DirectCloud</span>
     <span class="topbar-sep">|</span>
     <span class="topbar-title">NAS/&#12458;&#12531;&#12503;&#12524; vs &#12463;&#12521;&#12454;&#12489;&#27604;&#36611;&#12460;&#12452;&#12489;</span>
@@ -818,6 +829,12 @@ function showResult() {
 }
 
 if (window === window.top) { /* Running outside iframe (local dev) */ }
+
+// iframe fallback
+if (window === window.top) {
+  var backLink = document.getElementById('back-link');
+  if (backLink) { backLink.href = 'index.html'; backLink.target = '_self'; }
+}
 </script>
 </body>
 </html>
