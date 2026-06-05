@@ -6,15 +6,15 @@
 <title>DirectCloud 活用ガイド — モバイル活用ガイド</title>
 <style>
   :root {
-    --dc-primary: #F97316;
-    --dc-primary-light: #FFF7ED;
-    --dc-primary-dark: #C2410C;
-    --dc-accent: #FB923C;
-    --dc-accent-light: #FFEDD5;
+    --dc-primary: #EC4899;
+    --dc-primary-light: #FDF2F8;
+    --dc-primary-dark: #DB2777;
+    --dc-accent: #F472B6;
+    --dc-accent-light: #FCE7F3;
     --dc-green: #00A676;
     --dc-green-light: #E6F9F2;
-    --dc-orange: #F97316;
-    --dc-orange-light: #FFF7ED;
+    --dc-orange: #EC4899;
+    --dc-orange-light: #FDF2F8;
     --dc-gray: #6B7280;
     --dc-gray-light: #F3F4F6;
     --dc-red: #E74C3C;
@@ -29,7 +29,7 @@
 
   body {
     font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
-    background: #FDF6EF;
+    background: #FDF2F8;
     color: #1A2332;
     line-height: 1.8;
   }
@@ -148,15 +148,15 @@
 
   /* ===== Tip box ===== */
   .tip {
-    background: #FEF3E6;
+    background: #FDF2F8;
     border-radius: 10px;
     padding: 16px 20px;
     margin-top: 16px;
     font-size: 13px;
-    color: #92400E;
+    color: #9D174D;
     line-height: 1.7;
   }
-  .tip strong { color: #B45309; }
+  .tip strong { color: #BE185D; }
 
   /* ===== Insight box ===== */
   .insight {
@@ -182,7 +182,7 @@
     border-radius: 10px;
     padding: 16px 20px;
     font-size: 13px;
-    color: #7C2D12;
+    color: #9D174D;
     line-height: 1.8;
     margin-bottom: 16px;
     border-left: 3px solid var(--dc-primary);
@@ -257,7 +257,7 @@
   }
   .flow-step {
     background: var(--dc-accent-light);
-    border: 1px solid #FED7AA;
+    border: 1px solid #FBCFE8;
     border-radius: 6px;
     padding: 6px 10px;
     font-size: 12px;
@@ -349,11 +349,11 @@
     min-width: 480px;
   }
   .compare-table th {
-    background: #FFF7ED;
+    background: #FDF2F8;
     padding: 10px 12px;
     font-weight: 700;
     text-align: center;
-    border-bottom: 2px solid #FED7AA;
+    border-bottom: 2px solid #FBCFE8;
     white-space: nowrap;
     color: #1A2332;
   }
@@ -747,7 +747,7 @@
   }
   .usecase-tag {
     background: var(--dc-accent-light);
-    border: 1px solid #FED7AA;
+    border: 1px solid #FBCFE8;
     color: var(--dc-primary-dark);
     border-radius: 20px;
     padding: 5px 14px;
@@ -1789,7 +1789,7 @@ function showResult() {
 
   var pct = (score / 5) * 100;
   document.getElementById('scoreCircle').style.background =
-    'conic-gradient(#F97316 ' + pct + '%, #E0E6ED ' + pct + '%)';
+    'conic-gradient(#EC4899 ' + pct + '%, #E0E6ED ' + pct + '%)';
   document.getElementById('scoreNum').textContent = score;
 
   var msg = '';
@@ -1841,9 +1841,9 @@ function showResult() {
       'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
       'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
       'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
-      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'},
+      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f5f3ff',color:'#7C3AED'},
       'document-management': {title:'\u6587\u66F8\u7BA1\u7406\u30D5\u30A9\u30EB\u30C0\u6D3B\u7528',desc:'\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC\u3092\u5B66\u3076',icon:'\uD83D\uDCC4',bg:'#e8f5ee',color:'#2D6A4F'},
-      'mobile-guide': {title:'\u30E2\u30D0\u30A4\u30EB\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u30A2\u30D7\u30EA\u6A5F\u80FD\u30FB\u696D\u7A2E\u5225\u6D3B\u7528\u30FB\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3',icon:'\uD83D\uDCF1',bg:'#fff7ed',color:'#F97316'}
+      'mobile-guide': {title:'\u30E2\u30D0\u30A4\u30EB\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u30A2\u30D7\u30EA\u6A5F\u80FD\u30FB\u696D\u7A2E\u5225\u6D3B\u7528\u30FB\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3',icon:'\uD83D\uDCF1',bg:'#fdf2f8',color:'#EC4899'}
   };
   var _pct = (score / 5) * 100;
   var _picks, _h, _s;
