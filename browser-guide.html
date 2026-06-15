@@ -1442,7 +1442,7 @@
 <!-- ===== Top Bar ===== -->
 <div class="topbar">
   <div class="topbar-left">
-    <span class="topbar-logo">DirectCloud 活用ガイド</span>
+    <a id="back-link" href="https://community.directcloud.jp/s/learning/" target="_top" class="topbar-back">&#8592; 活用ガイド一覧</a>
     <span class="topbar-sep">|</span>
     <a href="../index.html" class="topbar-back">← 一覧に戻る</a>
   </div>
@@ -1531,7 +1531,7 @@
           <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:10px; padding:18px 16px; text-align:center;">
             <div style="width:48px;height:48px;border-radius:50%;background:#DCFCE7;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#16A34A;margin-bottom:8px;">&#10148;</div>
             <div style="font-size:14px;font-weight:700;color:#166534;">将来性</div>
-            <div style="font-size:12px;color:#14532D;margin-top:4px;">AI機能は<br>ブラウザ版限定</div>
+            <div style="font-size:12px;color:#14532D;margin-top:4px;">自動更新で<br>常に最新</div>
           </div>
         </div>
 
@@ -1804,7 +1804,7 @@
             <tbody>
               <tr>
                 <td>よく使うフォルダへのアクセス</td>
-                <td>デスクトップのショートカット</td>
+                <td>デスクトップのショートカット・ドライブレター</td>
                 <td>アプリ内「お気に入り」機能</td>
               </tr>
               <tr>
@@ -1855,13 +1855,13 @@
     <!-- ========== Section 3: Future ========== -->
     <div class="section" id="sec-future">
       <div class="content-header">
-        <h1>AI機能はブラウザ版が前提</h1>
-        <p>今後のDirectCloudを最大限活用するための準備</p>
+        <h1>ブラウザ版は常に最新</h1>
+        <p>自動アップデートで新機能にすぐ対応できる環境</p>
       </div>
 
       <!-- 対応マトリクス -->
       <div class="card">
-        <h2>ブラウザ版でしかできないこと</h2>
+        <h2>ブラウザ版の優位性</h2>
         <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:0;border:1px solid #E0E6ED;border-radius:10px;overflow:hidden;font-size:13px;margin:16px 0;">
           <div style="background:#F5F3FF;padding:10px 16px;font-weight:700;color:#3730A3;border-bottom:2px solid #E0E6ED;">機能</div>
           <div style="background:#F5F3FF;padding:10px 16px;font-weight:700;color:#3730A3;text-align:center;border-bottom:2px solid #E0E6ED;border-left:1px solid #E0E6ED;">ブラウザ版</div>
@@ -1869,7 +1869,7 @@
 
           <div style="padding:8px 16px;border-bottom:1px solid #F0F0F5;font-weight:600;">DirectCloud AI</div>
           <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;background:#F0FDF4;">&#9679; 対応</div>
-          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#D1D5DB;">&#10005; 非対応</div>
+          <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;">&#9679; 対応（Drive4〜）</div>
 
           <div style="padding:8px 16px;border-bottom:1px solid #F0F0F5;">ファイルプレビュー</div>
           <div style="padding:8px 16px;text-align:center;border-bottom:1px solid #F0F0F5;border-left:1px solid #F0F0F5;color:#16A34A;font-weight:700;">&#9679; 対応</div>
@@ -1894,7 +1894,7 @@
       </div>
 
       <div class="callout">
-        DirectCloud AIはブラウザ版限定の機能です。<strong>ブラウザ版に慣れておくことが、AI活用の土台</strong>になります。
+        DirectCloud AIはDrive4よりドライブ版にも対応しました。ブラウザ版なら<strong>自動アップデートで常に最新機能を利用でき、インストール作業も不要</strong>です。
       </div>
 
       <div class="btn-row">
@@ -2386,8 +2386,9 @@ function showResult() {
       'storage-tiering': {title:'\u30B9\u30C8\u30EC\u30FC\u30B8\u968E\u5C64\u5316\u30AC\u30A4\u30C9',desc:'\u30B3\u30FC\u30EB\u30C9/\u30A6\u30A9\u30FC\u30E0\u30B9\u30C8\u30EC\u30FC\u30B8\u306E\u4F7F\u3044\u5206\u3051',icon:'\uD83D\uDCE6',bg:'#fefce8',color:'#CA8A04'},
       'company-rollout': {title:'\u5168\u793E\u5C55\u958B\u30AC\u30A4\u30C9',desc:'\u5168\u793E\u5C55\u958B\u306E\u9032\u3081\u65B9\u3068\u30DD\u30A4\u30F3\u30C8\u3092\u6574\u7406',icon:'\uD83C\uDFE2',bg:'#eff6ff',color:'#2563EB'},
       'file-server-migration': {title:'\u30D5\u30A1\u30A4\u30EB\u30B5\u30FC\u30D0\u30FC\u79FB\u884C\u30AC\u30A4\u30C9',desc:'\u79FB\u884C\u8A08\u753B\u304B\u3089\u5B9F\u884C\u307E\u3067\u306E\u30B9\u30C6\u30C3\u30D7\u3092\u78BA\u8A8D',icon:'\uD83D\uDDC4\uFE0F',bg:'#fef3c7',color:'#D97706'},
-      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f0f9ff',color:'#0284C7'},
-      'document-management': {title:'\u6587\u66F8\u7BA1\u7406\u30D5\u30A9\u30EB\u30C0\u6D3B\u7528',desc:'\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC\u3092\u5B66\u3076',icon:'\uD83D\uDCC4',bg:'#e8f5ee',color:'#2D6A4F'}
+      'industry-guide': {title:'\u696D\u7A2E\u5225\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u696D\u7A2E\u3054\u3068\u306E\u6D3B\u7528\u30D1\u30BF\u30FC\u30F3\u3092\u77E5\u308B',icon:'\uD83C\uDFED',bg:'#f5f3ff',color:'#7C3AED'},
+      'document-management': {title:'\u6587\u66F8\u7BA1\u7406\u30D5\u30A9\u30EB\u30C0\u6D3B\u7528',desc:'\u524A\u9664\u4E0D\u53EF\u30FB\u5C5E\u6027\u691C\u7D22\u30FB\u96FB\u5E33\u6CD5\u5BFE\u5FDC\u3092\u5B66\u3076',icon:'\uD83D\uDCC4',bg:'#e8f5ee',color:'#2D6A4F'},
+        'mobile-guide': {title:'\u30E2\u30D0\u30A4\u30EB\u6D3B\u7528\u30AC\u30A4\u30C9',desc:'\u30A2\u30D7\u30EA\u6A5F\u80FD\u30FB\u696D\u7A2E\u5225\u6D3B\u7528\u30FB\u30BB\u30AD\u30E5\u30EA\u30C6\u30A3',icon:'\uD83D\uDCF1',bg:'#fdf2f8',color:'#EC4899'}
     };
   var _pct = (_ba_total > 0) ? (_ba_score / _ba_total) * 100 : 0;
   var _picks, _h, _s;
@@ -2441,7 +2442,7 @@ function toggleCheck(el) {
 
 <!-- 回答収集 -->
 <script>
-var COLLECT_ENDPOINT = 'YOUR_POWER_AUTOMATE_ENDPOINT_HERE';
+var COLLECT_ENDPOINT = 'https://default457ed1015b2d466aa7a3fb1d3934af.d6.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f90cfe11ec9942079c8661ebc72b7ba8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IIHOSMf7sp1qp-erc77ovTXfA-FT79beiznmtpiHVDE';
 
 function getUser() {
   return new URLSearchParams(window.location.search).get('user') || '';
@@ -2464,6 +2465,12 @@ function submitResults(extra) {
     if (res.ok) document.getElementById('savedNotice').style.display = 'block';
     else console.error('回答送信エラー:', res.status);
   }).catch(function(e) { console.error('回答送信失敗:', e); });
+}
+
+// iframe fallback
+if (window === window.top) {
+  var backLink = document.getElementById('back-link');
+  if (backLink) { backLink.href = 'index.html'; backLink.target = '_self'; }
 }
 </script>
 </body>
