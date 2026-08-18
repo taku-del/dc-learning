@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年8月のアップデート予定 | DirectCloud</title>
+<style>
+  :root {
+    --ink: #10243B;
+    --ink-2: #3E5670;
+    --ink-3: #7B8CA0;
+    --rule: #DFE5EC;
+    --rule-2: #EDF1F6;
+    --rule-strong: #10243B;
+    --blue: #2E6DFE;
+    --blue-deep: #1B4BB8;
+    --blue-mist: #F3F7FF;
+    --blue-line: #C8DAFB;
+    --blue-ghost: #E8F0FE;
+    --caution: #B4501A;
+    --caution-mist: #FFF8F2;
+    --caution-line: #F3D8C2;
+    --done: #1E7B5E;
+    --done-mist: #F2FAF7;
+    --done-line: #C4E3D8;
+    --sans: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    --num: 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: #fff;
+    color: var(--ink);
+    line-height: 1.85;
+    font-size: 15.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ===== breadcrumb ===== */
+  .crumb {
+    border-bottom: 1px solid var(--rule);
+    font-size: 12.5px; color: var(--ink-3);
+    padding: 13px 0;
+  }
+  .shell, .crumb .inner { max-width: 1240px; margin: 0 auto; padding: 0 40px; }
+  .crumb a { color: var(--ink-2); }
+  .crumb i { font-style: normal; color: #C3CCD6; margin: 0 9px; }
+
+  /* ===== masthead ===== */
+  .masthead { position: relative; padding: 58px 0 0; overflow: hidden; }
+  .masthead::after {
+    content: '08';
+    position: absolute; right: -14px; top: 6px;
+    font-family: var(--num);
+    font-size: 210px; font-weight: 700;
+    line-height: 1; letter-spacing: -0.06em;
+    color: #F1F5FB; z-index: 0; pointer-events: none;
+  }
+  .masthead > * { position: relative; z-index: 1; }
+
+  .kicker {
+    display: inline-flex; align-items: center; gap: 11px;
+    font-family: var(--num);
+    font-size: 12px; font-weight: 700; color: var(--blue);
+    letter-spacing: 0.18em;
+  }
+  .kicker::after { content: ''; width: 52px; height: 1px; background: var(--blue-line); }
+  h1 {
+    font-size: 43px; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.26;
+    margin-top: 15px; max-width: 24em;
+  }
+  .standfirst {
+    font-size: 18px; color: var(--ink-2);
+    line-height: 1.8; margin-top: 20px; max-width: 46em;
+  }
+  .byline {
+    display: flex; flex-wrap: wrap; gap: 0 18px;
+    font-size: 12.5px; color: var(--ink-3);
+    margin-top: 26px; padding-top: 13px;
+    border-top: 1px solid var(--rule);
+  }
+  .byline b { color: var(--ink-2); font-weight: 700; }
+
+  /* ===== 冒頭の要点 ===== */
+  .digest {
+    margin-top: 34px;
+    background: var(--blue-mist);
+    border-left: 4px solid var(--blue);
+    padding: 26px 32px 28px;
+  }
+  .dg-label {
+    font-family: var(--num);
+    font-size: 11px; font-weight: 700; color: var(--blue-deep);
+    letter-spacing: 0.16em;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--blue-line);
+  }
+  .dg-list { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .dg-list li {
+    padding: 18px 28px 4px 0;
+    border-right: 1px solid var(--blue-line);
+    margin-right: 28px;
+  }
+  .dg-list li:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+  .dg-n {
+    font-family: var(--num);
+    font-size: 26px; font-weight: 700; color: var(--blue);
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .dg-t { font-size: 15.5px; font-weight: 700; margin-top: 7px; line-height: 1.55; }
+  .dg-d { font-size: 13.5px; color: var(--ink-2); margin-top: 6px; line-height: 1.75; }
+
+  /* ===== layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 70px;
+    margin-top: 66px;
+    align-items: start;
+  }
+  .toc { position: sticky; top: 30px; }
+  .toc-label {
+    font-family: var(--num);
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    letter-spacing: 0.16em;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  .toc a {
+    display: grid; grid-template-columns: 26px 1fr;
+    font-size: 13px; color: var(--ink-2);
+    padding: 9px 0 9px 11px;
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid var(--rule-2);
+    line-height: 1.5;
+  }
+  .toc a em {
+    font-family: var(--num); font-style: normal;
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    padding-top: 2px;
+  }
+  .toc a:hover { color: var(--blue); text-decoration: none; background: #FAFCFF; }
+  .toc a.on {
+    color: var(--ink); font-weight: 700;
+    border-left-color: var(--blue); background: var(--blue-mist);
+  }
+  .toc a.on em { color: var(--blue); }
+  .toc a small { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
+
+  /* ===== body ===== */
+  .body { min-width: 0; max-width: 50em; }
+  section { padding-bottom: 52px; }
+
+  .sec-top { display: flex; align-items: center; gap: 13px; }
+  .sec-num {
+    font-family: var(--num);
+    font-size: 34px; font-weight: 700; line-height: 1;
+    color: var(--blue-line); letter-spacing: -0.03em;
+  }
+  .aud {
+    font-size: 12px; font-weight: 700; color: var(--blue);
+    letter-spacing: 0.06em;
+    background: var(--blue-ghost);
+    padding: 3px 11px;
+  }
+  h2 {
+    font-size: 27px; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.42;
+    margin-top: 11px; padding-bottom: 17px;
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  h3 {
+    position: relative;
+    font-size: 18px; font-weight: 700; line-height: 1.6;
+    margin-top: 32px; padding-left: 15px;
+  }
+  h3::before {
+    content: ''; position: absolute; left: 0; top: 0.42em;
+    width: 4px; height: 0.95em; background: var(--blue);
+  }
+  h3 .plan {
+    display: inline-block;
+    font-size: 11.5px; font-weight: 700; color: var(--ink-3);
+    border: 1px solid var(--rule);
+    padding: 1px 8px; margin-left: 10px;
+    vertical-align: 2px; white-space: nowrap;
+  }
+  h3 .new {
+    display: inline-block;
+    font-family: var(--num);
+    font-size: 10.5px; font-weight: 700; color: #fff;
+    background: var(--blue);
+    letter-spacing: 0.08em;
+    padding: 2px 7px; margin-left: 10px;
+    vertical-align: 2px;
+  }
+  p { margin-top: 11px; color: var(--ink-2); }
+  p.lede { color: var(--ink); }
+  .body strong { color: var(--ink); font-weight: 700; }
+
+  .prev {
+    font-size: 14px; color: var(--ink-3);
+    margin-top: 11px; padding: 2px 0 2px 15px;
+    border-left: 2px solid var(--rule);
+  }
+  .prev b { color: var(--ink-2); font-weight: 700; }
+
+  /* 図 */
+  .diagram { margin-top: 24px; }
+  .dg-frame {
+    border: 1px solid var(--rule);
+    background: #FCFDFF;
+    padding: 20px 24px 22px;
+  }
+  .dg-hd {
+    font-family: var(--num);
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
+    color: var(--ink-3);
+    padding-bottom: 13px; margin-bottom: 17px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .dg-cap {
+    font-size: 13px; color: var(--ink-3);
+    margin-top: 12px; line-height: 1.75;
+    padding-left: 13px; border-left: 2px solid var(--rule-2);
+  }
+
+  /* 定義リスト（対応形式など） */
+  .facts { margin-top: 14px; font-size: 14px; border-top: 1px solid var(--rule); }
+  .facts div {
+    display: grid; grid-template-columns: 15em 1fr;
+    padding: 9px 0; border-bottom: 1px solid var(--rule);
+  }
+  .facts dt { color: var(--ink-3); }
+  .facts dd { color: var(--ink); }
+
+  /* 一覧（項目リスト） */
+  .items { margin-top: 20px; border-top: 2px solid var(--rule-strong); }
+  .item-grp { display: grid; grid-template-columns: 13em 1fr; border-bottom: 1px solid var(--rule); }
+  .item-grp > dt {
+    font-size: 13.5px; font-weight: 700;
+    padding: 15px 20px 16px 0;
+    background: linear-gradient(to right, #FBFCFE, #fff);
+  }
+  .item-grp > dd { padding: 13px 0 15px; }
+  .item-grp ul { list-style: none; }
+  .item-grp li {
+    font-size: 14px; color: var(--ink-2);
+    padding-left: 16px; position: relative;
+    line-height: 1.7; margin-top: 7px;
+  }
+  .item-grp li:first-child { margin-top: 0; }
+  .item-grp li::before {
+    content: ''; position: absolute; left: 0; top: 11px;
+    width: 5px; height: 1.5px; background: var(--blue-line);
+  }
+  .item-grp li b { color: var(--ink); font-weight: 700; }
+
+  /* 使い方の例（図） */
+  .uc { margin-top: 18px; border: 1px solid var(--blue-line); background: #FAFCFF; padding: 15px 20px 17px; }
+  .uc-l {
+    font-size: 11px; font-weight: 700; color: var(--blue);
+    letter-spacing: 0.1em;
+    padding-bottom: 11px; margin-bottom: 15px;
+    border-bottom: 1px solid var(--blue-line);
+  }
+  .uc svg { display: block; width: 100%; height: auto; }
+  .uc-c { font-size: 12.5px; color: var(--ink-3); margin-top: 11px; line-height: 1.7; }
+  .caution .uc { border-color: var(--caution-line); background: #FFFCF8; }
+  .caution .uc-l { color: var(--caution); border-bottom-color: var(--caution-line); }
+  .caution .uc-c { color: #8A5A38; }
+
+  /* 注意喚起 */
+  .caution {
+    margin-top: 8px;
+    background: var(--caution-mist);
+    border-left: 4px solid var(--caution);
+    padding: 26px 32px 30px;
+  }
+  .caution .sec-num { color: var(--caution-line); }
+  .caution .aud { color: var(--caution); background: #FBEADC; }
+  .caution h2 { font-size: 24px; color: var(--caution); border-bottom: 1px solid var(--caution-line); }
+  .caution h3 { margin-top: 26px; }
+  .caution h3::before { background: var(--caution); }
+  .caution p { color: #6B4A31; }
+  .caution .dg-frame { background: #fff; border-color: var(--caution-line); }
+  .caution .dg-hd { color: #A96B41; border-bottom-color: var(--caution-line); }
+  .caution .dg-cap { color: #8A5A38; border-left-color: var(--caution-line); }
+  .todo { font-weight: 700; color: var(--caution) !important; margin-top: 14px; }
+
+  /* 適用済み */
+  .done {
+    margin-top: 8px;
+    background: var(--done-mist);
+    border-left: 4px solid var(--done);
+    padding: 24px 32px 26px;
+  }
+  .done .sec-num { color: var(--done-line); }
+  .done .aud { color: var(--done); background: #DFF1EA; }
+  .done h2 { font-size: 23px; color: var(--done); border-bottom: 1px solid var(--done-line); }
+  .done h3::before { background: var(--done); }
+  .done p { color: #2C5A4C; }
+
+  /* ロードマップ */
+  .road { margin-top: 22px; }
+  .road-row {
+    display: grid; grid-template-columns: 7em 1fr;
+    border-top: 1px solid var(--rule);
+    align-items: start;
+  }
+  .road-row:last-child { border-bottom: 1px solid var(--rule); }
+  .road-when {
+    font-family: var(--num);
+    font-size: 19px; font-weight: 700; color: var(--blue);
+    letter-spacing: -0.02em;
+    padding: 17px 0 20px;
+  }
+  .road-when span { display: block; font-family: var(--sans); font-size: 11.5px; font-weight: 400; color: var(--ink-3); letter-spacing: 0; }
+  .road-list { padding: 16px 0 20px; }
+  .road-list li { list-style: none; font-size: 14px; color: var(--ink-2); line-height: 1.7; margin-top: 9px; }
+  .road-list li:first-child { margin-top: 0; }
+  .road-list li b { display: block; color: var(--ink); font-size: 14.5px; font-weight: 700; }
+
+  /* 関連 */
+  .related { border-top: 2px solid var(--rule-strong); margin-top: 6px; padding-top: 26px; }
+  .related h2 { font-size: 19px; border-bottom: none; padding-bottom: 0; margin: 0; }
+  .related ul { list-style: none; margin-top: 10px; }
+  .related li {
+    padding: 15px 16px 16px;
+    border-bottom: 1px solid var(--rule);
+    border-left: 3px solid transparent;
+  }
+  .related li:hover { background: #FAFCFF; border-left-color: var(--blue); }
+  .related li:last-child { border-bottom: none; }
+  .related .t { font-size: 15.5px; font-weight: 700; }
+  .related .d { font-size: 13.5px; color: var(--ink-3); margin-top: 3px; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    margin-top: 34px;
+    padding: 20px 0 46px;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+
+  @media (max-width: 1000px) {
+    .dg-list { grid-template-columns: 1fr; }
+    .dg-list li {
+      border-right: none; margin-right: 0; padding-right: 0;
+      border-bottom: 1px solid var(--blue-line); padding-bottom: 15px;
+    }
+    .dg-list li:last-child { border-bottom: none; }
+  }
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; gap: 0; margin-top: 44px; }
+    .toc { display: none; }
+    .body { max-width: none; }
+    h1 { font-size: 33px; }
+    .masthead::after { font-size: 150px; opacity: 0.75; }
+  }
+  @media (max-width: 640px) {
+    .crumb .inner, .shell { padding: 0 20px; }
+    h1 { font-size: 27px; }
+    .standfirst { font-size: 16px; }
+    .digest, .caution, .done { padding: 20px 20px 24px; }
+    .item-grp, .facts div, .road-row { grid-template-columns: 1fr; }
+    .item-grp > dt { background: none; padding-bottom: 4px; }
+    .item-grp > dd { padding-top: 0; }
+    .road-when { padding-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="crumb">
+  <div class="inner">
+    <a href="https://community.directcloud.jp/s/" target="_top">コミュニティサイト</a><i>/</i>お役立ちコンテンツ<i>/</i><a id="back-link" href="https://community.directcloud.jp/s/updates" target="_top">アップデート情報</a><i>/</i>2026年8月
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="kicker">UPDATE 2026.08</div>
+    <h1>2026年8月のアップデート予定</h1>
+    <p class="standfirst">8月25日（火）の定期メンテナンスでは13項目のリリースを予定しています。中心となるのは DirectCloud AI で、外部のAIエージェントから DirectCloud を扱える「ユーザーMCP」、AIモデルの利用範囲を国内リージョンに限定できる設定、そして利用できるAIモデルの入れ替えが含まれます。</p>
+    <div class="byline">
+      <span>2026年8月25日（火） <b>定期メンテナンス</b> 予定分</span>
+      <span>DirectCloud AI ／ 管理機能 ／ ドライブ</span>
+      <span>公開時点の予定であり、内容と時期は変更になる場合があります</span>
+    </div>
+
+    <div class="digest">
+      <div class="dg-label">TAKEAWAYS ／ 今月の要点</div>
+      <ul class="dg-list">
+        <li>
+          <div class="dg-n">01</div>
+          <div class="dg-t">AIモデルが世代交代します</div>
+          <div class="dg-d">GPT-5.5・GPT-5.4・Opus 4.8・Sonnet 4.6 を追加し、GPT-4.1系・GPT-4o系・o3-mini の提供を終了します。</div>
+        </li>
+        <li>
+          <div class="dg-n">02</div>
+          <div class="dg-t">外部のAIから DirectCloud を扱えます</div>
+          <div class="dg-d">ユーザーMCPにより、お使いのAIエージェントから検索・要約・アップロード・リンク作成ができます。</div>
+        </li>
+        <li>
+          <div class="dg-n">03</div>
+          <div class="dg-t">AIモデルの利用範囲を選べます</div>
+          <div class="dg-d">グローバルモデルを許可するか、日本国内リージョンに限定するかを管理者が設定できます。</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <nav class="toc">
+      <div class="toc-label">CONTENTS</div>
+      <a href="#models" class="on"><em>01</em><span>AIモデルの入れ替え<small>ご確認をお願いします</small></span></a>
+      <a href="#ai"><em>02</em><span>DirectCloud AI<small>ユーザーMCP・対応データ</small></span></a>
+      <a href="#admin"><em>03</em><span>管理・運用<small>通知設定・表示件数</small></span></a>
+      <a href="#applied"><em>04</em><span>適用済みの変更<small>オンライン編集</small></span></a>
+      <a href="#road"><em>05</em><span>9月以降の予定<small>AI機能のロードマップ</small></span></a>
+    </nav>
+
+    <div class="body">
+
+      <!-- ===== 概観 ===== -->
+      <div class="diagram" style="margin-top:0;margin-bottom:54px;">
+        <div class="dg-frame">
+          <div class="dg-hd">8月リリース予定 13項目の内訳</div>
+          <svg viewBox="0 0 780 158" role="img" aria-label="8月にリリース予定の13項目の内訳。AI関連6項目、セキュリティ1項目、機能・基盤6項目" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+            <!-- 帯 -->
+            <rect x="0" y="0" width="414" height="30" fill="#2E6DFE"/>
+            <text x="16" y="20" font-size="13" font-weight="700" fill="#fff">AI関連</text>
+            <text x="390" y="20" font-size="13" font-weight="700" fill="#fff" text-anchor="end" font-family="'Helvetica Neue',Arial,sans-serif">7</text>
+            <rect x="420" y="0" width="59" height="30" fill="#B4501A"/>
+            <text x="464" y="20" font-size="13" font-weight="700" fill="#fff" text-anchor="end" font-family="'Helvetica Neue',Arial,sans-serif">1</text>
+            <rect x="485" y="0" width="295" height="30" fill="#9FB2C6"/>
+            <text x="501" y="20" font-size="13" font-weight="700" fill="#fff">機能・基盤</text>
+            <text x="764" y="20" font-size="13" font-weight="700" fill="#fff" text-anchor="end" font-family="'Helvetica Neue',Arial,sans-serif">5</text>
+
+            <!-- 凡例 -->
+            <rect x="0" y="56" width="9" height="9" fill="#2E6DFE"/>
+            <text x="20" y="65" font-size="13.5" font-weight="700" fill="#10243B">AI関連</text>
+            <text x="124" y="65" font-size="13" fill="#3E5670">ユーザーMCP、参照データの拡張（URL・Markdown）、モデルの入れ替え、</text>
+            <text x="124" y="85" font-size="13" fill="#3E5670">スコープ管理、検索エンジンの更新、AI Free プランのクレジット引き上げ</text>
+
+            <rect x="0" y="104" width="9" height="9" fill="#B4501A"/>
+            <text x="20" y="113" font-size="13.5" font-weight="700" fill="#10243B">セキュリティ</text>
+            <text x="124" y="113" font-size="13" fill="#3E5670">Cookieの情報収集に関する同意設定</text>
+
+            <rect x="0" y="140" width="9" height="9" fill="#9FB2C6"/>
+            <text x="20" y="149" font-size="13.5" font-weight="700" fill="#10243B">機能・基盤</text>
+            <text x="124" y="149" font-size="13" fill="#3E5670">ドライブの通知メール設定、表示件数と並び替え、OpenAPI v2 マニュアルなど</text>
+
+            <line x1="0" y1="44" x2="780" y2="44" stroke="#DFE5EC"/>
+          </svg>
+        </div>
+        <p class="dg-cap">お客様の操作や設定に関わる項目を中心に、以下でご案内します。</p>
+      </div>
+
+      <!-- ===== 01 モデル入れ替え ===== -->
+      <section id="models" class="caution">
+        <div class="sec-top">
+          <span class="sec-num">01</span>
+          <span class="aud">ご確認をお願いします</span>
+        </div>
+        <h2>利用できるAIモデルが入れ替わります</h2>
+
+        <p class="lede">新しい世代のモデルを追加し、あわせて旧世代のモデルの提供を終了します。既定値は GPT-5 です。特定のモデルを指定して運用されている場合は、切り替え先のご確認をお願いします。</p>
+
+        <div class="diagram">
+          <div class="dg-frame">
+            <div class="dg-hd">8月以降に選択できるAIモデル</div>
+            <svg viewBox="0 0 780 250" role="img" aria-label="8月に追加されるモデル、維持されるモデル、提供を終了するモデルの一覧" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+              <!-- 追加 -->
+              <text x="0" y="14" font-size="12" font-weight="700" fill="#B4501A">8月に追加</text>
+              <text x="118" y="14" font-size="11" fill="#A96B41">Amazon Bedrock 経由</text>
+              <line x1="0" y1="24" x2="780" y2="24" stroke="#B4501A" stroke-width="1.5"/>
+              <rect x="0" y="36" width="180" height="34" fill="#FBEADC" stroke="#F3D8C2"/>
+              <text x="16" y="59" font-size="13.5" font-weight="700" fill="#8A4517" font-family="'Helvetica Neue',Arial,sans-serif">GPT-5.5</text>
+              <rect x="196" y="36" width="180" height="34" fill="#FBEADC" stroke="#F3D8C2"/>
+              <text x="212" y="59" font-size="13.5" font-weight="700" fill="#8A4517" font-family="'Helvetica Neue',Arial,sans-serif">GPT-5.4</text>
+              <rect x="392" y="36" width="180" height="34" fill="#FBEADC" stroke="#F3D8C2"/>
+              <text x="408" y="59" font-size="13.5" font-weight="700" fill="#8A4517" font-family="'Helvetica Neue',Arial,sans-serif">Opus 4.8</text>
+              <rect x="588" y="36" width="180" height="34" fill="#FBEADC" stroke="#F3D8C2"/>
+              <text x="604" y="59" font-size="13.5" font-weight="700" fill="#8A4517" font-family="'Helvetica Neue',Arial,sans-serif">Sonnet 4.6</text>
+
+              <!-- 維持 -->
+              <text x="0" y="108" font-size="12" font-weight="700" fill="#3E5670">引き続きご利用いただけます</text>
+              <text x="196" y="108" font-size="11" fill="#7B8CA0">Azure（国内リージョン）</text>
+              <line x1="0" y1="118" x2="780" y2="118" stroke="#10243B" stroke-width="1.5"/>
+              <rect x="0" y="130" width="180" height="34" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="16" y="153" font-size="13.5" font-weight="700" fill="#1B4BB8" font-family="'Helvetica Neue',Arial,sans-serif">GPT-5</text>
+              <text x="80" y="152" font-size="10.5" font-weight="700" fill="#2E6DFE">既定値</text>
+              <rect x="196" y="130" width="180" height="34" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="212" y="153" font-size="13.5" font-weight="700" fill="#1B4BB8" font-family="'Helvetica Neue',Arial,sans-serif">GPT-5-mini</text>
+
+              <!-- 終了 -->
+              <text x="0" y="202" font-size="12" font-weight="700" fill="#7B8CA0">提供を終了します</text>
+              <line x1="0" y1="212" x2="780" y2="212" stroke="#DFE5EC" stroke-width="1.5"/>
+              <text x="0" y="240" font-size="13.5" fill="#A9B4C2" font-family="'Helvetica Neue',Arial,sans-serif">GPT-4.1　／　GPT-4.1-mini　／　GPT-4o　／　GPT-4o-mini　／　o3-mini</text>
+            </svg>
+          </div>
+          <p class="dg-cap">追加される4モデルは Amazon Bedrock 経由での提供です。国内リージョンでの利用範囲は、次の「AIモデルのスコープ管理」の設定で決まります。</p>
+        </div>
+
+        <p class="todo">旧モデルを指定して運用されている場合は、8月のメンテナンスまでに切り替え先のご確認をお願いします。</p>
+
+        <h3>AIモデルのスコープ管理を追加します</h3>
+        <p>DirectCloud のAIで利用するモデルについて、グローバルモデルを許可するか、日本国内リージョンのモデルに限定するかを管理者が設定できるようになります。データを国外に出さない運用を選べます。</p>
+        <div class="uc">
+          <div class="uc-l">使い方の例</div>
+          <svg viewBox="0 0 780 196" role="img" aria-label="グローバルモデルを許可した場合と、日本国内リージョンに限定した場合の違い" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+            <text x="0" y="12" font-size="11.5" font-weight="700" fill="#A96B41">グローバルモデルを許可</text>
+            <rect x="0" y="24" width="372" height="164" fill="#fff" stroke="#F3D8C2"/>
+            <rect x="20" y="60" width="122" height="42" fill="#FBEADC" stroke="#F3D8C2"/>
+            <text x="34" y="86" font-size="13" font-weight="700" fill="#8A4517">DirectCloud AI</text>
+            <line x1="142" y1="81" x2="176" y2="81" stroke="#E8C6AC" stroke-width="1.5"/>
+            <line x1="176" y1="66" x2="176" y2="126" stroke="#E8C6AC" stroke-width="1.5"/>
+            <line x1="176" y1="66" x2="212" y2="66" stroke="#E8C6AC" stroke-width="1.5"/>
+            <line x1="176" y1="126" x2="212" y2="126" stroke="#E8C6AC" stroke-width="1.5"/>
+            <rect x="212" y="48" width="146" height="36" fill="#FFF8F2" stroke="#F3D8C2"/>
+            <text x="228" y="71" font-size="12.5" fill="#8A4517">グローバルのモデル</text>
+            <rect x="212" y="108" width="146" height="36" fill="#FFF8F2" stroke="#F3D8C2"/>
+            <text x="228" y="131" font-size="12.5" fill="#8A4517">国内リージョン</text>
+            <text x="20" y="172" font-size="12" fill="#A96B41">最新のモデルを含めて選べます</text>
+
+            <text x="408" y="12" font-size="11.5" font-weight="700" fill="#1B4BB8">日本国内リージョンに限定</text>
+            <rect x="408" y="24" width="372" height="164" fill="#fff" stroke="#2E6DFE"/>
+            <rect x="428" y="60" width="122" height="42" fill="#F3F7FF" stroke="#C8DAFB"/>
+            <text x="442" y="86" font-size="13" font-weight="700" fill="#1B4BB8">DirectCloud AI</text>
+            <line x1="550" y1="81" x2="584" y2="81" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="584" y1="66" x2="584" y2="126" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="584" y1="66" x2="612" y2="66" stroke="#E4E9F0" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <line x1="584" y1="126" x2="620" y2="126" stroke="#2E6DFE" stroke-width="1.5"/>
+            <rect x="620" y="48" width="146" height="36" fill="#FAFBFD" stroke="#E4E9F0"/>
+            <text x="636" y="71" font-size="12.5" fill="#AEB9C6">グローバルのモデル</text>
+            <line x1="606" y1="60" x2="618" y2="72" stroke="#B4501A" stroke-width="1.6"/>
+            <line x1="618" y1="60" x2="606" y2="72" stroke="#B4501A" stroke-width="1.6"/>
+            <rect x="620" y="108" width="146" height="36" fill="#F3F7FF" stroke="#2E6DFE"/>
+            <text x="636" y="131" font-size="12.5" font-weight="700" fill="#1B4BB8">国内リージョン</text>
+            <text x="428" y="172" font-size="12" fill="#3E5670">データを国外に出さない運用にできます</text>
+          </svg>
+          <p class="uc-c">データの保管先を国内に限る取り決めがある場合は右の設定に、性能を優先する場合は左の設定にできます。</p>
+        </div>
+      </section>
+
+      <!-- ===== 02 AI ===== -->
+      <section id="ai">
+        <div class="sec-top">
+          <span class="sec-num">02</span>
+          <span class="aud">DirectCloud AI</span>
+        </div>
+        <h2>外部のAIから扱えるようになり、参照できるデータも広がります</h2>
+
+        <h3>ユーザーMCPを提供します<span class="new">NEW</span></h3>
+        <p class="lede">DirectCloud 側にMCPサーバーを用意します。お使いのAIエージェントやLLMから DirectCloud 上のファイルに対して、検索・要約・アップロード・リンク作成などの操作ができるようになります。AIの画面と DirectCloud の画面を行き来せずに、ふだん使っているAIの中で作業を完結できます。</p>
+
+        <div class="diagram">
+          <div class="dg-frame">
+            <div class="dg-hd">ユーザーMCPでできること</div>
+            <svg viewBox="0 0 780 196" role="img" aria-label="外部のAIエージェントがMCPサーバー経由でDirectCloudのファイルを操作する構成図" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+              <!-- 左: 外部AI -->
+              <rect x="0" y="30" width="212" height="76" fill="#FAFBFD" stroke="#DFE5EC"/>
+              <text x="20" y="60" font-size="14.5" font-weight="700" fill="#10243B">お使いのAIエージェント</text>
+              <text x="20" y="82" font-size="12.5" fill="#7B8CA0">AIエージェント ／ LLM</text>
+
+              <!-- 矢印1 -->
+              <line x1="212" y1="68" x2="282" y2="68" stroke="#C8DAFB" stroke-width="1.5"/>
+              <path d="M282 68 l-8 -4 l0 8 z" fill="#2E6DFE"/>
+
+              <!-- 中央: MCP -->
+              <rect x="284" y="22" width="212" height="92" fill="#F3F7FF" stroke="#2E6DFE"/>
+              <text x="304" y="52" font-size="11" font-weight="700" fill="#2E6DFE" letter-spacing="0.1em" font-family="'Helvetica Neue',Arial,sans-serif">MCP SERVER</text>
+              <text x="304" y="76" font-size="14.5" font-weight="700" fill="#10243B">DirectCloud</text>
+              <text x="304" y="98" font-size="12.5" fill="#3E5670">ユーザーMCP</text>
+
+              <!-- 矢印2 -->
+              <line x1="496" y1="68" x2="566" y2="68" stroke="#C8DAFB" stroke-width="1.5"/>
+              <path d="M566 68 l-8 -4 l0 8 z" fill="#2E6DFE"/>
+
+              <!-- 右: データ -->
+              <rect x="568" y="30" width="212" height="76" fill="#FAFBFD" stroke="#DFE5EC"/>
+              <text x="588" y="60" font-size="14.5" font-weight="700" fill="#10243B">DirectCloud のファイル</text>
+              <text x="588" y="82" font-size="12.5" fill="#7B8CA0">アクセス権の設定に従います</text>
+
+              <!-- 操作例 -->
+              <line x1="0" y1="140" x2="780" y2="140" stroke="#DFE5EC"/>
+              <text x="0" y="166" font-size="12" font-weight="700" fill="#7B8CA0">操作の例</text>
+              <rect x="88" y="150" width="94" height="26" fill="#fff" stroke="#DFE5EC"/>
+              <text x="106" y="168" font-size="12.5" fill="#3E5670">検索</text>
+              <rect x="192" y="150" width="94" height="26" fill="#fff" stroke="#DFE5EC"/>
+              <text x="210" y="168" font-size="12.5" fill="#3E5670">要約</text>
+              <rect x="296" y="150" width="128" height="26" fill="#fff" stroke="#DFE5EC"/>
+              <text x="314" y="168" font-size="12.5" fill="#3E5670">アップロード</text>
+              <rect x="434" y="150" width="128" height="26" fill="#fff" stroke="#DFE5EC"/>
+              <text x="452" y="168" font-size="12.5" fill="#3E5670">リンク作成</text>
+            </svg>
+          </div>
+          <p class="dg-cap">あわせてMCP管理機能を提供し、SSOでのログインにも対応する予定です。</p>
+        </div>
+
+        <div class="uc">
+          <div class="uc-l">使い方の例</div>
+          <svg viewBox="0 0 780 232" role="img" aria-label="お使いのAIに指示すると、DirectCloud上のファイルを検索して要約が返る例" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+            <rect x="300" y="0" width="480" height="44" fill="#2E6DFE"/>
+            <text x="320" y="28" font-size="14" fill="#fff">先月の議事録から決定事項だけ抜き出して</text>
+            <text x="780" y="60" font-size="11" fill="#A9B4C2" text-anchor="end">お使いのAIエージェントでの指示</text>
+
+            <rect x="0" y="76" width="600" height="142" fill="#fff" stroke="#DFE5EC"/>
+            <rect x="0" y="76" width="3" height="142" fill="#2E6DFE"/>
+            <text x="24" y="103" font-size="11.5" font-weight="700" fill="#2E6DFE">DirectCloud を検索しました</text>
+            <text x="216" y="103" font-size="11.5" fill="#7B8CA0">該当 4件</text>
+            <line x1="24" y1="113" x2="576" y2="113" stroke="#EDF1F6"/>
+            <text x="24" y="139" font-size="13.5" fill="#10243B">・契約更新は9月開始で合意</text>
+            <text x="24" y="163" font-size="13.5" fill="#10243B">・見積書は8月20日までに提出</text>
+            <text x="24" y="187" font-size="13.5" fill="#10243B">・次回打合せは9月第2週で調整</text>
+            <text x="24" y="209" font-size="11.5" fill="#7B8CA0">参照：議事録_0715.docx ほか3件</text>
+          </svg>
+          <p class="uc-c">資料を開き直したりダウンロードしたりせずに、AIとのやり取りの中で検索・要約・アップロード・共有リンクの作成ができます。</p>
+        </div>
+
+        <h3>WebページをRAG検索の対象にできます<span class="new">NEW</span></h3>
+        <p>DirectCloud AI のデータチャンク管理画面からURLを登録できるようになります。登録したWebページは、AIが回答を組み立てるときの参照先に加わります。社外に公開されている製品情報やガイドライン、社内ポータルの手順ページなど、ファイルとして保存していない情報も回答の根拠に使えます。</p>
+        <div class="uc">
+          <div class="uc-l">使い方の例</div>
+          <svg viewBox="0 0 780 176" role="img" aria-label="質問に対して社内のファイルと登録したWebページの両方を参照して回答する流れ" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+            <rect x="0" y="34" width="230" height="78" fill="#fff" stroke="#DFE5EC"/>
+            <text x="18" y="58" font-size="11" font-weight="700" fill="#7B8CA0">質問</text>
+            <text x="18" y="82" font-size="13.5" font-weight="700" fill="#10243B">公開している仕様と</text>
+            <text x="18" y="102" font-size="13.5" font-weight="700" fill="#10243B">社内ルールの違いは</text>
+
+            <line x1="230" y1="73" x2="284" y2="73" stroke="#C8DAFB" stroke-width="1.5"/>
+            <path d="M286 73 l-9 -4.5 l0 9 z" fill="#2E6DFE"/>
+
+            <rect x="290" y="47" width="132" height="52" fill="#F3F7FF" stroke="#2E6DFE"/>
+            <text x="310" y="78" font-size="13.5" font-weight="700" fill="#1B4BB8">DirectCloud AI</text>
+
+            <line x1="422" y1="73" x2="452" y2="73" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="452" y1="35" x2="452" y2="111" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="452" y1="35" x2="492" y2="35" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="452" y1="111" x2="492" y2="111" stroke="#C8DAFB" stroke-width="1.5"/>
+            <path d="M494 35 l-9 -4.5 l0 9 z" fill="#2E6DFE"/>
+            <path d="M494 111 l-9 -4.5 l0 9 z" fill="#2E6DFE"/>
+
+            <rect x="498" y="14" width="282" height="42" fill="#FAFBFD" stroke="#DFE5EC"/>
+            <text x="516" y="32" font-size="11" fill="#7B8CA0">これまでも参照</text>
+            <text x="516" y="48" font-size="13" font-weight="700" fill="#10243B">社内のファイル（運用ルール.pdf）</text>
+
+            <rect x="498" y="90" width="282" height="42" fill="#F3F7FF" stroke="#C8DAFB"/>
+            <text x="516" y="108" font-size="11" font-weight="700" fill="#1B4BB8">8月から追加</text>
+            <text x="516" y="124" font-size="13" font-weight="700" fill="#10243B">登録したWebページ（製品FAQ）</text>
+
+            <text x="0" y="166" font-size="12" fill="#7B8CA0">公開ページと社内文書を突き合わせた回答が返ります</text>
+          </svg>
+          <p class="uc-c">自社の公開マニュアルや業界団体のガイドラインを登録しておくと、社内文書との違いをその場で確認できます。</p>
+        </div>
+
+        <h3>Markdown形式のファイルに対応します<span class="new">NEW</span></h3>
+        <p>DirectCloud AI が有効なフォルダに Markdown形式（.md）のファイルをアップロードできるようになります。あわせて、保存済みのファイルを Markdown形式へ変換する機能も提供します。</p>
+        <div class="uc">
+          <div class="uc-l">使い方の例</div>
+          <svg viewBox="0 0 780 168" role="img" aria-label="WordやPDFをMarkdownへ変換し、AIの検索対象や他のAIツールで使う流れ" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+            <rect x="0" y="44" width="198" height="72" fill="#FAFBFD" stroke="#DFE5EC"/>
+            <text x="18" y="70" font-size="11" font-weight="700" fill="#7B8CA0">保存済みの資料</text>
+            <text x="18" y="96" font-size="13.5" font-weight="700" fill="#10243B">docx ／ pdf ／ txt</text>
+
+            <text x="206" y="72" font-size="11" fill="#7B8CA0">変換</text>
+            <line x1="198" y1="80" x2="250" y2="80" stroke="#C8DAFB" stroke-width="1.5"/>
+            <path d="M252 80 l-9 -4.5 l0 9 z" fill="#2E6DFE"/>
+
+            <rect x="256" y="54" width="148" height="52" fill="#2E6DFE"/>
+            <text x="304" y="87" font-size="16" font-weight="700" fill="#fff" font-family="'Helvetica Neue',Arial,sans-serif">.md</text>
+
+            <line x1="404" y1="80" x2="440" y2="80" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="440" y1="41" x2="440" y2="119" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="440" y1="41" x2="480" y2="41" stroke="#C8DAFB" stroke-width="1.5"/>
+            <line x1="440" y1="119" x2="480" y2="119" stroke="#C8DAFB" stroke-width="1.5"/>
+            <path d="M482 41 l-9 -4.5 l0 9 z" fill="#2E6DFE"/>
+            <path d="M482 119 l-9 -4.5 l0 9 z" fill="#2E6DFE"/>
+
+            <rect x="486" y="20" width="294" height="42" fill="#F3F7FF" stroke="#C8DAFB"/>
+            <text x="504" y="46" font-size="13.5" font-weight="700" fill="#10243B">DirectCloud AI の検索対象に加える</text>
+
+            <rect x="486" y="98" width="294" height="42" fill="#F3F7FF" stroke="#C8DAFB"/>
+            <text x="504" y="124" font-size="13.5" font-weight="700" fill="#10243B">ほかのAIツールへ渡す</text>
+          </svg>
+          <p class="uc-c">Markdown で議事録や手順書を管理している場合は、変換せずそのままアップロードできます。</p>
+        </div>
+
+        <div class="diagram">
+          <div class="dg-frame">
+            <div class="dg-hd">AIが回答の根拠に使える情報</div>
+            <svg viewBox="0 0 780 214" role="img" aria-label="従来のファイルに加えて、Markdownファイルと外部URLのWebページがAIの参照先に追加されます" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+              <!-- 従来 -->
+              <text x="0" y="14" font-size="11.5" font-weight="700" fill="#7B8CA0" letter-spacing="0.08em">これまで</text>
+              <line x1="0" y1="24" x2="780" y2="24" stroke="#DFE5EC"/>
+              <rect x="0" y="36" width="780" height="52" fill="#FAFBFD" stroke="#DFE5EC"/>
+              <text x="20" y="60" font-size="14.5" font-weight="700" fill="#10243B">DirectCloud AI が有効なフォルダに保存したファイル</text>
+              <text x="20" y="79" font-size="12.5" fill="#7B8CA0">PDF・Word・PowerPoint・画像・テキスト・メールなど</text>
+
+              <!-- 8月から追加 -->
+              <text x="0" y="122" font-size="11.5" font-weight="700" fill="#1B4BB8" letter-spacing="0.08em">8月から追加</text>
+              <line x1="0" y1="132" x2="780" y2="132" stroke="#2E6DFE" stroke-width="1.5"/>
+
+              <rect x="0" y="144" width="378" height="60" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="20" y="168" font-size="14.5" font-weight="700" fill="#10243B">Markdown ファイル（.md）</text>
+              <text x="20" y="188" font-size="12.5" fill="#3E5670">アップロードと、既存ファイルからの変換に対応</text>
+
+              <rect x="402" y="144" width="378" height="60" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="422" y="168" font-size="14.5" font-weight="700" fill="#10243B">外部のWebページ（URL）</text>
+              <text x="422" y="188" font-size="12.5" fill="#3E5670">データチャンク管理画面からURLを登録</text>
+            </svg>
+          </div>
+          <p class="dg-cap">ファイルとして保存していない情報も、回答の根拠に使えるようになります。</p>
+        </div>
+
+        <h3>検索エンジンのモデルを更新します</h3>
+        <p>AIベースの検索エンジンのモデルを最新版へ更新し、学習データを再構築します。ファイル検索・コンテンツ検索の精度と、回答の品質が向上します。すでに DirectCloud AI をご利用中のフォルダについても、更新後のエンジンで検索されます。</p>
+
+        <h3>AI Free プランのクレジットを引き上げます<span class="plan">AI Free プラン</span></h3>
+        <p>ひと月に利用できるクレジットを <b>2,000 から 10,000</b> へ引き上げます。試用の段階でも、まとまった量のファイルで検索や要約を試していただけます。</p>
+      </section>
+
+      <!-- ===== 03 管理・運用 ===== -->
+      <section id="admin">
+        <div class="sec-top">
+          <span class="sec-num">03</span>
+          <span class="aud">管理・運用</span>
+        </div>
+        <h2>通知や表示の設定を細かく選べるようになります</h2>
+
+        <div class="diagram">
+          <div class="dg-frame">
+            <div class="dg-hd">8月に追加される管理者の設定項目</div>
+            <svg viewBox="0 0 780 222" role="img" aria-label="8月に追加される管理者設定の一覧。AIモデルの利用範囲、ドライブの通知メール、フォルダの表示件数、並び替えの既定値、Cookieの情報収集" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+              <text x="0" y="14" font-size="11.5" font-weight="700" fill="#7B8CA0">設定できること</text>
+              <text x="300" y="14" font-size="11.5" font-weight="700" fill="#7B8CA0">選べる内容</text>
+              <line x1="0" y1="24" x2="780" y2="24" stroke="#10243B" stroke-width="1.5"/>
+
+              <text x="0" y="52" font-size="14" font-weight="700" fill="#10243B">AIモデルの利用範囲</text>
+              <text x="300" y="52" font-size="13" fill="#3E5670">グローバルモデルを許可　／　日本国内リージョンに限定</text>
+              <line x1="0" y1="66" x2="780" y2="66" stroke="#DFE5EC"/>
+
+              <text x="0" y="94" font-size="14" font-weight="700" fill="#10243B">ドライブの通知メール</text>
+              <text x="300" y="94" font-size="13" fill="#3E5670">受信する　／　受信しない</text>
+              <line x1="0" y1="108" x2="780" y2="108" stroke="#DFE5EC"/>
+
+              <text x="0" y="136" font-size="14" font-weight="700" fill="#10243B">フォルダ内の表示件数</text>
+              <rect x="292" y="118" width="196" height="26" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="300" y="136" font-size="13" font-weight="700" fill="#1B4BB8">最大 30,000 件まで拡張</text>
+              <text x="500" y="136" font-size="12.5" fill="#7B8CA0">ドライブ4 Beta のみ</text>
+              <line x1="0" y1="150" x2="780" y2="150" stroke="#DFE5EC"/>
+
+              <text x="0" y="178" font-size="14" font-weight="700" fill="#10243B">並び替えと表示順序</text>
+              <text x="300" y="178" font-size="13" fill="#3E5670">既定値を管理者が指定</text>
+              <line x1="0" y1="192" x2="780" y2="192" stroke="#DFE5EC"/>
+
+              <text x="0" y="214" font-size="14" font-weight="700" fill="#10243B">Cookie の情報収集</text>
+              <text x="300" y="214" font-size="13" fill="#3E5670">ログイン画面で同意　／　設定画面から変更</text>
+            </svg>
+          </div>
+        </div>
+
+        <h3>ドライブからの通知メールの受信可否を設定できます<span class="new">NEW</span></h3>
+        <p>DirectCloud ドライブから送られる通知メールについて、受け取るかどうかを設定できるようになります。通知の量が多く受信箱が埋まってしまう場合の調整に使えます。</p>
+        <div class="uc">
+          <div class="uc-l">使い方の例</div>
+          <svg viewBox="0 0 780 196" role="img" aria-label="通知メールを受信する設定と受信しない設定での受信箱の違い" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+            <text x="0" y="12" font-size="11.5" font-weight="700" fill="#7B8CA0">受信する（これまで）</text>
+            <rect x="0" y="24" width="372" height="162" fill="#fff" stroke="#DFE5EC"/>
+            <text x="18" y="50" font-size="12.5" fill="#9AA8B8">［通知］ファイルが追加されました</text>
+            <line x1="1" y1="60" x2="371" y2="60" stroke="#EDF1F6"/>
+            <text x="18" y="82" font-size="12.5" fill="#9AA8B8">［通知］ファイルが更新されました</text>
+            <line x1="1" y1="92" x2="371" y2="92" stroke="#EDF1F6"/>
+            <text x="18" y="114" font-size="12.5" font-weight="700" fill="#10243B">見積書のご確認について</text>
+            <line x1="1" y1="124" x2="371" y2="124" stroke="#EDF1F6"/>
+            <text x="18" y="146" font-size="12.5" fill="#9AA8B8">［通知］ファイルが追加されました</text>
+            <line x1="1" y1="156" x2="371" y2="156" stroke="#EDF1F6"/>
+            <text x="18" y="178" font-size="12.5" fill="#9AA8B8">［通知］ファイルが削除されました</text>
+
+            <text x="408" y="12" font-size="11.5" font-weight="700" fill="#1B4BB8">受信しない（8月から選べます）</text>
+            <rect x="408" y="24" width="372" height="162" fill="#fff" stroke="#2E6DFE"/>
+            <text x="426" y="50" font-size="12.5" font-weight="700" fill="#10243B">見積書のご確認について</text>
+            <line x1="409" y1="60" x2="779" y2="60" stroke="#EDF1F6"/>
+            <text x="426" y="82" font-size="12.5" font-weight="700" fill="#10243B">来週の打合せ資料について</text>
+            <line x1="409" y1="92" x2="779" y2="92" stroke="#EDF1F6"/>
+            <text x="426" y="124" font-size="12" fill="#7B8CA0">ドライブからの通知メールは届きません</text>
+          </svg>
+          <p class="uc-c">更新の多い共有フォルダを扱う部署でも、必要な連絡だけが受信箱に残ります。</p>
+        </div>
+
+        <h3>フォルダ内の表示件数を最大30,000件まで拡張できます<span class="plan">ドライブ4 Beta のみ</span></h3>
+        <p>フォルダ配下のリスト表示の上限を、管理者の設定で最大30,000件まで引き上げられるようになります。並び替えの条件と表示順序の既定値も、管理者が設定できます。</p>
+        <p class="prev">この拡張は <b>DirectCloud ドライブ 4</b> のみの対応です。v3.x.x では従来どおりの上限となります。対応するドライブ4のバージョンは8月25日のメンテナンス以降に公開し、一般提供は <b>9月2日（水）</b> を予定しています。</p>
+        <div class="uc">
+          <div class="uc-l">使い方の例</div>
+          <svg viewBox="0 0 780 206" role="img" aria-label="1つのフォルダに28,450件を表示し、並び順の既定値が設定された画面のイメージ" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+            <rect x="0" y="0" width="780" height="194" fill="#fff" stroke="#DFE5EC"/>
+            <rect x="1" y="1" width="778" height="46" fill="#FAFBFD"/>
+            <text x="20" y="30" font-size="15" font-weight="700" fill="#10243B">請求書_2026</text>
+            <text x="152" y="30" font-size="13" fill="#7B8CA0">28,450 件</text>
+            <rect x="530" y="12" width="230" height="24" fill="#F3F7FF" stroke="#C8DAFB"/>
+            <text x="544" y="29" font-size="11.5" font-weight="700" fill="#1B4BB8">並び順：更新日の新しい順（既定）</text>
+            <line x1="1" y1="47" x2="779" y2="47" stroke="#DFE5EC"/>
+
+            <text x="20" y="70" font-size="11" font-weight="700" fill="#7B8CA0">ファイル名</text>
+            <text x="620" y="70" font-size="11" font-weight="700" fill="#7B8CA0">更新日</text>
+            <line x1="1" y1="80" x2="779" y2="80" stroke="#EDF1F6"/>
+            <text x="20" y="104" font-size="13" fill="#3E5670">請求書_2026-08_0001.pdf</text>
+            <text x="620" y="104" font-size="12.5" fill="#7B8CA0">2026/08/18</text>
+            <line x1="1" y1="114" x2="779" y2="114" stroke="#EDF1F6"/>
+            <text x="20" y="138" font-size="13" fill="#3E5670">請求書_2026-08_0002.pdf</text>
+            <text x="620" y="138" font-size="12.5" fill="#7B8CA0">2026/08/18</text>
+            <line x1="1" y1="148" x2="779" y2="148" stroke="#EDF1F6"/>
+            <text x="20" y="172" font-size="13" fill="#3E5670">請求書_2026-08_0003.pdf</text>
+            <text x="620" y="172" font-size="12.5" fill="#7B8CA0">2026/08/17</text>
+
+            <text x="0" y="204" font-size="12" fill="#7B8CA0">上限までは、フォルダを分けずに1つの一覧で確認できます</text>
+          </svg>
+          <p class="uc-c">年度ごとの帳票や図面をまとめているフォルダでも、開くたびに並べ替える必要がなくなります。</p>
+        </div>
+
+        <h3>ログイン画面にCookie設定を追加します<span class="new">NEW</span></h3>
+        <p>Webアプリケーションのログイン画面のフッターに、Cookieの情報収集に関する設定を追加します。同意した内容は、設定画面からいつでも変更できます。</p>
+
+        <h3>OpenAPI v2 の公式マニュアルを公開します</h3>
+        <p>DirectCloud OpenAPI v2 のマニュアルを整備します。社内システムとの連携を開発される場合や、パートナー経由で連携を構築される場合に参照いただけます。</p>
+
+        <h3>画面デザインの基準を統一していきます</h3>
+        <p>Webアプリケーション・管理ページ・ドライブ・モバイルアプリのデザインガイドラインを1つに整理します。今後の機能追加や画面改修において、操作の位置や表記のばらつきが少なくなります。</p>
+      </section>
+
+      <!-- ===== 04 適用済み ===== -->
+      <section id="applied" class="done">
+        <div class="sec-top">
+          <span class="sec-num">04</span>
+          <span class="aud">適用済みの変更</span>
+        </div>
+        <h2>スタンダードプランへのオンライン編集の適用が完了しました</h2>
+
+        <p>7月のメンテナンスでお知らせした、スタンダードプランでのOfficeファイルのオンライン編集について、対象アカウントへの適用作業を <b>2026年8月4日（火）22時</b> に実施しました。ブラウザ上でWord・Excel・PowerPointを開いて、そのまま編集できます。</p>
+        <p class="prev">オンライン編集に対応する拡張子は xls / xlsx、doc / docx、ppt / pptx、pdf です。「文書管理」メニューのフォルダ、ウォームストレージとコールドストレージ、DirectCloud AI が有効なフォルダのファイルは対象外です。</p>
+      </section>
+
+      <!-- ===== 05 9月以降 ===== -->
+      <section id="road">
+        <div class="sec-top">
+          <span class="sec-num">05</span>
+          <span class="aud">9月以降の予定</span>
+        </div>
+        <h2>秋にかけてAI機能を段階的に追加します</h2>
+
+        <p class="lede">9月から11月にかけて予定している主なAI機能です。指示を出す相手が「検索窓」から「対話するAI」へ移っていく流れで、管理業務や繰り返しの作業も対話とスケジュール設定で進められるようになります。時期と内容は変更になる場合があります。</p>
+
+        <div class="diagram">
+          <div class="dg-frame">
+            <div class="dg-hd">8月から11月までのAI機能の流れ</div>
+            <svg viewBox="0 0 780 158" role="img" aria-label="8月は外部連携と参照データの拡張、9月は対応データと整合性、10月は生成と管理業務の支援、11月は自動化とサポート連携" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+              <line x1="0" y1="14" x2="764" y2="14" stroke="#DFE5EC" stroke-width="1.5"/>
+              <path d="M772 14 l-10 -5 l0 10 z" fill="#C8DAFB"/>
+
+              <!-- 8月 -->
+              <rect x="0" y="28" width="186" height="112" fill="#F3F7FF" stroke="#2E6DFE"/>
+              <text x="18" y="62" font-size="23" font-weight="700" fill="#2E6DFE" font-family="'Helvetica Neue',Arial,sans-serif">08</text>
+              <text x="18" y="94" font-size="14" font-weight="700" fill="#10243B">外部連携と</text>
+              <text x="18" y="113" font-size="14" font-weight="700" fill="#10243B">参照データの拡張</text>
+              <text x="18" y="132" font-size="12" fill="#3E5670">AI関連 7項目</text>
+
+              <!-- 9月 -->
+              <rect x="198" y="28" width="186" height="112" fill="#FCFDFF" stroke="#DFE5EC"/>
+              <text x="216" y="62" font-size="23" font-weight="700" fill="#9FB2C6" font-family="'Helvetica Neue',Arial,sans-serif">09</text>
+              <text x="216" y="94" font-size="14" font-weight="700" fill="#10243B">扱えるデータと</text>
+              <text x="216" y="113" font-size="14" font-weight="700" fill="#10243B">検索結果の整合性</text>
+              <text x="216" y="132" font-size="12" fill="#7B8CA0">AI機能 3項目</text>
+
+              <!-- 10月 -->
+              <rect x="396" y="28" width="186" height="112" fill="#FCFDFF" stroke="#DFE5EC"/>
+              <text x="414" y="62" font-size="23" font-weight="700" fill="#9FB2C6" font-family="'Helvetica Neue',Arial,sans-serif">10</text>
+              <text x="414" y="94" font-size="14" font-weight="700" fill="#10243B">資料の生成と</text>
+              <text x="414" y="113" font-size="14" font-weight="700" fill="#10243B">管理業務の支援</text>
+              <text x="414" y="132" font-size="12" fill="#7B8CA0">AI機能 5項目</text>
+
+              <!-- 11月 -->
+              <rect x="594" y="28" width="186" height="112" fill="#FCFDFF" stroke="#DFE5EC"/>
+              <text x="612" y="62" font-size="23" font-weight="700" fill="#9FB2C6" font-family="'Helvetica Neue',Arial,sans-serif">11</text>
+              <text x="612" y="94" font-size="14" font-weight="700" fill="#10243B">繰り返し作業の</text>
+              <text x="612" y="113" font-size="14" font-weight="700" fill="#10243B">自動化とサポート</text>
+              <text x="612" y="132" font-size="12" fill="#7B8CA0">AI機能 2項目</text>
+            </svg>
+          </div>
+          <p class="dg-cap">各月の内訳は以下のとおりです。時期と内容は変更になる場合があります。</p>
+        </div>
+
+        <div class="road">
+          <div class="road-row">
+            <div class="road-when">09<span>2026年9月</span></div>
+            <ul class="road-list">
+              <li><b>CSVファイルへの対応</b>.csv ファイルを DirectCloud AI で扱えるようになります</li>
+              <li><b>移動・コピー時のベクターデータ同期</b>ファイルの保存場所が変わっても、AI検索の結果が食い違わないようになります</li>
+              <li><b>AI処理状態のラベル表示</b>処理中・完了・失敗の状態を画面に表示し、処理中はオンライン編集を制限します</li>
+            </ul>
+          </div>
+          <div class="road-row">
+            <div class="road-when">10<span>2026年10月</span></div>
+            <ul class="road-list">
+              <li><b>Manager AI</b>ファイル管理・ユーザー管理・セキュリティポリシーの運用を、管理者が対話で進められます</li>
+              <li><b>AI Agent によるドキュメント生成</b>自然言語の指示だけで、資料のたたき台を自動で作成できます</li>
+              <li><b>Cowork形式の対話型UI</b>ファイル管理や共同作業を、対話しながら進められる画面を提供します</li>
+              <li><b>会話メモリの高度化</b>過去のやり取りを踏まえた回答ができるようになり、毎回説明し直す手間が減ります</li>
+              <li><b>AI Home の改善</b>保存されたファイルやデータを、AIを通じて探索しやすい画面へ見直します</li>
+            </ul>
+          </div>
+          <div class="road-row">
+            <div class="road-when">11<span>2026年11月</span></div>
+            <ul class="road-list">
+              <li><b>AIタスクのスケジュール実行</b>繰り返しのファイル処理やデータ整理、ワークフローの実行を自動化できます</li>
+              <li><b>AIウィジェットとサポートの連携</b>AIや自動応答で解決できなかった場合に、問い合わせフォームやサポート窓口へ案内します</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>DCMigrator の画面操作版を10月に提供予定です</h3>
+        <p>コマンドでの実行が必要だった DCMigrator に、画面から操作できる版を追加します。他のストレージから DirectCloud へデータを移行される際の作業がしやすくなります。画面操作版は管理者のみのご利用となり、あわせて既存のコマンド版も管理者のみに制限する予定です。</p>
+
+        <h3>DirectCloud ドライブ 4 の正式版を11月に提供予定です</h3>
+        <p>2026年6月4日にリリースした「DirectCloud ドライブ 4 Beta」の正式版を、11月に提供する予定です。表示件数の拡張など、ドライブ4 のみで提供される機能も増えています。</p>
+        <p class="prev">DirectCloud ドライブ（v3.x.x）および PC専用アプリケーションの提供終了時期については、あらためて<a href="https://help.directcloud.jp/s/article/information-2026031701" target="_blank" rel="noopener">アプリケーションのサポート範囲および利用可能バージョン変更のお知らせ</a>でご案内します。</p>
+
+        <h3>11月に向けて準備している機能</h3>
+        <p>いずれも11月のリリースを目標に開発を進めています。</p>
+        <dl class="items">
+          <div class="item-grp">
+            <dt>共有リンク</dt>
+            <dd><ul>
+              <li>「リンクを知る全員」「社内ユーザー判定」「即時プレビュー」の3つのオプションを追加します。<b>ベータ提供として開始し、従来の方式も当面あわせてご利用いただけます</b></li>
+            </ul></dd>
+          </div>
+          <div class="item-grp">
+            <dt>ゲスト招待</dt>
+            <dd><ul>
+              <li>ゲスト招待をフォルダ単位で制御できるようになります。すでにご契約中の環境は現在の設定を維持し、<b>新しく追加するフォルダは遮断が既定値</b>となります</li>
+            </ul></dd>
+          </div>
+          <div class="item-grp">
+            <dt>OpenAPI</dt>
+            <dd><ul>
+              <li>OpenAPI にIPアドレス制限を適用できるようになります。設定の変更履歴も記録されます</li>
+            </ul></dd>
+          </div>
+          <div class="item-grp">
+            <dt>ウォームストレージ</dt>
+            <dd><ul>
+              <li>ドライブからの直接編集や、一括での復元ができるようになります</li>
+            </ul></dd>
+          </div>
+          <div class="item-grp">
+            <dt>DirectCloud AI</dt>
+            <dd><ul>
+              <li>AIが有効なフォルダにアップロードできる拡張子の制約を緩和する方向で検討しています</li>
+            </ul></dd>
+          </div>
+        </dl>
+      </section>
+
+      <p style="font-size:13.5px;color:#7B8CA0;margin-bottom:34px;">本ページは公開時点で予定している内容です。実際の提供内容・時期は、メンテナンス実施時の<a href="https://help.directcloud.jp/s/" target="_blank" rel="noopener">Webマニュアル</a>および定期メンテナンスのお知らせをご確認ください。</p>
+
+      <!-- ===== 関連 ===== -->
+      <div class="related">
+        <h2>あわせてご覧ください</h2>
+        <ul>
+          <li>
+            <div class="t"><a href="https://community.directcloud.jp/s/updates/2026-07" target="_top">2026年7月のアップデート</a></div>
+            <div class="d">オンライン編集のプラン拡大と、DirectCloud AI の対応拡張子12種の追加について</div>
+          </li>
+          <li>
+            <div class="t"><a href="https://community.directcloud.jp/s/learning/drive-troubleshooting" target="_top">ドライブのトラブルシューティング</a></div>
+            <div class="d">バージョンの確認方法や、ドライブ4への切り替え手順をまとめています</div>
+          </li>
+          <li>
+            <div class="t"><a href="https://community.directcloud.jp/s/learning/browser-guide" target="_top">ブラウザ版とドライブ版の使い分け</a></div>
+            <div class="d">オンライン編集や印刷をどちらで行うか、業務に合わせた選び方を整理しています</div>
+          </li>
+        </ul>
+      </div>
+
+    </div><!-- /.body -->
+  </div><!-- /.layout -->
+</div><!-- /.shell -->
+
+<footer>
+  <div class="shell">
+    本ページは2026年7月31日時点の開発計画をもとに作成しています。内容および提供時期は変更になる場合があります。
+  </div>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function sync() {
+    var y = window.pageYOffset + 130, idx = 0;
+    for (var i = 0; i < secs.length; i++) {
+      if (secs[i] && secs[i].offsetTop <= y) idx = i;
+    }
+    for (var j = 0; j < links.length; j++) {
+      links[j].className = (j === idx) ? 'on' : '';
+    }
+  }
+  window.addEventListener('scroll', sync, { passive: true });
+  sync();
+})();
+</script>
+
+
+<!-- 親フレーム（DC_LearningEmbed）へ実高さを通知 -->
+<script>
+(function () {
+  var last = 0;
+  function post() {
+    // iframe の高さに引っ張られないよう body の実高さを使う
+    var h = Math.ceil(document.body.getBoundingClientRect().height);
+    if (h && Math.abs(h - last) > 2) {
+      last = h;
+      try { parent.postMessage({ dcHeight: h }, '*'); } catch (e) {}
+    }
+  }
+  window.addEventListener('load', post);
+  window.addEventListener('resize', post);
+  if (window.ResizeObserver) { new ResizeObserver(post).observe(document.body); }
+  setTimeout(post, 400);
+  setTimeout(post, 1200);
+})();
+</script>
+</body>
+</html>

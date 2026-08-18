@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年7月のアップデート | DirectCloud</title>
+<style>
+  :root {
+    --ink: #10243B;
+    --ink-2: #3E5670;
+    --ink-3: #7B8CA0;
+    --rule: #DFE5EC;
+    --rule-2: #EDF1F6;
+    --rule-strong: #10243B;
+    --blue: #2E6DFE;
+    --blue-deep: #1B4BB8;
+    --blue-mist: #F3F7FF;
+    --blue-line: #C8DAFB;
+    --blue-ghost: #E8F0FE;
+    --caution: #B4501A;
+    --caution-mist: #FFF8F2;
+    --caution-line: #F3D8C2;
+    --sans: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    --num: 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: #fff;
+    color: var(--ink);
+    line-height: 1.85;
+    font-size: 15.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ===== breadcrumb ===== */
+  .crumb {
+    border-bottom: 1px solid var(--rule);
+    font-size: 12.5px; color: var(--ink-3);
+    padding: 13px 0;
+  }
+  .shell, .crumb .inner { max-width: 1240px; margin: 0 auto; padding: 0 40px; }
+  .crumb a { color: var(--ink-2); }
+  .crumb i { font-style: normal; color: #C3CCD6; margin: 0 9px; }
+
+  /* ===== masthead ===== */
+  .masthead { position: relative; padding: 58px 0 0; overflow: hidden; }
+  .masthead::after {
+    content: '07';
+    position: absolute; right: -14px; top: 6px;
+    font-family: var(--num);
+    font-size: 210px; font-weight: 700;
+    line-height: 1; letter-spacing: -0.06em;
+    color: #F1F5FB; z-index: 0; pointer-events: none;
+  }
+  .masthead > * { position: relative; z-index: 1; }
+
+  .kicker {
+    display: inline-flex; align-items: center; gap: 11px;
+    font-family: var(--num);
+    font-size: 12px; font-weight: 700; color: var(--blue);
+    letter-spacing: 0.18em;
+  }
+  .kicker::after { content: ''; width: 52px; height: 1px; background: var(--blue-line); }
+  h1 {
+    font-size: 43px; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.26;
+    margin-top: 15px; max-width: 24em;
+  }
+  .standfirst {
+    font-size: 18px; color: var(--ink-2);
+    line-height: 1.8; margin-top: 20px; max-width: 46em;
+  }
+  .byline {
+    display: flex; flex-wrap: wrap; gap: 0 18px;
+    font-size: 12.5px; color: var(--ink-3);
+    margin-top: 26px; padding-top: 13px;
+    border-top: 1px solid var(--rule);
+  }
+  .byline b { color: var(--ink-2); font-weight: 700; }
+
+  /* ===== 冒頭の要点 ===== */
+  .digest {
+    margin-top: 34px;
+    background: var(--blue-mist);
+    border-left: 4px solid var(--blue);
+    padding: 26px 32px 28px;
+  }
+  .dg-label {
+    font-family: var(--num);
+    font-size: 11px; font-weight: 700; color: var(--blue-deep);
+    letter-spacing: 0.16em;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--blue-line);
+  }
+  .dg-list { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .dg-list li {
+    padding: 18px 28px 4px 0;
+    border-right: 1px solid var(--blue-line);
+    margin-right: 28px;
+  }
+  .dg-list li:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+  .dg-n {
+    font-family: var(--num);
+    font-size: 26px; font-weight: 700; color: var(--blue);
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .dg-t { font-size: 15.5px; font-weight: 700; margin-top: 7px; line-height: 1.55; }
+  .dg-d { font-size: 13.5px; color: var(--ink-2); margin-top: 6px; line-height: 1.75; }
+
+  /* ===== layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 70px;
+    margin-top: 66px;
+    align-items: start;
+  }
+  .toc { position: sticky; top: 30px; }
+  .toc-label {
+    font-family: var(--num);
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    letter-spacing: 0.16em;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  .toc a {
+    display: grid; grid-template-columns: 26px 1fr;
+    font-size: 13px; color: var(--ink-2);
+    padding: 9px 0 9px 11px;
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid var(--rule-2);
+    line-height: 1.5;
+  }
+  .toc a em {
+    font-family: var(--num); font-style: normal;
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    padding-top: 2px;
+  }
+  .toc a:hover { color: var(--blue); text-decoration: none; background: #FAFCFF; }
+  .toc a.on {
+    color: var(--ink); font-weight: 700;
+    border-left-color: var(--blue); background: var(--blue-mist);
+  }
+  .toc a.on em { color: var(--blue); }
+  .toc a small { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
+
+  /* ===== body ===== */
+  .body { min-width: 0; max-width: 50em; }
+  section { padding-bottom: 52px; }
+
+  .sec-top { display: flex; align-items: center; gap: 13px; }
+  .sec-num {
+    font-family: var(--num);
+    font-size: 34px; font-weight: 700; line-height: 1;
+    color: var(--blue-line); letter-spacing: -0.03em;
+  }
+  .aud {
+    font-size: 12px; font-weight: 700; color: var(--blue);
+    letter-spacing: 0.06em;
+    background: var(--blue-ghost);
+    padding: 3px 11px;
+  }
+  h2 {
+    font-size: 27px; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.42;
+    margin-top: 11px; padding-bottom: 17px;
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  h3 {
+    position: relative;
+    font-size: 18px; font-weight: 700; line-height: 1.6;
+    margin-top: 32px; padding-left: 15px;
+  }
+  h3::before {
+    content: ''; position: absolute; left: 0; top: 0.42em;
+    width: 4px; height: 0.95em; background: var(--blue);
+  }
+  h3 .plan {
+    display: inline-block;
+    font-size: 11.5px; font-weight: 700; color: var(--ink-3);
+    border: 1px solid var(--rule);
+    padding: 1px 8px; margin-left: 10px;
+    vertical-align: 2px; white-space: nowrap;
+  }
+  h3 .new {
+    display: inline-block;
+    font-family: var(--num);
+    font-size: 10.5px; font-weight: 700; color: #fff;
+    background: var(--blue);
+    letter-spacing: 0.08em;
+    padding: 2px 7px; margin-left: 10px;
+    vertical-align: 2px;
+  }
+  p { margin-top: 11px; color: var(--ink-2); }
+  p.lede { color: var(--ink); }
+  .body strong { color: var(--ink); font-weight: 700; }
+
+  .prev {
+    font-size: 14px; color: var(--ink-3);
+    margin-top: 11px; padding: 2px 0 2px 15px;
+    border-left: 2px solid var(--rule);
+  }
+  .prev b { color: var(--ink-2); font-weight: 700; }
+
+  /* 図 */
+  .diagram { margin-top: 24px; }
+  .dg-frame {
+    border: 1px solid var(--rule);
+    background: #FCFDFF;
+    padding: 20px 24px 22px;
+  }
+  .dg-hd {
+    font-family: var(--num);
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
+    color: var(--ink-3);
+    padding-bottom: 13px; margin-bottom: 17px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .dg-cap {
+    font-size: 13px; color: var(--ink-3);
+    margin-top: 12px; line-height: 1.75;
+    padding-left: 13px; border-left: 2px solid var(--rule-2);
+  }
+
+  /* AI対応形式 */
+  .fmt {
+    display: grid;
+    grid-template-columns: 1fr 88px 1.6fr;
+    border: 1px solid var(--rule);
+    align-items: stretch;
+  }
+  .fmt-side { padding: 17px 20px 19px; }
+  .fmt-side.old { background: #FAFBFD; }
+  .fmt-side.new { background: var(--blue-mist); border-left: 1px solid var(--blue-line); }
+  .fmt-when {
+    font-family: var(--num);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--ink-3); margin-bottom: 12px;
+  }
+  .fmt-side.new .fmt-when { color: var(--blue-deep); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 12.5px; color: var(--ink-2);
+    background: #fff; border: 1px solid var(--rule);
+    padding: 3px 10px;
+  }
+  .chip.add { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 700; }
+  .fmt-mark {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    background: #FAFBFD;
+    border-left: 1px solid var(--rule);
+    font-family: var(--num);
+  }
+  .fmt-mark b { font-size: 21px; font-weight: 700; color: var(--blue); line-height: 1; }
+  .fmt-mark span { font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.08em; }
+
+  /* 不具合修正の一覧 */
+  .fixes { margin-top: 20px; border-top: 2px solid var(--rule-strong); }
+  .fix-grp { display: grid; grid-template-columns: 13em 1fr; border-bottom: 1px solid var(--rule); }
+  .fix-grp > dt {
+    font-size: 13.5px; font-weight: 700;
+    padding: 15px 20px 16px 0;
+    background: linear-gradient(to right, #FBFCFE, #fff);
+  }
+  .fix-grp > dd { padding: 13px 0 15px; }
+  .fix-grp ul { list-style: none; }
+  .fix-grp li {
+    font-size: 14px; color: var(--ink-2);
+    padding-left: 16px; position: relative;
+    line-height: 1.7; margin-top: 4px;
+  }
+  .fix-grp li:first-child { margin-top: 0; }
+  .fix-grp li::before {
+    content: ''; position: absolute; left: 0; top: 11px;
+    width: 5px; height: 1.5px; background: var(--blue-line);
+  }
+  .fix-grp li b { color: var(--ink); font-weight: 700; }
+
+  /* 注意喚起 */
+  .caution {
+    margin-top: 8px;
+    background: var(--caution-mist);
+    border-left: 4px solid var(--caution);
+    padding: 26px 32px 30px;
+  }
+  .caution .sec-num { color: var(--caution-line); }
+  .caution .aud { color: var(--caution); background: #FBEADC; }
+  .caution h2 { font-size: 24px; color: var(--caution); border-bottom: 1px solid var(--caution-line); }
+  .caution h3 { margin-top: 26px; }
+  .caution h3::before { background: var(--caution); }
+  .caution p { color: #6B4A31; }
+  .todo { font-weight: 700; color: var(--caution) !important; margin-top: 14px; }
+
+  .vers { margin-top: 16px; font-size: 13.5px; border-top: 1px solid var(--caution-line); }
+  .vers div {
+    display: grid; grid-template-columns: 15em 1fr;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--caution-line);
+  }
+  .vers dt { color: #8A5A38; }
+  .vers dd { color: var(--ink); font-family: var(--num); }
+
+  /* メンテナンス実施 */
+  .mnt { margin-top: 18px; border-top: 1px solid var(--rule); }
+  .mnt div {
+    display: grid; grid-template-columns: 11em 1fr;
+    font-size: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mnt dt { color: var(--ink-3); font-family: var(--num); font-weight: 700; font-size: 13px; }
+  .mnt dd { color: var(--ink-2); }
+
+  /* 関連 */
+  .related { border-top: 2px solid var(--rule-strong); margin-top: 6px; padding-top: 26px; }
+  .related h2 { font-size: 19px; border-bottom: none; padding-bottom: 0; margin: 0; }
+  .related ul { list-style: none; margin-top: 10px; }
+  .related li {
+    padding: 15px 16px 16px;
+    border-bottom: 1px solid var(--rule);
+    border-left: 3px solid transparent;
+  }
+  .related li:hover { background: #FAFCFF; border-left-color: var(--blue); }
+  .related li:last-child { border-bottom: none; }
+  .related .t { font-size: 15.5px; font-weight: 700; }
+  .related .d { font-size: 13.5px; color: var(--ink-3); margin-top: 3px; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    margin-top: 34px;
+    padding: 20px 0 46px;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+
+  @media (max-width: 1000px) {
+    .dg-list { grid-template-columns: 1fr; }
+    .dg-list li {
+      border-right: none; margin-right: 0; padding-right: 0;
+      border-bottom: 1px solid var(--blue-line); padding-bottom: 15px;
+    }
+    .dg-list li:last-child { border-bottom: none; }
+  }
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; gap: 0; margin-top: 44px; }
+    .toc { display: none; }
+    .body { max-width: none; }
+    h1 { font-size: 33px; }
+    .masthead::after { font-size: 150px; opacity: 0.75; }
+    .fmt { grid-template-columns: 1fr; }
+    .fmt-side.new { border-left: none; border-top: 1px solid var(--blue-line); }
+    .fmt-mark {
+      flex-direction: row; gap: 8px; padding: 7px 0;
+      border-left: none; border-top: 1px solid var(--rule);
+    }
+  }
+  @media (max-width: 640px) {
+    .crumb .inner, .shell { padding: 0 20px; }
+    h1 { font-size: 27px; }
+    .standfirst { font-size: 16px; }
+    .digest, .caution { padding: 20px 20px 24px; }
+    .fix-grp, .vers div, .mnt div { grid-template-columns: 1fr; }
+    .fix-grp > dt { background: none; padding-bottom: 4px; }
+    .fix-grp > dd { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="crumb">
+  <div class="inner">
+    <a href="https://community.directcloud.jp/s/" target="_top">コミュニティサイト</a><i>/</i>お役立ちコンテンツ<i>/</i><a id="back-link" href="https://community.directcloud.jp/s/updates" target="_top">アップデート情報</a><i>/</i>2026年7月
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="kicker">UPDATE 2026.07</div>
+    <h1>2026年7月のアップデート</h1>
+    <p class="standfirst">DirectCloud Office の内部エンジンを更新し、Officeファイルのオンライン編集をスタンダードプランでもご利用いただけるようになりました。あわせてDirectCloud AIの対応拡張子を12種類追加し、10件の不具合を修正しています。</p>
+    <div class="byline">
+      <span>2026年7月28日 <b>定期メンテナンス</b> 実施分</span>
+      <span>DirectCloud Office ／ DirectCloud AI の機能追加</span>
+    </div>
+
+    <div class="digest">
+      <div class="dg-label">TAKEAWAYS ／ 今月の要点</div>
+      <ul class="dg-list">
+        <li>
+          <div class="dg-n">01</div>
+          <div class="dg-t">スタンダードプランでもオンライン編集</div>
+          <div class="dg-d">Officeファイルのオンライン編集機能を、スタンダードプランにも提供開始しました。</div>
+        </li>
+        <li>
+          <div class="dg-n">02</div>
+          <div class="dg-t">新規作成・印刷・PDF編集を追加</div>
+          <div class="dg-d">Officeファイルの新規作成、オンライン編集画面での印刷、PDFのオンライン編集ができます。</div>
+        </li>
+        <li>
+          <div class="dg-n">03</div>
+          <div class="dg-t">AIの対応拡張子が12種増加</div>
+          <div class="dg-d">プレゼンテーション（pptx / ppt）、Hangul文書、画像8種がDirectCloud AIの対象になりました。</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <nav class="toc">
+      <div class="toc-label">CONTENTS</div>
+      <a href="#office" class="on"><em>01</em><span>DirectCloud Office<small>オンライン編集・印刷</small></span></a>
+      <a href="#ai"><em>02</em><span>DirectCloud AI<small>対応形式・マスキング</small></span></a>
+      <a href="#fixes"><em>03</em><span>不具合の修正<small>運用に関わるもの</small></span></a>
+      <a href="#caution"><em>04</em><span>提供終了の予定<small>ご確認をお願いします</small></span></a>
+    </nav>
+
+    <div class="body">
+
+      <!-- ===== 01 Office ===== -->
+      <section id="office">
+        <div class="sec-top">
+          <span class="sec-num">01</span>
+          <span class="aud">DirectCloud Office</span>
+        </div>
+        <h2>ブラウザ上でのファイル編集が広がりました</h2>
+
+        <p class="lede">DirectCloud Office の内部エンジンをバージョンアップし、機能追加とセキュリティ強化を行いました。ご利用いただけるプランが変わる項目があります。</p>
+
+        <div class="diagram">
+          <div class="dg-frame">
+            <div class="dg-hd">プラン別の提供範囲</div>
+            <svg viewBox="0 0 780 208" role="img" aria-label="スタンダードプランとアドバンスドプラン以上で利用できる機能の対比" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+              <!-- headers -->
+              <text x="0" y="16" font-size="12" font-weight="700" fill="#7B8CA0">機能</text>
+              <text x="392" y="16" font-size="12" font-weight="700" fill="#1B4BB8">スタンダードプラン</text>
+              <text x="600" y="16" font-size="12" font-weight="700" fill="#10243B">アドバンスドプラン以上</text>
+              <line x1="0" y1="26" x2="780" y2="26" stroke="#10243B" stroke-width="1.5"/>
+
+              <!-- row 1 -->
+              <text x="0" y="58" font-size="14.5" font-weight="700" fill="#10243B">Officeファイルのオンライン編集</text>
+              <rect x="380" y="36" width="196" height="34" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="404" y="59" font-size="13" font-weight="700" fill="#1B4BB8">7月から利用できます</text>
+              <text x="600" y="58" font-size="13" fill="#3E5670">従来から提供</text>
+              <line x1="0" y1="84" x2="780" y2="84" stroke="#DFE5EC"/>
+
+              <!-- row 2 -->
+              <text x="0" y="116" font-size="14.5" font-weight="700" fill="#10243B">オンライン編集画面での印刷</text>
+              <text x="404" y="116" font-size="13" fill="#A9B4C2">対象外</text>
+              <rect x="588" y="94" width="192" height="34" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="610" y="117" font-size="13" font-weight="700" fill="#1B4BB8">7月から追加</text>
+              <line x1="0" y1="142" x2="780" y2="142" stroke="#DFE5EC"/>
+
+              <!-- row 3 -->
+              <text x="0" y="174" font-size="14.5" font-weight="700" fill="#10243B">PDFファイルのオンライン編集</text>
+              <text x="404" y="174" font-size="13" fill="#A9B4C2">対象外</text>
+              <rect x="588" y="152" width="192" height="34" fill="#F3F7FF" stroke="#C8DAFB"/>
+              <text x="610" y="175" font-size="13" font-weight="700" fill="#1B4BB8">7月から追加</text>
+              <line x1="0" y1="200" x2="780" y2="200" stroke="#DFE5EC"/>
+            </svg>
+          </div>
+          <p class="dg-cap">Officeファイルの新規作成機能もあわせて追加されました。</p>
+        </div>
+
+        <h3>Officeファイルのオンライン編集をスタンダードプランでもご利用いただけます<span class="new">NEW</span></h3>
+        <p>これまでアドバンスドプラン以上で提供していたオンライン編集を、スタンダードプランにも提供開始しました。ブラウザ上でWord・Excel・PowerPointを開いて、そのまま編集できます。</p>
+
+        <h3>Officeファイルを新規作成できます<span class="new">NEW</span></h3>
+        <p>操作ボタンに「＋新規」が追加されました。クリックすると、新しいフォルダの作成、Officeファイルの作成、フォルダとファイルのアップロードをメニューから選べます。共有フォルダの中で作り始められるため、あとから置き場所を移す手間がなくなります。</p>
+        <dl class="facts">
+          <div><dt>ドキュメント（Docs）</dt><dd>docx</dd></div>
+          <div><dt>表計算（Spreadsheet）</dt><dd>xlsx</dd></div>
+          <div><dt>プレゼンテーション（Presentation）</dt><dd>pptx</dd></div>
+        </dl>
+        <p class="prev">DirectCloud ドライブでは、オンライン編集はご利用いただけますが、新規作成はできません。「マイボックス」「共有」以外のフォルダと、DirectCloud AIが有効なフォルダも対象外です。</p>
+
+        <h3>オンライン編集画面から印刷できます<span class="plan">アドバンスドプラン以上</span></h3>
+        <p>ダウンロードせずに印刷できるため、印刷のためだけに端末へファイルを残す必要がなくなります。貸与PCや共用PCでの運用がすっきりします。対応する拡張子は doc / docx、xls / xlsx、ppt / pptx、pdf です。</p>
+        <p class="prev">印刷には<b>副管理者1・副管理者2・オーナー・編集者</b>のいずれかの権限が必要です。</p>
+
+        <h3>PDFファイルをオンラインで編集できます<span class="plan">アドバンスドプラン以上</span></h3>
+        <p>申請書や契約書の軽微な修正を、外部の編集ソフトを使わずに済ませられます。ページ数やオブジェクトが多いと表示や動作が遅くなることがあるため、10MB以内の容量を推奨しています。</p>
+
+        <h3>オンライン編集の対象外となるフォルダ・ストレージ</h3>
+        <p>「文書管理」メニューのフォルダ、ウォームストレージとコールドストレージ、DirectCloud AIが有効なフォルダに保存されているファイルは、オンライン編集できません。DirectCloud-SHIELD IRMで暗号化されているファイルは、対応拡張子であればオンライン編集とコメントの追加が可能です。</p>
+        <p class="prev">オンライン編集に対応する拡張子は xls / xlsx、doc / docx、ppt / pptx、pdf です。古い形式（doc・ppt・xls）は、新しい形式へ変換する確認ダイアログでの操作が必要になります。</p>
+
+        <p class="prev">このほか、内部エンジンのバージョンアップにはバグ修正とセキュリティ強化が含まれます。</p>
+      </section>
+
+      <!-- ===== 02 AI ===== -->
+      <section id="ai">
+        <div class="sec-top">
+          <span class="sec-num">02</span>
+          <span class="aud">DirectCloud AI</span>
+        </div>
+        <h2>扱えるファイル形式と使い勝手が広がりました</h2>
+
+        <h3>対応する拡張子が12種類増えました<span class="new">NEW</span></h3>
+        <p class="lede">これまで対象外だったプレゼンテーション資料や図表、スキャンした資料の画像まで、DirectCloud AIの対象になります。文字データとして入っていないために扱えなかった資料を活用できる点が、今回の大きな変化です。</p>
+
+        <div class="diagram">
+          <div class="dg-frame">
+            <div class="dg-hd">DirectCloud AIが有効なフォルダにアップロードできる拡張子</div>
+            <div class="fmt">
+              <div class="fmt-side old">
+                <div class="fmt-when">これまで</div>
+                <div class="chips">
+                  <span class="chip">pdf</span>
+                  <span class="chip">docx</span>
+                  <span class="chip">txt</span>
+                  <span class="chip">eml</span>
+                  <span class="chip">msg</span>
+                  <span class="chip">mbox</span>
+                  <span class="chip">json</span>
+                </div>
+              </div>
+              <div class="fmt-mark">
+                <b>+12</b>
+                <span>拡張子</span>
+              </div>
+              <div class="fmt-side new">
+                <div class="fmt-when">7月から追加</div>
+                <div class="chips">
+                  <span class="chip add">pptx</span>
+                  <span class="chip add">ppt</span>
+                  <span class="chip add">hwp</span>
+                  <span class="chip add">hwpx</span>
+                  <span class="chip add">jpg</span>
+                  <span class="chip add">jpeg</span>
+                  <span class="chip add">png</span>
+                  <span class="chip add">gif</span>
+                  <span class="chip add">bmp</span>
+                  <span class="chip add">dib</span>
+                  <span class="chip add">tga</span>
+                  <span class="chip add">jp2</span>
+                </div>
+              </div>
+            </div>
+            <p class="dg-cap" style="margin-top:14px;">プレゼンテーション（pptx / ppt）、Hangul文書（hwp / hwpx）、画像ファイル8種が新たに対象になりました。上記以外の拡張子のファイルは、DirectCloud AIが有効なフォルダへアップロードするとエラーになります。</p>
+          </div>
+        </div>
+
+        <h3>会話履歴の個人情報を自動でマスキングします<span class="new">NEW</span></h3>
+        <p>DirectCloudの会話履歴に含まれる個人情報（氏名・メールアドレス・電話番号）を自動的に検出し、マスキング処理してログに記録します。社内規程や個人情報の取り扱いルールに沿った運用がしやすくなります。</p>
+
+        <h3>AIの処理状況がその場で見えます<span class="new">NEW</span></h3>
+        <p>チャット画面において、実行ステップをリアルタイムに確認できるようになりました。待っている間に何が行われているのかが分かり、処理の停止と再実行もできます。</p>
+
+        <h3>一度に入力できる文字数が増えました<span class="new">NEW</span></h3>
+        <p>チャットへの入力可能文字数を拡張しました。長い文章の要約や、条件の多い指示を一度に渡せます。</p>
+        <div class="diagram" style="margin-top:16px;">
+          <div class="dg-frame" style="padding:16px 24px 18px;">
+            <svg viewBox="0 0 780 74" role="img" aria-label="Eliteプランは10,000文字、Elite+プランは20,000文字まで入力できます" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif">
+              <text x="0" y="26" font-size="13.5" fill="#3E5670">Eliteプラン</text>
+              <rect x="120" y="12" width="240" height="20" fill="#C8DAFB"/>
+              <text x="374" y="27" font-size="15" font-weight="700" fill="#1B4BB8" font-family="'Helvetica Neue',Arial,sans-serif">10,000<tspan font-size="11.5" fill="#3E5670" dx="3">文字</tspan></text>
+
+              <text x="0" y="62" font-size="13.5" fill="#3E5670">Elite+プラン</text>
+              <rect x="120" y="48" width="480" height="20" fill="#2E6DFE"/>
+              <text x="614" y="63" font-size="15" font-weight="700" fill="#1B4BB8" font-family="'Helvetica Neue',Arial,sans-serif">20,000<tspan font-size="11.5" fill="#3E5670" dx="3">文字</tspan></text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 03 不具合修正 ===== -->
+      <section id="fixes">
+        <div class="sec-top">
+          <span class="sec-num">03</span>
+          <span class="aud">不具合の修正</span>
+        </div>
+        <h2>運用に関わる不具合を修正しました</h2>
+
+        <p class="lede">今回のメンテナンスでは10件の不具合を修正しています。そのうち、日々の運用や管理業務に影響しやすい2件をご紹介します。</p>
+
+        <dl class="fixes">
+          <div class="fix-grp">
+            <dt>アクセス元IPの判定</dt>
+            <dd>
+              <ul>
+                <li>Microsoft Edgeからアクセスする場合に、<b>アクセス元のIPアドレスが正しく判定されない</b>ことがある不具合を修正しました。IPアドレス制限を設定されている場合、操作履歴の表示が「指定外」となることがありました</li>
+              </ul>
+            </dd>
+          </div>
+          <div class="fix-grp">
+            <dt>管理ページのアクセスログ</dt>
+            <dd>
+              <ul>
+                <li>リンク履歴のアクセスログで、<b>20件を超えた分が表示されない</b>不具合を修正しました。リンクの利用状況をすべて確認できるようになります</li>
+              </ul>
+            </dd>
+          </div>
+        </dl>
+
+        <p style="margin-top:18px;font-size:14px;">このほか、オンライン編集や DirectCloud ドライブ、通知メールに関する修正を行っています。すべての修正内容は<a href="https://help.directcloud.jp/s/article/information-2026062501" target="_blank" rel="noopener">メンテナンスのお知らせ</a>をご覧ください。</p>
+      </section>
+
+      <!-- ===== 04 提供終了 ===== -->
+      <section id="caution" class="caution">
+        <div class="sec-top">
+          <span class="sec-num">04</span>
+          <span class="aud">ご確認をお願いします</span>
+        </div>
+        <h2>提供終了が予定されているアプリケーション</h2>
+
+        <h3>DirectCloud ドライブ（v3.x.x）は2026年11月30日で提供終了します</h3>
+        <p>2026年6月4日に、性能を改善した「DirectCloud ドライブ 4 Beta」をリリースしました。これに伴い、v3.x.x は2026年11月30日をもって提供を終了します。</p>
+        <p class="todo">提供終了までに、DirectCloud ドライブ 4 への切り替えをお願いします。</p>
+
+        <h3>DirectCloud PC専用アプリケーションも2026年11月30日で提供終了します</h3>
+        <p>現在、後継アプリケーションを開発しています。</p>
+
+        <h3>サポート範囲は最新3バージョンです</h3>
+        <p>2026年5月28日の定期メンテナンス以降、DirectCloud アプリケーションは最新3バージョンのみをサポートし、それ以前のバージョンには利用制限を実施しています。2026年7月29日時点でご利用いただけるバージョンは以下のとおりです。</p>
+        <dl class="vers">
+          <div><dt>ドライブ Windows版</dt><dd>v3.29.x ／ v3.30.x ／ v3.31.x</dd></div>
+          <div><dt>ドライブ 4 Beta</dt><dd>v4.0.x</dd></div>
+          <div><dt>ドライブ macOS版</dt><dd>v2.16.x ／ v2.17.x ／ v2.18.x</dd></div>
+          <div><dt>ドライブ SHIELD IRM統合版</dt><dd>v2.21.x ／ v2.24.x ／ v2.25.x</dd></div>
+          <div><dt>ドライブ SHIELD DLP統合版</dt><dd>v2.22.x ／ v2.23.x ／ v2.24.x</dd></div>
+          <div><dt>PC専用アプリ Windows版</dt><dd>v1.17.x ／ v1.18.x ／ v1.19.x</dd></div>
+          <div><dt>PC専用アプリ macOS版</dt><dd>v1.16.x ／ v1.17.x ／ v1.18.x</dd></div>
+          <div><dt>モバイル iOS ／ Android</dt><dd>v3.22.x ／ v3.23.x ／ v3.24.x</dd></div>
+          <div><dt>DCMigrator</dt><dd>v2.10.x ／ v2.11.x ／ v2.12.x</dd></div>
+        </dl>
+        <p style="margin-top:14px;font-size:13.5px;">今回のメンテナンスでは、DirectCloud ドライブ SHIELD IRM統合版（v2.25.1）を公開しました。詳細は<a href="https://help.directcloud.jp/s/article/information-2026031701" target="_blank" rel="noopener">アプリケーションのサポート範囲および利用可能バージョン変更のお知らせ</a>をご覧ください。</p>
+      </section>
+
+      <p style="font-size:13.5px;color:#7B8CA0;margin-bottom:34px;">新機能および仕様変更の詳細は、2026年7月29日に更新された<a href="https://help.directcloud.jp/s/" target="_blank" rel="noopener">Webマニュアル</a>と、<a href="https://help.directcloud.jp/s/article/information-2026072901" target="_blank" rel="noopener">定期メンテナンスに伴う関連ページ更新のお知らせ</a>をご覧ください。</p>
+
+      <!-- ===== 関連 ===== -->
+      <div class="related">
+        <h2>あわせてご覧ください</h2>
+        <ul>
+          <li>
+            <div class="t"><a href="https://community.directcloud.jp/s/learning/browser-guide" target="_top">ブラウザ版とドライブ版の使い分け</a></div>
+            <div class="d">オンライン編集や印刷をどちらで行うか、業務に合わせた選び方を整理しています</div>
+          </li>
+          <li>
+            <div class="t"><a href="https://community.directcloud.jp/s/learning/drive-troubleshooting" target="_top">ドライブのトラブルシューティング</a></div>
+            <div class="d">バージョンの確認方法や、うまく動かないときの対処をまとめています</div>
+          </li>
+          <li>
+            <div class="t"><a href="https://community.directcloud.jp/s/learning/storage-tiering" target="_top">ストレージ階層化 運用ガイド</a></div>
+            <div class="d">ホット・ウォーム・コールドの使い分けと、自動移動ルールの設計方法</div>
+          </li>
+        </ul>
+      </div>
+
+    </div><!-- /.body -->
+  </div><!-- /.layout -->
+</div><!-- /.shell -->
+
+<footer>
+  <div class="shell">
+    本ページは2026年7月28日の定期メンテナンスに関する公式のお知らせをもとに作成しています。
+  </div>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function sync() {
+    var y = window.pageYOffset + 130, idx = 0;
+    for (var i = 0; i < secs.length; i++) {
+      if (secs[i] && secs[i].offsetTop <= y) idx = i;
+    }
+    for (var j = 0; j < links.length; j++) {
+      links[j].className = (j === idx) ? 'on' : '';
+    }
+  }
+  window.addEventListener('scroll', sync, { passive: true });
+  sync();
+})();
+</script>
+
+
+<!-- 親フレーム（DC_LearningEmbed）へ実高さを通知 -->
+<script>
+(function () {
+  var last = 0;
+  function post() {
+    // iframe の高さに引っ張られないよう body の実高さを使う
+    var h = Math.ceil(document.body.getBoundingClientRect().height);
+    if (h && Math.abs(h - last) > 2) {
+      last = h;
+      try { parent.postMessage({ dcHeight: h }, '*'); } catch (e) {}
+    }
+  }
+  window.addEventListener('load', post);
+  window.addEventListener('resize', post);
+  if (window.ResizeObserver) { new ResizeObserver(post).observe(document.body); }
+  setTimeout(post, 400);
+  setTimeout(post, 1200);
+})();
+</script>
+</body>
+</html>
